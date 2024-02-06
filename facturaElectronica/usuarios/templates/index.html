@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-fluid py-1">
+    <h3 class="display-5 fw-bold">Panel de usuarios</h3>
+    <p class="col-md-8 fs-4">Aquí puedes ver los enlaces a la administracion de usuarios.</p>
+
+    <div class="row">
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="card">
+          <div class="card-header">
+            Usuarios
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Usuarios</h5>
+            <p class="card-text">Aquí puedes ver los usuarios que posee el sistema.</p>
+            <a href="{% url 'ticketsList' year=2023 month=01 %}" class="btn btn-primary">Acceder</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="card">
+          <div class="card-header">
+            Roles
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Roles</h5>
+            <p class="card-text">Aquí puedes ver los roles disponibles
+              para los usuarios.</p>
+            <a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Roles</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <a href="{% url 'panel_principal' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al panel principal</a>
+  </div>
+{% endblock %}

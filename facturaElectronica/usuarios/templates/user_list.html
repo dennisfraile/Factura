@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+  <div class="container-fluid py-5">
+    <h3 class="display-5 fw-bold">Lista de usuarios</h3>
+    <p class="col-md-8 fs-4">Aquí puedes ver la lista de usuarios</p>
+    <div class="table-responsive">
+      <a id="contables" href="{% url 'createUsuario' %}" 
+        class="btn btn-success float-end" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+        title="Nuevo Estado">
+        <span class="material-symbols-outlined">
+          request_page
+        </span>
+    </a>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Telefono</th>
+            <th scope="col">Direccion</th>
+            <th scope="col">Fecha en que se unio</th>
+            <th scope="col">Rol</th>
+            <th scope="col">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if object_list %}
+            {% for registro in object_list %}
+              <tr>
+                <th>{{ registro.name }}</th>
+                <td>{{ registro.lastname }}</td>
+                <td>{{ registro.cellphone }}</td>
+                <td>{{ registro.direccion }}</td>
+                <td>{{ registro.date_joined }}</td>
+                <td>{{ registro.group }}</td>
+                <td>
+                  <a id="contables" href="{% url 'verUsuario'  registro.id %}" 
+                      class="btn btn-success btn-sm "  title="Ver Usuario">
+                      <span class="material-symbols-outlined">
+                        edit
+                      </span>
+                    </a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
