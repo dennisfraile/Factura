@@ -1,0 +1,329 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+  <div class="container-fluid py-5">
+    <div class="container-fluid">
+      <h3 class="display-5 fw-bold">Detalle del sujeto excluido {{object.serie}}
+        <a id="tramite" href="{% url 'updateSujetoExcluido' object.id %}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Sujeto Excluido">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
+      </h3>
+      </div>
+    <div class="table-responsive">
+      <div class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+        {% if object %}
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Identificacion</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="id">ID</label>
+                  <input name="id" type="text" readonly class="form-control" value="{{ object.id }}">
+                </td>
+                <td>
+                  <label for="version">Version</label>
+                  <input name="version" type="text" readonly class="form-control" value="{{ object.version }}">
+                </td>
+                <td>
+                  <label for="ambiente">Ambiente de destino</label>
+                  <input name="ambiente" type="text" readonly class="form-control" value="{{ object.ambiente }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipoDte">Tipo de documento</label>
+                  <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
+                </td>
+                <td>
+                  <label for="tipoDte">Tipo de documento</label>
+                  <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
+                </td>
+                <td>
+                  <label for="numeroControl">Numero de Control</label>
+                  <input name="numeroControl" type="text" readonly class="form-control" value="{{ object.numeroControl }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codigoGeneracion">Codigo de Generacion</label>
+                  <input name="codigoGeneracion" type="text" readonly class="form-control" value="{{ object.codigoGeneracion }}">
+                </td>
+                <td>     
+                  <label for="tipoModelo">Modelo de Facturacion</label>
+                  <input name="tipoModelo" type="text" readonly class="form-control" value="{{ object.tipoModelo }}">
+                </td>
+                <td>
+                  <label for="tipoOperacion">Tipo de Transmision</label>
+                  <input name="tipoOperacion" type="text" readonly class="form-control" value="{{ object.tipoOperacion }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipoContingencia">Tipo de Contingencia</label>
+                  <input name="tipoContingencia" type="text" readonly class="form-control" value="{{ object.tipoContingencia }}">
+                </td>
+                <td>
+                  <label for="motivoContin">Motivo de Contingencia</label>
+                  <input name="motivoContin" type="text" readonly class="form-control" value="{{ object.motivoContin }}">
+                </td>
+                <td>
+                  <label for="fechaEmi">Fecha de Generacion</label>
+                  <input name="fechaEmi" type="text" readonly class="form-control" value="{{ object.fechaEmi }}">
+                </td>
+                <td>
+                  <label for="tipoMoneda">Tipo de Moneda</label>
+                  <input name="tipoMoneda" type="text" readonly class="form-control" value="{{ object.tipoMoneda }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Datos del emisor</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="emisor">Emisor</label>
+                  <input name="emisor" type="text" readonly class="form-control" value="{{ object.emisor.name }}">
+                </td>
+                <td>
+                  <label for="direccionEmisor">Direccion del Emisor</label>
+                  <input name="direccionEmisor" type="text" readonly class="form-control" value="{{ object.direccionEmisor.complementoDireccion }}">
+                </td>
+                <td>
+                  <label for="codEstableMH">Codigo del establecimiento asignado por el contribuyente</label>
+                  <input name="codEstableMH" type="text" readonly class="form-control" value="{{ object.codEstableMH }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codEstable">Codigo del punto de venta asignado por el MH</label>
+                  <input name="codEstable" type="text" readonly class="form-control" value="{{ object.codEstable }}">
+                </td>
+                <td>
+                  <label for="codPuntoVenta">Codigo del punto de venta asignado por el contribuyente</label>
+                  <input name="codPuntoVenta" type="text" readonly class="form-control" value="{{ object.codPuntoVenta }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>         
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Datos del sujeto excluido</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="receptor">Receptor</label>
+                  <input name="receptor" type="text" readonly class="form-control" value="{{ object.receptor.name }}">
+                </td>
+                <td>
+                  <label for="direccionReceptor">Direccion del Receptor</label>
+                  <input name="direccionReceptor" type="text" readonly class="form-control" value="{{ object.direccionReceptor.complemento }}">
+                </td>
+              </tr>
+            </tbody>
+          </table> 
+        </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+          <h1>Cuerpo del documento</h1>
+          {% if object_list %}
+            <h2>Operaciones</h2>
+            <table>
+              <thead>
+                <th scope="col">N° de Item</th>
+                <th scope="col">Tipo de Item</th>
+                <th scope="col">Codigo</th>
+                <th scope="col">Unidad de medida</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Monto del Descuento</th>
+                <th scope="col">Ventas</th>
+                <th scope="col">Retencion</th>
+                <th scope="col">Precio Unitario</th>
+              </thead>
+              <tbody>
+                {% for operaciones in object_list.operacion %}
+                  <tr>
+                    <td>
+                      <h2>{{operaciones.numItem}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.tipoItem}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.codigo}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.uniMedida.valor}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.cantidad}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.montoDescu}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.compra}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.retencion}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{operaciones.precioUni}}</h2>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Resumen</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="totalCompra">Total de operaciones</label>
+                  <input name="totalCompra" type="text" readonly class="form-control" value="{{ object.totalCompra }}">
+                </td>
+                <td>
+                  <label for="descu">Monto goblal de Descuento, Bonificacion, Rebajas</label>
+                  <input name="descu" type="text" readonly class="form-control" value="{{ object.descu }}">
+                </td>
+                <td>
+                  <label for="totalDescu">Total del monto de Descuento, Bonificacion, Rebajas</label>
+                  <input name="totalDescu" type="text" readonly class="form-control" value="{{ object.totalDescu }}">
+                </td>
+                <td>
+                  <label for="subtotal">Subtotal</label>
+                  <input name="subtotal" type="text" readonly class="form-control" value="{{ object.subtotal }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="retencionIVAMH">Retencion IVA MH</label>
+                  <input name="retencionIVAMH" type="text" readonly class="form-control" value="{{ object.retencionIVAMH }}">
+                </td>
+                <td>
+                  <label for="ivaRete1">IVA Retenido</label>
+                  <input name="ivaRete1" type="text" readonly class="form-control" value="{{ object.ivaRete1 }}">
+                </td>
+                <td>
+                  <label for="reteRenta">Retencion de Renta</label>
+                  <input name="reteRenta" type="text" readonly class="form-control" value="{{ object.reteRenta }}">
+                </td>
+                <td>
+                  <label for="totalPagar">Total a pagar</label>
+                  <input name="totalPagar" type="text" readonly class="form-control" value="{{ object.totalPagar }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="totalLetras">Total en Letras</label>
+                  <input name="totalLetras" type="text" readonly class="form-control" value="{{ object.totalLetras }}">
+                </td>
+                <td>
+                  <label for="condicionOperacion">Condicion de la operacion</label>
+                  <input name="condicionOperacion" type="text" readonly class="form-control" value="{{ object.condicionOperacion }}">
+                </td>
+                <td>
+                  <label for="observaciones">Observaciones</label>
+                  <input name="observaciones" type="text" readonly class="form-control" value="{{ object.observaciones }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table>
+                    <thead>
+                      <th scope="col">Forma de Pago</th>
+                      <th scope="col">Monto por forma de pago</th>
+                      <th scope="col">Referencia de la modalidad de pagos</th>
+                      <th scope="col">Plazo</th>
+                      <th scope="col">Period de plazo</th>
+                    </thead>
+                    <tbody>
+                      {% for pagos in object_list.pago %}
+                        <tr>
+                          <td>
+                            <h2>{{pagos.formaPago.valor}}</h2>
+                          </td>
+                          <td>
+                            <h2>{{pagos.montoPago}}</h2>
+                          </td>
+                          <td>
+                            <h2>{{pagos.referencia}}</h2>
+                          </td>
+                          <td>
+                            <h2>{{pagos.plazo}}</h2>
+                          </td>
+                          <td>
+                            <h2>{{pagos.periodo}}</h2>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+          <h2>Apendice</h2>
+          <table>
+            <thead>
+              <th scope="col">Nombre de campo</th>
+              <th scope="col">Descripccion</th>
+              <th scope="col">Valor/Dato</th>
+            </thead>
+            <tbody>
+              {% for apendices in object_list.apendices %}
+                <tr>
+                  <td>
+                    <h2>{{apendices.campo}}</h2>
+                  </td>
+                  <td>
+                    <h2>{{apendices.etiqueta}}</h2>
+                  </td>
+                  <td>
+                    <h2>{{apendices.valor}}</h2>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+          {% endif %}
+        {% endif %}
+        
+      </div>
+    </div>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+  </div>
+{% endblock %}
