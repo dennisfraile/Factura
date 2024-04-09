@@ -1,0 +1,68 @@
+{% extends "../index.html" %}
+
+{% block content %}
+  <div class="container-fluid py-5">
+    {% if messages %}
+      {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+      {% endfor %}
+    {% endif %}
+    <div class="card-body ">
+      <h4 class="display-5 fw-bold float-start">Listado de comprobantes de donacion mensuales - {{ month|date:"M Y" }}</h4>
+      <a id="donacion" href="{% url 'createComprobanteDonacion'%}" 
+        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nuevo Comprobante de Donacion">
+        <span class="material-symbols-outlined">
+          list_alt_add
+        </span>
+      </a>
+    </div>
+    <p class="col-md-8 fs-4">
+      Esta vista despliega los datos de los Comprobantes de donacion.
+      Haz clic sobre la que sea de tu interés para ver los datos concretos.
+    </p>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Version</th>
+            <th scope="col">Modelo de Facturacion</th>
+            <th scope="col">Tipo de Operacion</th>
+            <th scope="col">Donatorio</th>
+            <th scope="col">Donante</th>
+            <th scope="col">Valor totalr</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if object_list %}
+            {% for registro in object_list %}
+              {% if registro.usuario.id == user.id or user.is_superuser %}
+                <tr>
+                  <th scope="row"><a href="{% url 'verComprobanteDonacion' pk=registro.pk %}">{{ registro.id }}</a></th>
+                  <td>{{ registro.identificador.version }}</td>
+                  <td>{{ registro.identificador.tipoModelo }}</td>
+                  <td>{{ registro.identificador.tipoOperacion }}</td>
+                  <td>{{ registro.emisor.emisor.name }}</td>
+                  <td>{{ registro.receptor.receptor.name }}</td>
+                  <td>{{ registro.valorTotal }}</td>
+                </tr>
+              {% else %}
+              {% endif %} 
+            {% endfor %}
+          {% else %}
+            <tr>
+              <th scope="row">No hay datos disponibles.</th>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    <a href="{% url 'comprobanteDonacionList' year=previous_month|date:'Y' month=previous_month|date:'m' %}" class="btn btn-dark" 
+        role="button" aria-pressed="true">Mes anterior</a>
+    <a href="{% url 'comprobanteDonacionList' year=next_month|date:'Y' month=next_month|date:'m' %}" class="btn btn-success" 
+        role="button" aria-pressed="true">Siguiente mes</a>
+    <a href="{% url 'panel_donacion' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al panel</a>
+    </div>
+  </div>
+{% endblock %}

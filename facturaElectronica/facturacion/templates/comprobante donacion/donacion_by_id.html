@@ -1,0 +1,316 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+  <div class="container-fluid py-5">
+    <div class="container-fluid">
+      <h3 class="display-5 fw-bold">Detalle de Comprobante de Donacion {{object.identificador.version}}
+        <a id="tramite" href="{% url 'updateComprobanteDonacion' object.id %}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Comprobante Donacion">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
+      </h3>
+      </div>
+    <div class="table-responsive">
+      <div class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+        {% if object %}
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Identificador</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="version">Version</label>
+                  <input name="version" type="text" readonly class="form-control" value="{{ object.identificador.version }}">
+                </td>
+                <td>
+                  <label for="ambiente">Ambiente de destino</label>
+                  <input name="ambiente" type="text" readonly class="form-control" value="{{ object.identificador.ambiente }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipoDte">Tipo de documento</label>
+                  <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
+                </td>
+                <td>
+                  <label for="tipoDte">Tipo de documento</label>
+                  <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
+                </td>
+                <td>
+                  <label for="numeroControl">Numero de Control</label>
+                  <input name="numeroControl" type="text" readonly class="form-control" value="{{ object.numeroControl }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codigoGeneracion">Codigo de Generacion</label>
+                  <input name="codigoGeneracion" type="text" readonly class="form-control" value="{{ object.codigoGeneracion }}">
+                </td>
+                <td>     
+                  <label for="tipoModelo">Modelo de Facturacion</label>
+                  <input name="tipoModelo" type="text" readonly class="form-control" value="{{ object.tipoModelo }}">
+                </td>
+                <td>
+                  <label for="tipoOperacion">Tipo de Transmision</label>
+                  <input name="tipoOperacion" type="text" readonly class="form-control" value="{{ object.tipoOperacion }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipoContingencia">Tipo de Contingencia</label>
+                  <input name="tipoContingencia" type="text" readonly class="form-control" value="{{ object.tipoContingencia }}">
+                </td>
+                <td>
+                  <label for="motivoContin">Motivo de Contingencia</label>
+                  <input name="motivoContin" type="text" readonly class="form-control" value="{{ object.motivoContin }}">
+                </td>
+                <td>
+                  <label for="fechaEmi">Fecha de Generacion</label>
+                  <input name="fechaEmi" type="text" readonly class="form-control" value="{{ object.fechaEmi }}">
+                </td>
+                <td>
+                  <label for="tipoMoneda">Tipo de Moneda</label>
+                  <input name="tipoMoneda" type="text" readonly class="form-control" value="{{ object.tipoMoneda }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Datos del Donatorio</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="emisor">Donatorio</label>
+                  <input name="emisor" type="text" readonly class="form-control" value="{{ object.emisor.emisor.name }}">
+                </td>
+                <td>
+                  <label for="direccionEmisor">Direccion del Emisor</label>
+                  <input name="direccionEmisor" type="text" readonly class="form-control" value="{{ object.direccionEmisor.complementoDireccion }}">
+                </td>
+                <td>
+                  <label for="codEstableMH">Codigo del establecimiento asignado por el MH</label>
+                  <input name="codEstableMH" type="text" readonly class="form-control" value="{{ object.codEstableMH }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codEstable">Codigo del punto de venta asignado por el Contribuyente</label>
+                  <input name="codEstable" type="text" readonly class="form-control" value="{{ object.codEstable }}">
+                </td>
+                <td>
+                    <label for="codPuntoVentaMH">Codigo del punto de venta asignado por el MH</label>
+                    <input name="codPuntoVentaMH" type="text" readonly class="form-control" value="{{ object.codEstable }}">
+                  </td>
+                <td>
+                  <label for="codPuntoVenta">Codigo del punto de venta asignado por el Contribuyente</label>
+                  <input name="codPuntoVenta" type="text" readonly class="form-control" value="{{ object.codPuntoVenta }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>         
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Datos del Donante</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="receptor">Receptor</label>
+                  <input name="receptor" type="text" readonly class="form-control" value="{{ object.receptor.receptor.name }}">
+                </td>
+                <td>
+                  <label for="codDomicilioFiscal">Domicilio Fiscal</label>
+                  <input name="codDomicilioFiscal" type="text" readonly class="form-control" value="{{ object.codDomicilioFiscal }}">
+                </td>
+                <td>
+                    <label for="codPais">Codigo de Pais</label>
+                    <input name="codPais" type="text" readonly class="form-control" value="{{ object.codPais.pais.codigo }}">
+                  </td>
+              </tr>
+            </tbody>
+          </table> 
+        </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+            <h1>Otros Documentos Asociados</h1>
+            {% if object_list %}
+              <table>
+                <thead>
+                  <th scope="col">Documento Asociado</th>
+                  <th scope="col">Identificacion de Documento Asociado</th>
+                  <th scope="col">Descripccion de Documento Asociado</th>
+                </thead>
+                <tbody>
+                  {% for docAsociados in object_list.docAsociado %}
+                    <tr>
+                      <td>
+                        <h2>{{docAsociados.codDocAsociado}}</h2>
+                      </td>
+                      <td>
+                        <h2>{{docAsociados.descDocumento}}</h2>
+                      </td>
+                      <td>
+                        <h2>{{docAsociados.detalleDocumento}}</h2>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+          </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+          <h1>Cuerpo del documento</h1>
+          {% if object_list %}
+            <h2>Operaciones</h2>
+            <table>
+              <thead>
+                <th scope="col">N° de Item</th>
+                <th scope="col">Tipo de Donacion</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Codigo</th>
+                <th scope="col">Unidad de medida</th>
+                <th scope="col">Descripccion</th>
+                <th scope="col">Depreciacion</th>
+                <th scope="col">Monto del Descuento</th>
+                <th scope="col">Valor Unitario</th>
+                <th scope="col">Valor Donado</th>
+              </thead>
+              <tbody>
+                {% for cuerpoDocumentos in object_list.cuerpoDocumento %}
+                  <tr>
+                    <td>
+                      <h2>{{cuerpoDocumentos.numItem}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.tipoDonacion}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.cantidad}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.codigo}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.uniMedida}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.descripccion}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.depreciacion}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.montoDescu}}</h2>
+                    </td>
+                    <td>
+                      <h2>{{cuerpoDocumentos.valorUni}}</h2>
+                    </td>
+                    <td>
+                        <h2>{{cuerpoDocumentos.valor}}</h2>
+                      </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Resumen</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="valorTotal">Total de la Donacion</label>
+                  <input name="valorTotal" type="text" readonly class="form-control" value="{{ object.valorTotal }}">
+                </td>
+                <td>
+                  <label for="totalLetras">Total en Letras</label>
+                  <input name="totalLetras" type="text" readonly class="form-control" value="{{ object.totalLetras }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h1>Pagos</h1>
+                  <table>
+                    <thead>
+                      <th scope="col">Codigo de Forma de Pago</th>
+                      <th scope="col">Monto por forma de pago</th>
+                      <th scope="col">Referencia de la modalidad de pagos</th>
+                    </thead>
+                    <tbody>
+                      {% for pagos in object_list.pago %}
+                        <tr>
+                          <td>
+                            <h2>{{pagos.codigo}}</h2>
+                          </td>
+                          <td>
+                            <h2>{{pagos.montoPago}}</h2>
+                          </td>
+                          <td>
+                            <h2>{{pagos.referencia}}</h2>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+          <h2>Apendice</h2>
+          <table>
+            <thead>
+              <th scope="col">Nombre de campo</th>
+              <th scope="col">Descripccion</th>
+              <th scope="col">Valor/Dato</th>
+            </thead>
+            <tbody>
+              {% for apendices in object_list.apendices %}
+                <tr>
+                  <td>
+                    <h2>{{apendices.campo}}</h2>
+                  </td>
+                  <td>
+                    <h2>{{apendices.etiqueta}}</h2>
+                  </td>
+                  <td>
+                    <h2>{{apendices.valor}}</h2>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+          {% endif %}
+        {% endif %}
+        
+      </div>
+    </div>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+  </div>
+{% endblock %}
