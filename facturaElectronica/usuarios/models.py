@@ -109,6 +109,6 @@ class DocumentoIdentidad(models.Model):
      )
      tipo = models.CharField(verbose_name="Tipo de Documento", max_length=25, choices=TIPOS_DOCUMENTO)
      homologado = models.CharField(verbose_name="Homologacion", max_length=30, choices=HOMOLOGACION)
-     numero = models.PositiveBigIntegerField(verbose_name="Numero del documento sin guion")
+     numero = models.CharField(verbose_name="Numero del documento sin guion")
      user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name="documentos")
 

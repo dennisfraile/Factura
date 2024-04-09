@@ -189,3 +189,204 @@ class IdentificadorForm(forms.ModelForm):
             'fechaEmi': forms.DateInput(attrs={'class': 'form-control'}),
             'tipoMoneda': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class EmisorForm(forms.ModelForm):
+    class Meta:
+        models = Emisor
+        fields = [
+            'emisor','direccionEmisor','codEstableMH',
+            'codEstable','codPuntoVentaMH','codPuntoVenta',
+            ]
+        label = {
+            'emisor':'Emisor',
+            'direccionEmisor':'Direccion del emisor',
+            'codEstableMH': 'Codigo del establecimiento asignado por MH',
+            'codEstable':'Codigo del establecimiento asignado por contribuyente',
+            'codPuntoVentaMH':'Codigo punto venta asignado por MH',
+            'codPuntoVenta':'Codigo punto venta asignado por contriobuyente',
+        }
+        widgets = {
+            'emisor': forms.Select(attrs={'class': 'form-control'}),
+            'direccionEmisor': forms.Select(attrs={'class': 'form-control'}),
+            'codEstableMh':  forms.TextInput(attrs={'class': 'form-control'}),
+            'codEstable':  forms.TextInput(attrs={'class': 'form-control'}),
+            'codPuntoVentaMH':  forms.TextInput(attrs={'class': 'form-control'}),
+            'codPuntoVenta':  forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class ReceptorForm(forms.Form):
+    class Meta:
+        models = Receptor
+        fields = ['receptor', 'direccionReceptor']
+        label ={
+            'receptor': 'Receptor', 
+            'direccionReceptor':'Direccion del receptor'
+            }
+        widgets = {
+            'receptor': forms.Select(attrs={'class':'form-control'}),
+            'direccionReceptor': forms.Select(attrs={'class':'form-control'}),
+        }
+
+class SujetoExcluidoForm(forms.Form):
+    class Meta:
+        models = SujetoExcluido
+        condicionOperacion = forms.ChoiceField(
+            choices={
+                ("1", "Contado"),
+                ("2", "A credito"),
+                ("3", "Otro")
+            }
+        )
+        retencionIVAMH = forms.ChoiceField(
+            choices={
+                ("22", "Retencion IVA 1%"),
+                ("C4", "Retencion IVA 13%"),
+                ("C9", "Otras retenciones IVA casos especiales")
+            }
+        )
+        fields = '__all__'
+        label = {
+            'identificador':'Identificador',
+            'emisor':'Emisor',
+            'receptor':'Receptor',
+            'operaciones':'Operaciones',
+            'totalCompra':'Total de Operaciones',
+            'descu':'Monto Global del Descuento',
+            'totalDescu':'Total del monto de Descuento',
+            'subtotal':'Subtotal',
+            'retencionIVAMH':'Retencion IVA MH',
+            'ivaRete1':'Iva Retenido',
+            'reteRenta': 'Retencion de Renta',
+            'totalPagar':'Total a Pagar',
+            'totalLetras':'Total en Letras',
+            'condicionOperacion':'Condicion de Operacion',
+            'pago':'Pagos',
+            'observaciones':'Observaciones',
+            'apendice':'Apendice',
+        }
+        widgets = {
+            'identificador': forms.Select(attrs={'class': 'form-control'}),
+            'emisor': forms.Select(attrs={'class': 'form-control'}),
+            'receptor': forms.Select(attrs={'class': 'form-control'}),
+            'operaciones': forms.Select(attrs={'class': 'form-control'}),
+            'totalCompra': forms.DecimalField(attrs={'class': 'form-control'}),
+            'descu': forms.DecimalField(attrs={'class': 'form-control'}),
+            'totalDescu': forms.DecimalField(attrs={'class': 'form-control'}),
+            'subTotal': forms.DecimalField(attrs={'class': 'form-control'}),
+            'ivaRete1': forms.DecimalField(attrs={'class': 'form-control'}),
+            'reteRenta': forms.DecimalField(attrs={'class': 'form-control'}),
+            'totalPagar': forms.DecimalField(attrs={'class': 'form-control'}),
+            'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
+            'pago': forms.Select(attrs={'class': 'form-control'}),
+            'observaciones':forms.TextInput(attrs={'class': 'form-control'}),
+            'apendice': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class OtroDocumentoAsociadoForm(forms.Form):
+    class Meta:
+        models = OtroDocumentoAsociado
+        codDocAsociado = forms.ChoiceField(
+            choices={
+                ("1", "Emisor"),
+                ("2", "Receptor"),
+                ("3", "Medico"),
+                ("4", "Transporte")
+            }
+        )
+        fields = '__all__'
+        label = {
+            'codDocAsociado': 'Documento Asociado',
+            'descDocumento': 'Identificacion del Documento Asociado',
+            'detalleDocumento': 'Descripccion de Documento Asociado',
+        }
+        widgets = {
+            'descDocumento': forms.TextInput(attrs={'class': 'form-control'}),
+            'detalleDocumento': forms.TextInput(att={'class': 'form-control'}),
+        }
+
+class CuerpoDocumentoForm(forms.Form):
+    class Meta:
+        models = CuerpoDocumento
+        tipoDonacion = forms.ChoiceField(
+            choices={
+                ("1", "Efectivo"),
+                ("2", "Bien"),
+                ("3", "Servicio"),
+            }
+        )
+        fields = '__all__'
+        label = {
+            'numItem': 'N° item',
+            'tipoDonacion': 'Tipo de Donacion',
+            'cantidad': 'Cantidad',
+            'codigo': 'Codigo',
+            'uniMedida': 'Unidad de medida',
+            'descripccion': 'Descripccion',
+            'depreciacion': 'Depreciacion',
+            'montoDescu': 'Monto',
+            'valorUni': 'Valor Unitario',
+            'valor': 'Valor Donado',
+            
+        }
+        widgets = {
+            'numItem': forms.NumberInput(attrs={'class': 'form-control'}),
+            'cantidad': forms.IntegerField(att={'class': 'form-control'}),
+            'codigo': forms.TextInput(att={'class': 'form-control'}),
+            'uniMedida': forms.Select(att={'class': 'form-control'}),
+            'descripccion': forms.TextInput(att={'class': 'form-control'}),
+            'depreciacion': forms.IntegerField(att={'class': 'form-control'}),
+            'montoDescu': forms.DecimalField(att={'class': 'form-control'}),
+            'valorUni': forms.DecimalField(att={'class': 'form-control'}),
+            'valor': forms.DecimalField(att={'class': 'form-control'}),
+        }
+
+class PagoDonacionForm(forms.Form):
+    class Meta:
+        models = PagoDonacion
+        fields = '__all__'
+        label = {
+            'codigo': 'Codigo de Forma de Pago',
+            'montoPago': 'Pago de Forma de Pago',
+            'referencia': 'Ferencia de Forma de la modalidad de Pago'
+        }
+        widgets = {
+            'codigo': forms.TextInput(attrs={'class': 'form-control'}),
+            'montoPago': forms.DecimalField(attrs={'class': 'form-control'}),
+            'referencia': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class ComprobanteDonacionForm(forms.Form):
+    class Meta:
+        models = ComprobanteDonacion
+        codDomiciliado = forms.ChoiceField(
+            choices = {
+                ("1", "Domiciliado"),
+                ("2", "No Domiciliado"),
+            }
+        )
+        fields = '__all__'
+        label = {
+            'identificador': 'Identificador',
+            'emisor': 'Donatorio',
+            'receptor': 'Donante',
+            'codDomiciliado': 'Domicilio Fiscal',
+            'codPais': 'Codigo de Pais',
+            'otrosDocumentos': 'Otros Documentos Asociados',
+            'cuerpoDocumento': 'Cuerpo del Documento',
+            'valorTotal': 'Total de la Donacion',
+            'totalLetras': 'Total en Letras',
+            'pago': 'Pago',
+            'apendice':'Apendice',
+        }
+        widgets = {
+            'identificador': forms.Select(att={'class': 'form-control'}),
+            'emisor':forms.Select(att={'class': 'form-control'}),
+            'receptor': forms.Select(att={'class': 'form-control'}),
+            'codPais': forms.Select(att={'class': 'form-control'}),
+            'otrosdocumentos': forms.Select(att={'class': 'form-control'}),
+            'cuerpoDocumento': forms.Select(att={'class': 'form-control'}),
+            'valorTotal': forms.DateTimeField(attrs={'class': 'form-control'}),
+            'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
+            'pago': forms.Select(att={'class': 'form-control'}),
+            'apendice': forms.Select(att={'class': 'form-control'}),
+        }
