@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Receptor</h1>
+    <form method= "post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <input class="btn btn-success" type="submit" value="Guardar">
+        <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "facturacion/index.html" %}
+
+
+{% block content %}
+  <div class="container-fluid py-5">
+    <h3 class="display-5 fw-bold">Apendices</h3>
+    <p class="col-md-8 fs-4">
+      Esta es la lista de apendices de los diferentes documentos transmitidos
+    </p>
+    <div class="row">
+      <h5 class="fw-bold">Apendices</h5>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Campo</th>
+              <th scope="col">Etiqueta</th>
+              <th scope="col">Valor</th>
+              <th scope="col">Accion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if object_list %}
+              {% for registro in object_list %}
+              <tr>
+                <td scope="row">{{ registro.campo}}</td>
+                <td>{{ registro.Etiqueta }}</td>
+                <td>{{ registro.valor }}</td>
+                <td><a href="{% url 'updateApendice' pk=registro.apendice.pk %}" target="_blank" class="float-end btn btn-primary">Actualizar</a></td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <th scope="row">No hay datos disponibles.</th>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      <a href="{% url 'panel_contabilidad' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al panel</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}
