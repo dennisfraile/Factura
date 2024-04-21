@@ -255,6 +255,48 @@ class UnidadMedidaUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la unidad de medida: "+ codigo + " " + valor + "con exito")
         return redirect('unidadMedidaList')
 
+class OperacionSujetoExluidoView(View):
+    
+    login_url = '/ingresar'
+    template_name = 'operacion_sujeto_exluido_view.html'
+    model = OperacionesSujetoExcluido
+    
+    def get_context_data(self, **kwargs) :
+        context = super(OperacionesSujetoExcluido, self).get_context(**kwargs)
+        operacionesSujetoExcluido = OperacionesSujetoExcluido.objects.all()
+        context['registro'] = operacionesSujetoExcluido
+        return context
+
+class OperacionSujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'operacion_sujeto_excluido_form.html'
+    form_class = OperacionesSujetoExcluidoForm
+    model = OperacionesSujetoExcluido
+    
+    def get_success_url(self):
+        return reverse_lazy('operacionesSujetoExcluidoList')
+    
+    def post(self, request, *args, **kwargs):
+        pk=self.kwargs.get("pk")
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la operacion del sujeto excluido con exito")
+        return redirect('operacionesSujetoExcluidoList')
+
+class OperacionSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
+    
+    login_url = '/ingresar'
+    template_name = 'operacion_sujeto_excluido_form.html'
+    form_class = OperacionesSujetoExcluidoForm
+    model = OperacionesSujetoExcluido
+    
+    def get_success_url(self):
+        return reverse_lazy('operacionesSujetoExcluidoList')
+    
+    def post(self, request, *args, **kwargs):
+        pk=self.kwargs.get("pk")
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la operacion del sujeto excluido con exito")
+        return redirect('operacionesSujetoExcluidoList')
+
 
 class SujetoExcluidoMonthView(MonthArchiveView):
     """Muestra la lista de sujetos excluidos por mes"""

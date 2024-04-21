@@ -1,0 +1,71 @@
+{% extends "../index.html" %}
+
+{% block content %}
+  <div class="container-fluid py-5">
+    {% if messages %}
+      {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+      {% endfor %}
+    {% endif %}
+    <div class="card-body ">
+      <h4 class="display-5 fw-bold float-start">Listado de Operaciones de Sujeto Excluido</h4>
+      <a id="operacionsujetoexcluidoreate" href="{% url 'createOperacionSujetoExcluido'%}" 
+        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nueva Operacion de Sujeto Excluido">
+        <span class="material-symbols-outlined">
+          list_alt_add
+        </span>
+      </a>
+    </div>
+    <p class="col-md-8 fs-4">
+      Esta vista despliega todas las operaciones sobre Sujeto Excluido ingresados para los diferentes Sujetos Ecluidos.
+    </p>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Numero de Item</th>
+            <th scope="col">Tipo de Item</th>
+            <th scope="col">Codigo</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Ventas</th>
+            <th scope="col">Monto</th>
+            <th scope="col">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if object_list %}
+            {% for registro in object_list %}
+              {% if registro.usuario.id == user.id or user.is_superuser %}
+                <tr>
+                  <th scope="row"><a href="{% url 'verOperacionSujetoExcluido' pk=registro.pk %}">{{ registro.numItem }}</th>
+                  <td>{{ registro.tipoItem }}</td>
+                  <td>{{ registro.codigo }}</td>
+                  <td>{{ registro.cantidad }}</td>
+                  <td>{{ registro.compra }}</td>
+                  <td>{{ registro.montoDescu }}</td>
+                  <td>{{ registro.codigo }}</td>
+                  <td>
+                        <a id="operacionsujetoexcluidoedit" href="{% url 'updateOperacionSujetoExcluido'%}" 
+                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Operacion de Sujeto Excluido">
+                            <span class="material-symbols-outlined">
+                            edit
+                            </span>
+                        </a>
+                   </td>
+              {% else %}
+              {% endif %} 
+            {% endfor %}
+          {% else %}
+            <tr>
+              <th scope="row">No hay datos disponibles.</th>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    <a href="{% url 'panel_principal' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al principal</a>
+    </div>
+  </div>
+{% endblock %}
