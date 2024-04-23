@@ -1,0 +1,95 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+  <div class="container-fluid py-5">
+    <div class="container-fluid">
+      <h3 class="display-5 fw-bold">Detalle del Identificador {{object.version}}
+        <a id="identificador" href="{% url 'updateIdentificador' object.id %}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Identificador">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
+      </h3>
+      </div>
+    <div class="table-responsive">
+      < class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+        {% if object %}
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Identificador</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="version">Version</label>
+                  <input name="version" type="text" readonly class="form-control" value="{{ object.version }}">
+                </td>
+                <td>
+                  <label for="ambiente">Ambiente de destino</label>
+                  <input name="ambiente" type="text" readonly class="form-control" value="{{ object.ambiente }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipoDte">Tipo de documento</label>
+                  <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
+                </td>
+                <td>
+                  <label for="numeroControl">Numero de Control</label>
+                  <input name="numeroControl" type="text" readonly class="form-control" value="{{ object.numeroControl }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codigoGeneracion">Codigo de Generacion</label>
+                  <input name="codigoGeneracion" type="text" readonly class="form-control" value="{{ object.codigoGeneracion }}">
+                </td>
+                <td>     
+                  <label for="tipoModelo">Modelo de Facturacion</label>
+                  <input name="tipoModelo" type="text" readonly class="form-control" value="{{ object.tipoModelo }}">
+                </td>
+                <td>
+                  <label for="tipoOperacion">Tipo de Transmision</label>
+                  <input name="tipoOperacion" type="text" readonly class="form-control" value="{{ object.tipoOperacion }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipoContingencia">Tipo de Contingencia</label>
+                  <input name="tipoContingencia" type="text" readonly class="form-control" value="{{ object.tipoContingencia }}">
+                </td>
+                <td>
+                  <label for="motivoContin">Motivo de Contingencia</label>
+                  <input name="motivoContin" type="text" readonly class="form-control" value="{{ object.motivoContin }}">
+                </td>
+                <td>
+                  <label for="fechaEmi">Fecha de Generacion</label>
+                  <input name="fechaEmi" type="text" readonly class="form-control" value="{{ object.fechaEmi }}">
+                </td>
+                <td>
+                  <label for="tipoMoneda">Tipo de Moneda</label>
+                  <input name="tipoMoneda" type="text" readonly class="form-control" value="{{ object.tipoMoneda }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>        
+        {% endif %} 
+      </div>
+    </div>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+  </div>
+{% endblock %}

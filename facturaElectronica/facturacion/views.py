@@ -11,14 +11,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.generic.dates import MonthArchiveView, YearArchiveView
 from django.views.generic.list import ListView
-from django.views.generic import DetailView, View
+from django.views.generic import DetailView, View, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpRequest, HttpResponse, JsonResponse
 # Create your views here.
-    
+
+@login_required(redirect_field_name='/ingresar')
+class IndexView(TemplateView):
+    template_name = 'views/index.html'
+
+@login_required(redirect_field_name='/ingresar')    
 class PaisView(View):
     
     login_url = '/ingresar/'
@@ -30,7 +35,8 @@ class PaisView(View):
         pais = Pais.objects.all()
         context['registro'] = pais
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class PaisCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -49,6 +55,7 @@ class PaisCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el pais: "+ codigo + " " + valor + "con exito")
         return redirect('paisList')
 
+@login_required(redirect_field_name='/ingresar')
 class PaisUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'pais_form.html'
@@ -65,6 +72,7 @@ class PaisUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el pais: "+ codigo + " " + valor + "con exito")
         return redirect('paisList')
 
+@login_required(redirect_field_name='/ingresar')
 class DepartamentoView(View):
     
     login_url = '/ingresar/'
@@ -76,7 +84,8 @@ class DepartamentoView(View):
         departamento = Departamento.objects.all()
         context['registro'] = departamento
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')   
 class DepartamentoCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -95,6 +104,7 @@ class DepartamentoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el departamento: "+ codigo + " " + valor + "con exito")
         return redirect('departamentoList')
 
+@login_required(redirect_field_name='/ingresar')
 class DepartamentoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'departamento_form.html'
@@ -111,6 +121,7 @@ class DepartamentoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el departamento: "+ codigo + " " + valor + "con exito")
         return redirect('departamentoList')
 
+@login_required(redirect_field_name='/ingresar')
 class MunicipioView(View):
     
     login_url = '/ingresar/'
@@ -122,7 +133,8 @@ class MunicipioView(View):
         municipio = Municipio.objects.all()
         context['registro'] = municipio
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class MunicipioCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -143,6 +155,7 @@ class MunicipioCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el municipio: "+ codigo + " " + valor + "con exito")
         return redirect('paisList')
 
+@login_required(redirect_field_name='/ingresar')
 class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'municipio_form.html'
@@ -161,6 +174,7 @@ class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el municipio: "+ codigo + " " + valor + "con exito")
         return redirect('paisList')
 
+@login_required(redirect_field_name='/ingresar')
 class DireccionView(View):
     
     login_url = '/ingresar/'
@@ -172,7 +186,8 @@ class DireccionView(View):
         direccion = Direccion.objects.all()
         context['registro'] = direccion
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class DireccionCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -192,6 +207,7 @@ class DireccionCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la direccion: "+ complementoDireccion + " "  + "con exito")
         return redirect('direccionList')
 
+@login_required(redirect_field_name='/ingresar')
 class DireccionUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'direccion_form.html'
@@ -209,6 +225,7 @@ class DireccionUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la direccion: "+ complementoDireccion + " " + "con exito")
         return redirect('direccionList')
 
+@login_required(redirect_field_name='/ingresar')
 class UnidadMedidaView(View):
     
     login_url = '/ingresar/'
@@ -220,7 +237,8 @@ class UnidadMedidaView(View):
         unidadMedida = UnidadMedida.objects.all()
         context['registro'] = unidadMedida
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class UnidadMedidaCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -239,6 +257,7 @@ class UnidadMedidaCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la unidad de medida: "+ codigo + " " + valor + "con exito")
         return redirect('unidadMedidaList')
 
+@login_required(redirect_field_name='/ingresar')
 class UnidadMedidaUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'unidad_medida_form.html'
@@ -255,7 +274,8 @@ class UnidadMedidaUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la unidad de medida: "+ codigo + " " + valor + "con exito")
         return redirect('unidadMedidaList')
 
-class OperacionSujetoExluidoView(View):
+@login_required(redirect_field_name='/ingresar')
+class OperacionSujetoExcluidoView(View):
     
     login_url = '/ingresar'
     template_name = 'operacion_sujeto_exluido_view.html'
@@ -267,6 +287,7 @@ class OperacionSujetoExluidoView(View):
         context['registro'] = operacionesSujetoExcluido
         return context
 
+@login_required(redirect_field_name='/ingresar')
 class OperacionSujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
     
     login_url = '/ingresar'
@@ -282,6 +303,7 @@ class OperacionSujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la operacion del sujeto excluido con exito")
         return redirect('operacionesSujetoExcluidoList')
 
+@login_required(redirect_field_name='/ingresar')
 class OperacionSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
     
     login_url = '/ingresar'
@@ -297,7 +319,7 @@ class OperacionSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la operacion del sujeto excluido con exito")
         return redirect('operacionesSujetoExcluidoList')
 
-
+@login_required(redirect_field_name='/ingresar')
 class SujetoExcluidoMonthView(MonthArchiveView):
     """Muestra la lista de sujetos excluidos por mes"""
 
@@ -314,7 +336,8 @@ class SujetoExcluidoMonthView(MonthArchiveView):
         context['registro'] = sujeto
         return context
 
-class SujetoExcluidoView(DetailView):
+@login_required(redirect_field_name='/ingresar')
+class SujetoExcluidoDetailView(DetailView):
     """Muestra los datos de un sujeto excluido en especifico"""
 
     login_url = '/ingresar/'
@@ -324,7 +347,7 @@ class SujetoExcluidoView(DetailView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs)    
 
-
+@login_required(redirect_field_name='/ingresar')
 class FormaPagoView(View):
     
     login_url = '/ingresar/'
@@ -336,7 +359,8 @@ class FormaPagoView(View):
         formaPago = FormaPago.objects.all()
         context['registro'] = formaPago
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')   
 class FormaPagoCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -355,6 +379,7 @@ class FormaPagoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la forma de pago: "+ codigo + " " + valor + "con exito")
         return redirect('formaPagoList')
 
+@login_required(redirect_field_name='/ingresar')
 class FormaPagoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'forma_pago_form.html'
@@ -371,6 +396,7 @@ class FormaPagoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la forma de pago: "+ codigo + " " + valor + "con exito")
         return redirect('formaPagoList')
 
+@login_required(redirect_field_name='/ingresar')
 class PagoView(View):
     
     login_url = '/ingresar/'
@@ -382,7 +408,8 @@ class PagoView(View):
         pago = Pago.objects.all()
         context['registro'] = pago
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class PagoCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -406,6 +433,7 @@ class PagoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el pago: "+ codigo + " " + montoPago + "con exito")
         return redirect('pagoList')
 
+@login_required(redirect_field_name='/ingresar')
 class PagoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'pago_form.html'
@@ -427,6 +455,7 @@ class PagoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el pago: "+ codigo + " " + "con exito")
         return redirect('pagoList')
 
+@login_required(redirect_field_name='/ingresar')
 class ApendiceView(DetailView):
     """Muestra los datos de las apendices registradas en el sistema"""
     
@@ -440,6 +469,7 @@ class ApendiceView(DetailView):
         context['registro'] = apendice
         return context
 
+@login_required(redirect_field_name='/ingresar')
 class ApendiceCreateView(UserPassesTestMixin, CreateView):
     login_url = '/ingresar'
     template_name = 'apendice_form.html'
@@ -458,6 +488,7 @@ class ApendiceCreateView(UserPassesTestMixin, CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la panedice: "+ campo + " " + valor + "con exito")
         return redirect('apendiceList')
 
+@login_required(redirect_field_name='/ingresar')
 class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'apendice_form.html'
@@ -475,6 +506,7 @@ class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el apendice: "+ campo + " " + valor + "con exito")
         return redirect('apendiceList')
 
+@login_required(redirect_field_name='/ingresar')
 class TipoDocumentoView(View):
     
     login_url = '/ingresar/'
@@ -486,7 +518,8 @@ class TipoDocumentoView(View):
         tipoDocumento= TipoDocumento.objects.all()
         context['registro'] = tipoDocumento
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class TipoDocumentoCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -505,6 +538,7 @@ class TipoDocumentoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el tipo de documento : "+ codigo + " " + valor + "con exito")
         return redirect('tipoDocumentoList')
 
+@login_required(redirect_field_name='/ingresar')
 class TipoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'tipo_documento_form.html'
@@ -521,6 +555,7 @@ class TipoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el tipo de documento: "+ codigo + " " + valor + "con exito")
         return redirect('tipoDocumentoList')
 
+@login_required(redirect_field_name='/ingresar')
 class IdentificadorView(View):
     
     login_url = '/ingresar/'
@@ -532,7 +567,8 @@ class IdentificadorView(View):
         identificador = Identificador.objects.all()
         context['registro'] = identificador
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class IdentificadorCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -563,6 +599,7 @@ class IdentificadorCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el identificador: "+ version + " " + numeroControl + " " + codigoGeneracion + " "  + "con exito")
         return redirect('identificadorList')
 
+@login_required(redirect_field_name='/ingresar')
 class IdentificadorUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'identificador_form.html'
@@ -591,6 +628,7 @@ class IdentificadorUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el identificador: "+ version + " " + numeroControl + " " + codigoGeneracion + " "  + "con exito")
         return redirect('identificadorList')
 
+@login_required(redirect_field_name='/ingresar')
 class EmisorView(View):
     
     login_url = '/ingresar/'
@@ -602,7 +640,8 @@ class EmisorView(View):
         emisor = Emisor.objects.all()
         context['registro'] = emisor
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class EmisorCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -618,6 +657,7 @@ class EmisorCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el emisor con exito")
         return redirect('emisorList')
 
+@login_required(redirect_field_name='/ingresar')
 class EmisorUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'emisor_form.html'
@@ -632,6 +672,7 @@ class EmisorUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el emisor con exito")
         return redirect('emisorList')
 
+@login_required(redirect_field_name='/ingresar')
 class ReceptorView(View):
     
     login_url = '/ingresar/'
@@ -643,7 +684,8 @@ class ReceptorView(View):
         receptor = receptor.objects.all()
         context['registro'] = receptor
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class ReceptorCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -659,6 +701,7 @@ class ReceptorCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el receptor con exito")
         return redirect('recpetorList')
 
+@login_required(redirect_field_name='/ingresar')
 class ReceptorUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'receptor_form.html'
@@ -673,6 +716,7 @@ class ReceptorUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el receptor con exito")
         return redirect('receptorList')
 
+@login_required(redirect_field_name='/ingresar')
 class OtroDocumentoAsociadoView(View):
     
     login_url = '/ingresar/'
@@ -684,7 +728,8 @@ class OtroDocumentoAsociadoView(View):
         otroDocumentoAsociado = OtroDocumentoAsociado.objects.all()
         context['registro'] = otroDocumentoAsociado
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class OtroDocumentoAsociadoCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -700,6 +745,7 @@ class OtroDocumentoAsociadoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el otro documento asociado con exito")
         return redirect('otroDocumentoAsociadoList')
 
+@login_required(redirect_field_name='/ingresar')
 class OtroDocumentoAsociadoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'otro_documento_asociado_form.html'
@@ -714,6 +760,7 @@ class OtroDocumentoAsociadoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado otro documento asociado con exito")
         return redirect('otroDocumentoAsociadoList')
 
+@login_required(redirect_field_name='/ingresar')
 class CuerpoDocumentoView(View):
     
     login_url = '/ingresar/'
@@ -725,7 +772,8 @@ class CuerpoDocumentoView(View):
         cuerpoDocumento = CuerpoDocumento.objects.all()
         context['registro'] = cuerpoDocumento
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class CuerpoDocumentoCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -741,6 +789,7 @@ class CuerpoDocumentoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el cuerpo del documento con exito")
         return redirect('cuerpoDocumentoList')
 
+@login_required(redirect_field_name='/ingresar')
 class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'cuerpo_documento_form.html'
@@ -755,6 +804,7 @@ class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el cuerpo del documento con exito")
         return redirect('cuerpoDocumentoList')
 
+@login_required(redirect_field_name='/ingresar')
 class PagoDonacionView(View):
     
     login_url = '/ingresar/'
@@ -766,7 +816,8 @@ class PagoDonacionView(View):
         pagoDonacion = PagoDonacion.objects.all()
         context['registro'] = PagoDonacion
         return context
-    
+
+@login_required(redirect_field_name='/ingresar')    
 class PagoDonacionCreateView(UserPassesTestMixin,CreateView):
     
     login_url = '/ingresar'
@@ -782,6 +833,7 @@ class PagoDonacionCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado un pago a donacion con exito")
         return redirect('pagoDonacionList')
 
+@login_required(redirect_field_name='/ingresar')
 class PagoDonacionUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'pago_donacion_form.html'

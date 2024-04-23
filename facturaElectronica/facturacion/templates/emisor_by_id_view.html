@@ -1,0 +1,83 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+  <div class="container-fluid py-5">
+    <div class="container-fluid">
+      <h3 class="display-5 fw-bold">Detalle del Emisor {{object.emisor.name}}
+        <a id="emisor" href="{% url 'updateEmisor' object.id %}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Emisor">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
+      </h3>
+      </div>
+    <div class="table-responsive">
+      < class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+        {% if object %}
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Emisor</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="emisor">Nombre del Emisor</label>
+                  <input name="emisor" type="text" readonly class="form-control" value="{{ object.emisor.name }}">
+                </td>
+                <td>
+                  <label for="organizacion">Organizacion a  la que pertenece</label>
+                  <input name="organizacion" type="text" readonly class="form-control" value="{{ object.emisor.organizacion }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="actividadEconomica">Actividad Economica</label>
+                  <input name="actividadEconomica" type="text" readonly class="form-control" value="{{ object.emisor.actividadEconomica.valor }}">
+                </td>
+                <td>
+                  <label for="direccionEmisor">Direccion</label>
+                  <input name="direccionEmisor" type="text" readonly class="form-control" value="{{ object.direccionEmisor }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codEstableMH">Codigo del establecimiento asignado por el MH</label>
+                  <input name="codEstableMH" type="text" readonly class="form-control" value="{{ object.codEstableMH }}">
+                </td>
+                <td>     
+                  <label for="codEstable">Codigo del establecimiento asignado por el contribuyente</label>
+                  <input name="codEstable" type="text" readonly class="form-control" value="{{ object.codEstable }}">
+                </td>
+                <td>
+                  <label for="codPuntoVentaMH">Codigo del puento de venta asignado por el MH</label>
+                  <input name="codPuntoVentaMH" type="text" readonly class="form-control" value="{{ object.codPuntoVentaMH }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codPuntoVenta">Codigo del punto de venta asignado por el contribuyente</label>
+                  <input name="codPuntoVenta" type="text" readonly class="form-control" value="{{ object.codPuntoVenta }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>        
+        {% endif %} 
+      </div>
+    </div>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+  </div>
+{% endblock %}

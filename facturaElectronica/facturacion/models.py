@@ -293,7 +293,7 @@ class CuerpoDocumento(models.Model):
 class PagoDonacion(models.Model):
 
     codigo = models.CharField(verbose_name="Codigo de Forma de pago", max_length=2)
-    montoPAgo = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=12, decimal_places=2)
+    montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=12, decimal_places=2)
     referencia = models.CharField(verbose_name="Referencia de la modalidad de pago", max_length=50)
 
     class Meta:

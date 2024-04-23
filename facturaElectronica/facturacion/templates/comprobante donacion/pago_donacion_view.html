@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "../index.html" %}
 
 {% block content %}
   <div class="container-fluid py-5">
@@ -11,24 +11,24 @@
       {% endfor %}
     {% endif %}
     <div class="card-body ">
-      <h4 class="display-5 fw-bold float-start">Listado de Direcciones Ingresadas</h4>
-      <a id="direccioncreate" href="{% url 'createDireccion'%}" 
-        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nueva Direccion">
+      <h4 class="display-5 fw-bold float-start">Listado de los Pagos de Donacion</h4>
+      <a id="pagodonacioncreate" href="{% url 'createPagoDonacion'%}" 
+        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Pago de Donacion">
         <span class="material-symbols-outlined">
           list_alt_add
         </span>
       </a>
     </div>
     <p class="col-md-8 fs-4">
-      Esta vista despliega todas las direcciones ingresados para los diferentes facturas electronicas.
+      Esta vista despliega todos los pagos de Donacion.
     </p>
     <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Direccion</th>
-            <th scope="col">Municipio</th>
-            <th scope="col">Departamento</th>
+            <th scope="col">Codigo de Forma de Pago</th>
+            <th scope="col">Monto por Forma de Pago</th>
+            <th scope="col">Referencia de la Modalidad de Pago</th>
             <th scope="col">Accion</th>
           </tr>
         </thead>
@@ -37,12 +37,12 @@
             {% for registro in object_list %}
               {% if registro.usuario.id == user.id or user.is_superuser %}
                 <tr>
-                  <td>{{ registro.complementoDireccion }}</td>
-                  <td>{{ registro.municipio.valor }}</td>
-                  <td>{{ registro.municipio.departamento.valor }}</td>
+                  <td>{{ registro.codigo }}</td>
+                  <td>{{ registro.montoPago }}</td>
+                  <td>{{ registro.referencia }} </td>
                   <td>
-                        <a id="direccionedit" href="{% url 'updateDireccion'%}" 
-                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Direccion">
+                        <a id="pagodonacionedit" href="{% url 'updatePagoDonacion'%}" 
+                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Pago Donacion">
                             <span class="material-symbols-outlined">
                             edit
                             </span>

@@ -1,0 +1,91 @@
+{% extends "../index.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+  <div class="container-fluid py-5">
+    <div class="container-fluid">
+      <h3 class="display-5 fw-bold">Detalle del Cuerpo del Documento del Comprobante de Donacion {{object.numItem}}
+        <a id="cuerpodocumento" href="{% url 'updateCuerpoDocumento' object.id %}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Cuerpo del Documento">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
+      </h3>
+      </div>
+    <div class="table-responsive">
+      < class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+        {% if object %}
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><h2>Cuerpo del Documento</h2></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="numItem">N° item</label>
+                  <input name="numItem" type="text" readonly class="form-control" value="{{ object.numItem }}">
+                </td>
+                <td>
+                  <label for="tipoDonacion">Tipo de Donacion</label>
+                  <input name="tipoDonacion" type="text" readonly class="form-control" value="{{ object.tipoDonacion }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="cantidad">Cantidad</label>
+                  <input name="cantidad" type="text" readonly class="form-control" value="{{ object.cantidad }}">
+                </td>
+                <td>
+                  <label for="codigo">Codigo</label>
+                  <input name="codigo" type="text" readonly class="form-control" value="{{ object.codigo }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="unidadMedida">Unidad de Medida</label>
+                  <input name="unidadMedida" type="text" readonly class="form-control" value="{{ object.unidadMedida.valor }}">
+                </td>
+                <td>
+                    <label for="descripccion">Descripccion</label>
+                    <input name="descripccion" type="text" readonly class="form-control" value="{{ object.descripccion }}">
+                  </td>
+                <td>     
+                  <label for="depreciacion">Depreciacion</label>
+                  <input name="depreciacion" type="text" readonly class="form-control" value="{{ object.depreciacion }}">
+                </td>
+                <td>
+                  <label for="montoDescu">Monto</label>
+                  <input name="montoDescu" type="text" readonly class="form-control" value="{{ object.montoDescu }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="valorUni">Valor Unitario</label>
+                  <input name="valorUni" type="text" readonly class="form-control" value="{{ object.valorUni }}">
+                </td>
+                <td>
+                  <label for="valor">Valor Donado</label>
+                  <input name="valor" type="text" readonly class="form-control" value="{{ object.valor }}">
+                </td>
+              </tr>
+            </tbody>
+          </table>        
+        {% endif %} 
+      </div>
+    </div>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+  </div>
+{% endblock %}

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from facturacion import views
+from usuarios.views import *
 
 urlpatterns = [
     re_path(r'^ingresar/$', views.login_view, name='login-panel'),

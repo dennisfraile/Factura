@@ -11,25 +11,26 @@
       {% endfor %}
     {% endif %}
     <div class="card-body ">
-      <h4 class="display-5 fw-bold float-start">Listado de Direcciones Ingresadas</h4>
-      <a id="direccioncreate" href="{% url 'createDireccion'%}" 
-        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nueva Direccion">
+      <h4 class="display-5 fw-bold float-start">Listado de Usuarios que Emiten Facturas</h4>
+      <a id="emisorcreate" href="{% url 'createEmisor'%}" 
+        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Emisor">
         <span class="material-symbols-outlined">
           list_alt_add
         </span>
       </a>
     </div>
     <p class="col-md-8 fs-4">
-      Esta vista despliega todas las direcciones ingresados para los diferentes facturas electronicas.
+      Esta vista despliega todos los usuarios que emiten facturas registrados en el sistema.
     </p>
     <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Direccion</th>
-            <th scope="col">Municipio</th>
-            <th scope="col">Departamento</th>
-            <th scope="col">Accion</th>
+            <th scope="col">Emisor</th>
+            <th scope="col">Correo</th>
+            <th scope="col">Organizacion a la que esta asociado</th>
+            <th scope="col">Codigo de Establecimiento por el MH</th>
+            <th scope="col">Codigo de Punto de venta por el MH</th>
           </tr>
         </thead>
         <tbody>
@@ -37,12 +38,14 @@
             {% for registro in object_list %}
               {% if registro.usuario.id == user.id or user.is_superuser %}
                 <tr>
-                  <td>{{ registro.complementoDireccion }}</td>
-                  <td>{{ registro.municipio.valor }}</td>
-                  <td>{{ registro.municipio.departamento.valor }}</td>
+                  <td>{{ registro.emisor.name }}</td>
+                  <td>{{ registro.emisor.email }}</td>
+                  <td>{{ registro.emisor.organizacion }}</td>
+                  <td>{{ registro.emisor.codEstableMH }}</td>
+                  <td>{{ registro.emisor.codPuntoVentaMH }}</td>
                   <td>
-                        <a id="direccionedit" href="{% url 'updateDireccion'%}" 
-                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Direccion">
+                        <a id="emisoredit" href="{% url 'updateEmisor'%}" 
+                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Emisor">
                             <span class="material-symbols-outlined">
                             edit
                             </span>

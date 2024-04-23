@@ -11,24 +11,28 @@
       {% endfor %}
     {% endif %}
     <div class="card-body ">
-      <h4 class="display-5 fw-bold float-start">Listado de Direcciones Ingresadas</h4>
-      <a id="direccioncreate" href="{% url 'createDireccion'%}" 
-        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nueva Direccion">
+      <h4 class="display-5 fw-bold float-start">Listado de Identificadores</h4>
+      <a id="identificadorcreate" href="{% url 'createIdentificador'%}" 
+        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Identificador">
         <span class="material-symbols-outlined">
           list_alt_add
         </span>
       </a>
     </div>
     <p class="col-md-8 fs-4">
-      Esta vista despliega todas las direcciones ingresados para los diferentes facturas electronicas.
+      Esta vista despliega todos los identificadores para las diferentes facturas.
     </p>
     <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Direccion</th>
-            <th scope="col">Municipio</th>
-            <th scope="col">Departamento</th>
+            <th scope="col">Version</th>
+            <th scope="col">Ambiente de Destino</th>
+            <th scope="col">Numero de Control</th>
+            <th scope="col">Codigo de Generacion</th>
+            <th scope="col">Modelo de Facturacion</th>
+            <th scope="col">Tipo de Transmision</th>
+            <th scope="col">Tipo de Contingencia</th>
             <th scope="col">Accion</th>
           </tr>
         </thead>
@@ -37,12 +41,16 @@
             {% for registro in object_list %}
               {% if registro.usuario.id == user.id or user.is_superuser %}
                 <tr>
-                  <td>{{ registro.complementoDireccion }}</td>
-                  <td>{{ registro.municipio.valor }}</td>
-                  <td>{{ registro.municipio.departamento.valor }}</td>
+                  <td>{{ registro.version }}</td>
+                  <td>{{ registro.ambiente }}</td>
+                  <td>{{ registro.numeroControl }}</td>
+                  <td>{{ registro.codigoGeneracion }}</td>
+                  <td>{{ registro.tipoModelo }}</td>
+                  <td>{{ registro.tipoOperacion }}</td>
+                  <td>{{ registro.tipoContingencia }}</td>
                   <td>
-                        <a id="direccionedit" href="{% url 'updateDireccion'%}" 
-                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Direccion">
+                        <a id="identificadoredit" href="{% url 'updateIdentificador'%}" 
+                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Identificador">
                             <span class="material-symbols-outlined">
                             edit
                             </span>
