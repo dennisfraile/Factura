@@ -1,0 +1,198 @@
+{% extends "../index.html" %}
+{% block content %}
+  <div class="container ">
+    {% if messages %}
+      {% for message in messages %}
+          <div class="alert {{ message.tags }} m-2" id="msg" role="alert">
+              {{ message }}
+          </div>
+      {% endfor %}
+    {% endif %}
+    <h3 class="display-5 fw-bold">Sujeto Excluido</h3>
+    <p class="col-md-8 fs-4">
+      En esta vista se actaliza un Sujeto Excluido mientras no haya sido transmitido.
+    </p>
+    <form method="POST" action="{% url 'createSujetoExcluido' %}" enctype="multipart/form-data">
+      {% csrf_token %} 
+      {% if transmitido == "False" %}
+        <div class=" border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+          <table id='sujetoExcluidoTable' class="table table-hover" >
+            <thead>
+              <tr>
+                <th scope="col"><h4>DATOS</h4></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="col">Identificador</th>
+                <td>
+                  <select name="identificador" class="form-select"> 
+                    {% for identificador in identificadores %}
+                        <option name="identificador"  value="{{identificador.id}}">{{identificador.version}}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <th scope="col">Acciones</th>
+                <td>
+                    <a id="identificadorver" href="{% url 'identificadorVer'%}" 
+                        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Identificador">
+                        <span class="material-symbols-outlined">
+                        visibility 
+                        </span>
+                     </a>
+                </td>
+                <td>
+                    <a id="identificadorcreate" href="{% url 'identificadorCreate'%}" 
+                        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Identificador">
+                        <span class="material-symbols-outlined">
+                        add
+                        </span>
+                     </a>
+                </td>
+              </tr>
+              <tr>
+                <th scope="col">Emisor</th>
+                <td>
+                    <select name="emisor" class="form-select"> 
+                      {% for emisor in emisores %}
+                          <option name="emisor"  value="{{emisor.id}}">{{emisor..emisor.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <th scope="col">Acciones</th>
+                  <td>
+                      <a id="emisorrver" href="{% url 'emisorVer'%}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Emisor">
+                          <span class="material-symbols-outlined">
+                          visibility 
+                          </span>
+                       </a>
+                  </td>
+                  <td>
+                      <a id="emisorcreate" href="{% url 'emisorCreate'%}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Emisor">
+                          <span class="material-symbols-outlined">
+                          add
+                          </span>
+                       </a>
+                  </td>
+                <th scope="col">Receptor</th>
+                <td>
+                    <select name="receptor" class="form-select"> 
+                      {% for receptor in receptores %}
+                          <option name="recpetor"  value="{{receptor.id}}">{{receptor..receptor.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <th scope="col">Acciones</th>
+                  <td>
+                      <a id="receptorver" href="{% url 'receptorVer'%}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Receptor">
+                          <span class="material-symbols-outlined">
+                          visibility 
+                          </span>
+                       </a>
+                  </td>
+                  <td>
+                      <a id="receptorcreate" href="{% url 'receptorCreate'%}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Receptor">
+                          <span class="material-symbols-outlined">
+                          add
+                          </span>
+                       </a>
+                  </td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+          {% if operaciones %}
+            <div class="card-body ">
+              <h4 class="float-start">Cuerpo del Documento</h4>
+            </div>
+            <div class=" border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+              <table id='operacionesSujetoExcluido' class="table table-hover" >
+                <tbody id="operaciones_sujeto">
+                  <tr>
+                    <td>
+                        <select name="operaciones" class="form-select"> 
+                          {% for registro in operaciones %}
+                            {% if registro.operaciones.id == 0 %}
+                              <option name="operaciones" selected value="{{registro.id}}">{{registro.tipoItem}}</option>
+                            {% endif %}
+                              <option name="operaciones"  value="{{registro.id}}">{{registro.tipoItem}}</option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                      <th scope="col">Acciones</th>
+                      <td>
+                          <a id="operacionver" href="{% url 'operacionVer'%}" 
+                              class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Operacion">
+                              <span class="material-symbols-outlined">
+                              visibility 
+                              </span>
+                           </a>
+                      </td>
+                      <td>
+                          <a id="operacioncreate" href="{% url 'operacionCreate'%}" 
+                              class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nueva Operacion">
+                              <span class="material-symbols-outlined">
+                              add
+                              </span>
+                           </a>
+                      </td>
+                  </tr>
+                </tbody>
+              </table>
+              {% if object.transmitido == "False" %}
+                <table> 
+                  <tr> 
+                    <td>
+                      <button type="button"  onclick="addRowsC()" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                        title="Agregar nueva linea"><span class="material-symbols-outlined badge badge-success">add</span>
+                      </button>
+                    </td> 
+                    <td>
+                      <button type="button"  onclick="deleteRowsC({{ cantidadoperaciones }})" class="btn  btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                        title="Eliminar linea"><span class="material-symbols-outlined badge badge-danger">remove</span> 
+                      </button>
+                    </td> 
+                  </tr>  
+                </table>
+              {% endif %}
+            {% else %}
+            <div class="card-body">
+              <p class="float-start">NO HAY OPERACIONES EN EL SISTEMA </p>
+              {% if object.transmitido == "False" %}
+              <a id="operaciones" href="{% url 'crearOperacion' object.id %}" 
+                class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nueva Operacion">
+                <span class="material-symbols-outlined">
+                  list_alt_add
+                </span>
+              </a>
+              {% endif %}
+            </div>
+           
+          {% endif %}
+          <br>
+          <br>
+          <div class="card-body ">
+            <h4 class="float-start">Resumen del Documento</h4>
+          </div>
+          <div class="card-body submit-row">
+            <a href="javascript:history.back()" class="float-start btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+              title="Regresar" role="button" aria-pressed="true">Regresar
+            </a>
+            {% if object.estado_registro.id != 4%}
+            <input type="submit" id="sujeto" class="float-end btn btn-primary" data-bs-toggle="tooltip" 
+              data-bs-placement="bottom" title="Guardar cambios" value="Guardar">
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-danger" role="alert">
+         El sujeto excluido que esta intentando actualizar ya a sido tranmitido y no puede ser actualizado.
+        </div>
+      {% endif %}
+    </form>
+  </div>
+{% endblock %}

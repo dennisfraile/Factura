@@ -5,6 +5,8 @@ from facturacion.views import *
 urlpatterns = [
     path('', IndexView.as_view(), name='panel_facturas'),
     
+    path('get_operacioneSujetoExcluido', get_opercionSujetoExcluido, name='getoperacionesSujetoExcluido'),
+    
     path('pais', PaisView.as_view(), name='index_pais'),
     path('paisCreate', PaisCreateView.as_view(), name='paisCreate'),
     path('paisUpdate/<int:pk>', PaisUpdateView.as_view(), name='paisUpdate'),

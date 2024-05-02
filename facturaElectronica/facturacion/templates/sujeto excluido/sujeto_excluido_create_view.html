@@ -1,0 +1,306 @@
+{% extends "../index.html" %}
+{% block content %}
+  <div class="container ">
+    {% if messages %}
+      {% for message in messages %}
+          <div class="alert {{ message.tags }} m-2" id="msg" role="alert">
+              {{ message }}
+          </div>
+      {% endfor %}
+    {% endif %}
+    <h3 class="display-5 fw-bold">Sujeto Excluido</h3>
+    <p class="col-md-8 fs-4">
+      En esta vista se creara un nuevo Sujeto Excluido.
+    </p>
+    <form method="POST" action="{% url 'createSujetoExcluido' %}" enctype="multipart/form-data">
+      {% csrf_token %} 
+        <div class=" border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+          <table id='sujetoExcluidoTable' class="table table-hover" >
+            <thead>
+              <tr>
+                <th scope="col"><h4>DATOS</h4></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="col">Identificador</th>
+                <td>
+                  <select name="identificador" id="identificador" class="form-select"> 
+                    {% for identificador in identificadores %}
+                        <option name="identificador"  value="{{identificador.id}}">{{identificador.version}}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <th scope="col">Acciones</th>
+                <td>
+                    <a id="identificadorver" href="#" 
+                        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Identificador">
+                        <span class="material-symbols-outlined">
+                        visibility 
+                        </span>
+                     </a>
+                </td>
+                <td>
+                    <a id="identificadorcreate" href="{% url 'identificadorCreate'%}" 
+                        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Identificador">
+                        <span class="material-symbols-outlined">
+                        add
+                        </span>
+                     </a>
+                </td>
+              </tr>
+              <tr>
+                <th scope="col">Emisor</th>
+                <td>
+                    <select name="emisor" id="emisor" class="form-select"> 
+                      {% for emisor in emisores %}
+                          <option name="emisor"  value="{{emisor.id}}">{{emisor..emisor.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <th scope="col">Acciones</th>
+                  <td>
+                      <a id="emisorrver" href="#" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Emisor">
+                          <span class="material-symbols-outlined">
+                          visibility 
+                          </span>
+                       </a>
+                  </td>
+                  <td>
+                      <a id="emisorcreate" href="{% url 'emisorCreate'%}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Emisor">
+                          <span class="material-symbols-outlined">
+                          add
+                          </span>
+                       </a>
+                  </td>
+                <th scope="col">Receptor</th>
+                <td>
+                    <select name="receptor" id="recpetor" class="form-select"> 
+                      {% for receptor in receptores %}
+                          <option name="recpetor"  value="{{receptor.id}}">{{receptor..receptor.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <th scope="col">Acciones</th>
+                  <td>
+                      <a id="receptorver" href="#" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Receptor">
+                          <span class="material-symbols-outlined">
+                          visibility 
+                          </span>
+                       </a>
+                  </td>
+                  <td>
+                      <a id="receptorcreate" href="{% url 'receptorCreate'%}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Receptor">
+                          <span class="material-symbols-outlined">
+                          add
+                          </span>
+                       </a>
+                  </td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+          {% if operaciones %}
+            <div class="card-body ">
+              <h4 class="float-start">Operaciones del Sujeto Excluido</h4>
+            </div>
+            <div class=" border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+              <table id='operacionesSujetoExcluido' class="table table-hover" >
+                <thead>
+                  <tr>
+                    <th scope="col">Operaciones del Sujeto Excluido</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="operaciones_sujeto">
+                  <tr>
+                    <td id="col0">
+                        <select name="operaciones" id="operaciones" class="form-select"> 
+                          {% for registro in operaciones %}
+                            {% if registro.operaciones.id == 0 %}
+                              <option name="operaciones" selected value="{{registro.id}}">{{registro.tipoItem}}</option>
+                            {% endif %}
+                              <option name="operaciones"  value="{{registro.id}}">{{registro.tipoItem}}</option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                      <td id="col1">
+                          <a id="operacionver" href="#" 
+                              class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Operacion">
+                              <span class="material-symbols-outlined">
+                              visibility 
+                              </span>
+                           </a>
+                      </td>
+                      <td id="col2">
+                          <a id="operacioncreate" href="{% url 'operacionCreate'%}" 
+                              class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nueva Operacion">
+                              <span class="material-symbols-outlined">
+                              add
+                              </span>
+                           </a>
+                      </td>
+                  </tr>
+                </tbody>
+              </table>
+              <table> 
+                <tr> 
+                  <td>
+                    <button type="button"  onclick="addOperacionSujetoExcluidoSelect()" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                      title="Agregar Nueva Operacion Sobre Sujeto Excluido"><span class="material-symbols-outlined badge badge-success">add</span>
+                    </button>
+                  </td> 
+                  <td>
+                    <button type="button"  onclick="deleteRowsOperacionSujetoExcluido({{ cantidadoperaciones }})" class="btn  btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                      title="Eliminar linea"><span class="material-symbols-outlined badge badge-danger">remove</span> 
+                    </button>
+                  </td> 
+                </tr>  
+              </table>
+          {% else %}
+            <div class="card-body">
+              <p class="float-start">NO HAY OPERACIONES EN EL SISTEMA </p>
+              {% if object.transmitido == "False" %}
+              <a id="operaciones" href="{% url 'crearOperacion' object.id %}" 
+                class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nueva Operacion">
+                <span class="material-symbols-outlined">
+                  list_alt_add
+                </span>
+              </a>
+              {% endif %}
+            </div>
+           
+          {% endif %}
+          <br>
+          <br>
+          <div class="card-body ">
+            <h4 class="float-start">Resumen del Documento</h4>
+          </div>
+          <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+            <table id="cuerpodocumento" class="table table-hover" >
+              <tbody>
+                <tr>
+                  <td>
+                    <input class="form-control" type="text" name="totalcompra" id="totalcompra" placeholder="Total de Operaciones">
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="descu" id="descu" placeholder="Monto Global de Descuento">
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="totaldescu" id="totaldescu" placeholder="Total del Monto de Descuento">
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <input class="form-control" type="text" name="subtotal" id="subtotal" placeholder="Subtotal">
+                  </td>
+                  <td>
+                    <select name="retencionivamh" class="form-select"> 
+                      {% for retencion in retencionesIvaMH %}
+                          <option name="retencionivamh"  value="{{retencion.id}}">{{retencion.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="ivarete1" id="ivarete1" placeholder="IVA Retenido">
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <input class="form-control" type="text" name="reterenta" id="reterenta" placeholder="Retencion de Renta">
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="totalpagar" id="totalpagar" placeholder="Total a Pagar">
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="totalletras" id="totalletras" placeholder="Total en Letras">
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <input class="form-control" type="text" name="condicionoperacion" id="condicionoperacion" placeholder="Condicion de la Operacion">
+                    <select name="condicionoperacion" class="form-select"> 
+                      {% for condicion in condicionesOperaciones %}
+                          <option name="condicionoperacion"  value="{{condicion.id}}">{{condicion.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="retencionivamh" id="retencionivamh" placeholder="Retencion IVA MH">
+                    <select name="pago" class="form-select"> 
+                      {% for pago in pagos %}
+                          <option name="pago"  value="{{pago.id}}">{{pago.formaPago.valor}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <input class="form-control" type="text" name="observaciones" id="observaciones" placeholder="Observaciones">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-body ">
+            <h4 class="float-start">Apendice del Documento</h4>
+          </div>
+          <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
+            <table id="tableApendice" class="table table-hover">
+              <tr>
+                <td>
+                  <select name="apendice" id="apendice" class="form-select"> 
+                    {% for apendice in apendices %}
+                        <option name="apendice"  value="{{apendice.id}}">{{apendice.campo}}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <th scope="col">Acciones</th>
+                <td>
+                    <a id="apendicever" href="#" 
+                        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Apendice">
+                        <span class="material-symbols-outlined">
+                        visibility 
+                        </span>
+                     </a>
+                </td>
+                <td>
+                    <a id="apendicecreate" href="{% url 'apendiceCreate'%}" 
+                        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Apendice">
+                        <span class="material-symbols-outlined">
+                        add
+                        </span>
+                     </a>
+                </td>
+              </tr>
+            </table>
+            <table> 
+              <tr> 
+                <td>
+                  <button type="button"  onclick="addApendiceSelect()" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                    title="Agregar Nueva Apendice"><span class="material-symbols-outlined badge badge-success">add</span>
+                  </button>
+                </td> 
+                <td>
+                  <button type="button"  onclick="deleteRowsApendice({{ cantidadApendice }})" class="btn  btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                    title="Eliminar linea"><span class="material-symbols-outlined badge badge-danger">remove</span> 
+                  </button>
+                </td> 
+              </tr>  
+            </table>
+          </div>
+          <div class="card-body submit-row">
+            <a href="javascript:history.back()" class="float-start btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+              title="Regresar" role="button" aria-pressed="true">Regresar
+            </a>
+            {% if object.estado_registro.id != 4%}
+            <input type="submit" id="sujeto" class="float-end btn btn-primary" data-bs-toggle="tooltip" 
+              data-bs-placement="bottom" title="Guardar cambios" value="Guardar">
+            {% endif %}
+          </div>
+        </div>
+    </form>
+  </div>
+{% endblock %}

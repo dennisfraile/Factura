@@ -20,6 +20,11 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 # Create your views here.
 
 @login_required(redirect_field_name='/ingresar')
+def get_opercionSujetoExcluido(request):
+    operacionesSujetoExccluido = OperacionesSujetoExcluido.objects.all()
+    return JsonResponse(list(operacionesSujetoExccluido), safe = False)
+
+@login_required(redirect_field_name='/ingresar')
 class IndexView(TemplateView):
     template_name = 'views/index.html'
 

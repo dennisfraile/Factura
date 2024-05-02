@@ -240,6 +240,9 @@ class SujetoExcluido(models.Model):
 
     #Apendice
     apendice = models.ForeignKey(Apendice, on_delete=models.CASCADE, editable=False)
+    
+    #Si ya fue transmitido el sujeto excluido
+    transmitido = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Sujetos Excluidos"
@@ -331,6 +334,9 @@ class ComprobanteDonacion(models.Model):
 
     #Apendice
     apendice = models.ForeignKey(Apendice, on_delete=models.CASCADE, editable=False)
+    
+    #Si ya fue transmitido el comprobante de donacion
+    transmitido = models.BooleanField(default=False)
     
     class Meta:
         verbose_name_plural = "Comprobantes de Donaciones"
