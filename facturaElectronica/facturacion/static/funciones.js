@@ -25,16 +25,6 @@ function addOperacionSujetoExcluidoSelect(){
                         ` data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Operacion"> `+
                         `<span class="material-symbols-outlined">visibility</span>`+
                         `</a></td>` 
-            }else{
-                if(i==2){
-                    cell = row.insertRow(i);
-                    cell = `<td id="col`+ `${i}">`+
-                             `<a id="operacioncreate" href="{% url 'operacionCreate' %} class="btn btn-success float-end"`+
-                             ` data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Neva Operacion"> `+
-                             `<span class="material-symbols-outlined">add</span>`+
-                             `</a></td>`+
-                             `</tr>` 
-                }
             }
         }    
     }
@@ -50,7 +40,7 @@ function deleteRowsOperacionSujetoExcluido(num){
       rowCount--;
     }
     else{
-      alert('Debe haber al menos una nueva fila presupuestaria');
+      alert('Debe haber al menos una operacion sobre el sujeto excluido');
     }
   };
 
@@ -75,20 +65,10 @@ function addApendiceSelect(){
                 if(i==1){
                 cell = row.insertRow(i);
                 cell = `<td id="col`+ `${i}">`+
-                            `<a id="apendicever" href="#" class="btn btn-success float-end"`+
-                            ` data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Apendice"> `+
-                            `<span class="material-symbols-outlined">visibility</span>`+
-                            `</a></td>` 
-                }else{
-                    if(i==2){
-                        cell = row.insertRow(i);
-                        cell = `<td id="col`+ `${i}">`+
-                                `<a id="apendicecreate" href="{% url 'apendiceCreate' %} class="btn btn-success float-end"`+
-                                ` data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Apendice"> `+
-                                `<span class="material-symbols-outlined">add</span>`+
-                                `</a></td>`+
-                                `</tr>` 
-                    }
+                        `<a id="apendicever" href="#" class="btn btn-success float-end"`+
+                        ` data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Apendice"> `+
+                        `<span class="material-symbols-outlined">visibility</span>`+
+                        `</a></td>` 
                 }
             }    
         }
@@ -105,7 +85,7 @@ function deleteRowsApendice(num){
       rowCount--;
     }
     else{
-      alert('Debe haber al menos una nueva fila presupuestaria');
+      alert('Debe haber al menos un apendice sobre el sujeto excluido');
     }
   };
 
