@@ -1,5 +1,5 @@
 from django.db import models
-from usuarios.models import CustomerUser
+from usuarios.models import *
 # Create your models here.
 
 class Pais(models.Model):
@@ -57,31 +57,6 @@ class UnidadMedida(models.Model):
      def __str__(self):
         return f'{self.codigo}'
 
-class OperacionesSujetoExcluido(models.Model):
-    
-    TIPO_ITEM = (
-        ("1", "Bienes"),
-        ("2", "Servicios"),
-        ("3", "Ambos (Bienes y servicios)"),
-        ("4", "Otros tributos por item")
-    )
-
-    numItem = models.IntegerField(verbose_name = "N° item", required=True)
-    tipoItem = models.CharField(verbose_name = "Tipo de item", required=True, choice=TIPO_ITEM)
-    codigo = models.CharField(verbose_name = "Codigo", max_length=25, required=True)
-    uniMedida = models.ForeignKey(UnidadMedida,  ondelete=models.CASCADE, editable=False)
-    cantidad = models.IntegerField(verbose_name = "Cantidad", max_digits=12, decimal_places=2 , required=True)
-    montoDescu = models.DecimalField(verbose_name = "Monto", max_digits=12, decimal_places=2 , required=True)
-    compra = models.DecimalField(verbose_name = "Ventas", max_digits=12, decimal_places=2 ,required=True)
-    retencion = models.DecimalField(verbose_name="Retencion", max_digits=12, decimal_places=2)
-    descripccion = models.TextField(verbose_name="Descripccion", max_length=100, required=True)
-    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=12, decimal_places=2 ,required=True)
-    
-    class Meta:
-        verbose_name_plural = "Operaciones"
-
-    def __str__(self):
-        return f'{self.codigo}'
 
 class FormaPago(models.Model):
     codigo = models.CharField(verbose_name="Codigo", max_length=3)
@@ -106,29 +81,22 @@ class Pago(models.Model):
     referencia = models.CharField(verbose_name="Referencia de la modalidad de pagos", max_length=50)
     plazo = models.CharField(verbose_name="Plazo", max_length=20, choices=PLAZO)
     periodo = models.IntegerField(verbose_name="Periodo de plazo")
+    
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
         verbose_name_plural = "Pagos"
 
     def __str__(self):
         return f'{self.codigo}'
 
-class Apendice(models.Model):
-
-    campo = models.CharField(verbose_name="Nombre del campo", max_length=25)
-    etiqueta = models.CharField(verbose_name="Descripccion", max_length=50)
-    valor = models.CharField(verbose_name="Valor/Dato", max_length=150)
-
-    class Meta:
-        verbose_name_plural = "Apendices"
-
-    def __str__(self):
-        return f'{self.campo}'
-
 class TipoDocumento(models.Model):
 
     codigo = models.CharField(verbose_name="Codigo",max_length=3)
     valores = models.CharField(verbose_name="Valores",max_length=50)
 
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
         verbose_name_plural = "Tipos de Documentos"
 
@@ -157,17 +125,20 @@ class Identificador(models.Model):
         ("5", "Otro (debera digitar un maximo de 500 caracteres explicando el motivo)")
     )
     #Identificacion
-    version = models.IntegerField("Version",required=True)
-    ambiente = models.CharField(verbose_name="Ambiente de destino", required=True, max_length=20, choices=AMBIENTE_DESTINO)
+    version = models.IntegerField(verbose_name="Version")
+    ambiente = models.CharField(verbose_name="Ambiente de destino", max_length=20, choices=AMBIENTE_DESTINO)
     tipoDte = models.ForeignKey(TipoDocumento, ondelete=models.CASCADE, editable=False)
-    numeroControl = models.CharField(verbose_name="Numero de control", required=True, max_length=31)
-    codigoGeneracion = models.CharField(verbose_name="Codigo de generacion", required=True, max_length=36)
-    tipoModelo = models.CharField(verbose_name="Modelo de facturacion",required=True, choices=MODELO_FACTURACION)
-    tipoOperacion = models.CharField(verbose_name="Tipo de Transmision", required=True, choices=TIPO_TRANSMICION)
-    tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia",required=False, choices=TIPO_CONTINGENCIA)
-    motivoContin = models.CharField(verbose_name="Motivo de Contingencia", required=True, max_length=500)
-    fechaEmi = models.DateTimeField(verbose_name="Fecha de Generacion",required=True)
-    tipoMoneda = models.CharField(verbose_name="Tipo de Moneda", required=True, max_length=30)   
+    numeroControl = models.CharField(verbose_name="Numero de control", max_length=31)
+    codigoGeneracion = models.CharField(verbose_name="Codigo de generacion", max_length=36)
+    tipoModelo = models.CharField(verbose_name="Modelo de facturacion", choices=MODELO_FACTURACION)
+    tipoOperacion = models.CharField(verbose_name="Tipo de Transmision", choices=TIPO_TRANSMICION)
+    tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia", choices=TIPO_CONTINGENCIA)
+    motivoContin = models.CharField(verbose_name="Motivo de Contingencia", max_length=500)
+    fechaEmi = models.DateTimeField(verbose_name="Fecha de Generacion",auto_now_add=True)
+    tipoMoneda = models.CharField(verbose_name="Tipo de Moneda", max_length=30) 
+    
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)  
     class Meta:
         verbose_name_plural = "Identificaciones"
 
@@ -187,7 +158,7 @@ class Emisor(models.Model):
         verbose_name_plural = "Emisores"
 
     def __str__(self):
-        return f'{self.codPuntoVentaMH}'
+        return f'{self.emisor_name}'
 
 class Receptor(models.Model):
 
@@ -221,9 +192,6 @@ class SujetoExcluido(models.Model):
     #Sujeto Excluido
     receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE, editable=False)
     
-    #Cuerpo del Documento
-    operaciones = models.ForeignKey(OperacionesSujetoExcluido, on_delete=models.CASCADE , editable=False)
-    
     #Resumen
     totalCompra = models.DecimalField(verbose_name="Total de operaciones",max_digits=12, decimal_places=2)
     descu = models.DecimalField(verbose_name="Monto global de Descuento, Bonificacion, Rebajas", max_digits=12, decimal_places=2)
@@ -236,20 +204,94 @@ class SujetoExcluido(models.Model):
     totalLetras = models.CharField(verbose_name="Total en letras", max_length=200)
     condicionOperacion = models.CharField(verbose_name="Condicion de la Operacion", choice=CONDICION_OPERACION)
     pago = models.ForeignKey(Pago, on_delete=models.CASCADE, editable=False)
-    observaciones = models.CharField(verbose_name="Observaciones", max_length=3000)
-
-    #Apendice
-    apendice = models.ForeignKey(Apendice, on_delete=models.CASCADE, editable=False)
-    
+    observaciones = models.TextField(verbose_name="Observaciones")
+    fechaTransmicion = models.DateTimeField(verbose_name="Fecha de Transmicion",auto_now_add=True)
     #Si ya fue transmitido el sujeto excluido
     transmitido = models.BooleanField(default=False)
 
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)    
     class Meta:
         verbose_name_plural = "Sujetos Excluidos"
 
     def __str__(self):
-        return f'{self.version}'
+        return f'{self.identificador}'
 
+class OperacionesSujetoExcluido(models.Model):
+    
+    TIPO_ITEM = (
+        ("1", "Bienes"),
+        ("2", "Servicios"),
+        ("3", "Ambos (Bienes y servicios)"),
+        ("4", "Otros tributos por item")
+    )
+
+    numItem = models.IntegerField(verbose_name = "N° item", required=True)
+    tipoItem = models.CharField(verbose_name = "Tipo de item", required=True, choice=TIPO_ITEM)
+    codigo = models.CharField(verbose_name = "Codigo", max_length=25, required=True)
+    uniMedida = models.ForeignKey(UnidadMedida,  ondelete=models.CASCADE, editable=False)
+    cantidad = models.IntegerField(verbose_name = "Cantidad", max_digits=12, decimal_places=2 , required=True)
+    montoDescu = models.DecimalField(verbose_name = "Monto", max_digits=12, decimal_places=2 , required=True)
+    compra = models.DecimalField(verbose_name = "Ventas", max_digits=12, decimal_places=2 ,required=True)
+    retencion = models.DecimalField(verbose_name="Retencion", max_digits=12, decimal_places=2)
+    descripccion = models.TextField(verbose_name="Descripccion", max_length=100, required=True)
+    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=12, decimal_places=2 ,required=True)
+    
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False)
+    
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    class Meta:
+        verbose_name_plural = "Operaciones"
+
+    def __str__(self):
+        return f'{self.codigo}'
+
+class PagoDonacion(models.Model):
+
+    codigo = models.CharField(verbose_name="Codigo de Forma de pago", max_length=2)
+    montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=12, decimal_places=2)
+    referencia = models.CharField(verbose_name="Referencia de la modalidad de pago", max_length=50)
+
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    class Meta:
+        verbose_name_plural = "Pagos de donacion"
+
+    def __str__(self):
+        return f'{self.codigo}'
+
+class ComprobanteDonacion(models.Model):
+    DOMICILIO_FISCAL = (
+        ("1", "Domiciliado"),
+        ("2", "No Domiciliado"),
+    )
+    #Identificador
+    identificador = models.ForeignKey(Identificador, ondelete=models.CASCADE, editable=False) 
+
+    #Donatorio
+    emisor = models.ForeignKey(Emisor, ondelete=models.CASCADE, editable=False)
+    
+    #Donante
+    receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE, editable=False)
+    codDomiciliado = models.CharField(verbose_name="Domicilio Fiscal", required=True, choices=DOMICILIO_FISCAL)
+    codPais = models.ForeignKey(Pais, on_delete=models.CASCADE, editable=False)
+
+    #Resumen
+    valorTotal = models.DecimalField(verbose_name="Total de la donacion", max_digits=12, decimal_places=2)
+    totalLetras = models.CharField(verbose_name="Total en letras", max_length=200)
+    pago = models.ForeignKey(PagoDonacion, on_delete=models.CASCADE, editable=False)
+    fechaTransmicion = models.DateTimeField(verbose_name="Fecha de Transmicion",auto_now_add=True)
+    #Si ya fue transmitido el comprobante de donacion
+    transmitido = models.BooleanField(default=False)
+    
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    class Meta:
+        verbose_name_plural = "Comprobantes de Donaciones"
+
+    def __str__(self):
+        return f'{self.identificador}'
 
 class OtroDocumentoAsociado(models.Model):
     OTRO_DOCUMENTO_ASOCIADO = (
@@ -262,6 +304,10 @@ class OtroDocumentoAsociado(models.Model):
     descDocumento = models.CharField(verbose_name="Identificacion del documento asociado",max_length=100)
     detalleDocumento = models.CharField(verbose_name="Descripccion de documento asociado", max_length=300)
 
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, ondelete=models.CASCADE, editable=False)
+    
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
         verbose_name_plural = "Otros documentos asociados"
 
@@ -287,59 +333,30 @@ class CuerpoDocumento(models.Model):
     valorUni = models.DecimalField(verbose_name="Valor Unitario", max_digits=12, decimal_places=2 , required=True)
     valor = models.DecimalField(verbose_name="Valor Donado", max_digits=12, decimal_places=2)
 
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, ondelete=models.CASCADE, editable=False)
+
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
         verbose_name_plural = "Cuerpos del documento"
 
     def __str__(self):
-        return f'{self.codDocAsociado}'
+        return f'{self.numItem}'
+    
+class Apendice(models.Model):
 
-class PagoDonacion(models.Model):
+    campo = models.CharField(verbose_name="Nombre del campo", max_length=25)
+    etiqueta = models.TextField(verbose_name="Descripccion")
+    valor = models.CharField(verbose_name="Valor/Dato", max_length=150)
+    
+    #Facturas Asociadas
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, null=True, on_delete=models.CASCADE, editable=False)
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, null=True, on_delete=models.CASCADE, editable=False)
 
-    codigo = models.CharField(verbose_name="Codigo de Forma de pago", max_length=2)
-    montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=12, decimal_places=2)
-    referencia = models.CharField(verbose_name="Referencia de la modalidad de pago", max_length=50)
-
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
-        verbose_name_plural = "Pagos de donacion"
+        verbose_name_plural = "Apendices"
 
     def __str__(self):
-        return f'{self.codigo}'
-
-class ComprobanteDonacion(models.Model):
-    DOMICILIO_FISCAL = (
-        ("1", "Domiciliado"),
-        ("2", "No Domiciliado"),
-    )
-    #Identificador
-    identificador = models.ForeignKey(Identificador, ondelete=models.CASCADE, editable=False) 
-
-    #Donatorio
-    emisor = models.ForeignKey(Emisor, ondelete=models.CASCADE, editable=False)
-    
-    #Donante
-    receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE, editable=False)
-    codDomiciliado = models.CharField(verbose_name="Domicilio Fiscal", required=True, choices=DOMICILIO_FISCAL)
-    codPais = models.ForeignKey(Pais, on_delete=models.CASCADE, editable=False)
-
-    #Otros Documentos Asociados
-    otrosDocumentos = models.ForeignKey(OtroDocumentoAsociado, ondelete=models.CASCADE, editable=False)
-
-    #Cuerpo del Documento
-    cuerpoDocumento = models.ForeignKey(CuerpoDocumento, ondelete=models.CASCADE, editable=False)
-
-    #Resumen
-    valorTotal = models.DecimalField(verbose_name="Total de la donacion", max_digits=12, decimal_places=2)
-    totalLetras = models.CharField(verbose_name="Total en letras", max_length=200)
-    pago = models.ForeignKey(PagoDonacion, on_delete=models.CASCADE, editable=False)
-
-    #Apendice
-    apendice = models.ForeignKey(Apendice, on_delete=models.CASCADE, editable=False)
-    
-    #Si ya fue transmitido el comprobante de donacion
-    transmitido = models.BooleanField(default=False)
-    
-    class Meta:
-        verbose_name_plural = "Comprobantes de Donaciones"
-
-    def __str__(self):
-        return f'{self.version}'
+        return f'{self.campo}'

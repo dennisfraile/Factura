@@ -8,6 +8,7 @@ import string
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password
 
 class ActividadEconomica(models.Model):
      
@@ -92,23 +93,59 @@ def send_welcome_email(sender, instance, created, **kwargs):
         instance.save()
 
         # Envía un correo electrónico con la contraseña temporal
-        subject = 'Contraseña Temporal - ¡Bienvenido a Mi Aplicación!'
-        message = f'Hola {instance.name},\n\nGracias por registrarte en Mi Aplicación. Tu contraseña temporal es: {temporary_password}'
+        subject = 'Contraseña Temporal - ¡Bienvenido al Sitema de Facturacion Electronica!'
+        message = f'Hola {instance.name},\n\nGracias por registrarte en el Sistema de Facturacion Electronica. Tu contraseña temporal es: {temporary_password}'
         from_email = settings.EMAIL_HOST_USER  # Cambia esto al correo electrónico que desees
         to_email = [instance.email]
         send_mail(subject, message, from_email, to_email)
 
 class DocumentoIdentidad(models.Model):
-     TIPOS_DOCUMENTO = (
-          ("DUI", "Documento Unico de Identidad"),
-          ("NIT","Numero de Identificacion Tributaria"),
-     )
-     HOMOLOGACION = (
-          ("Documento Homologado", "DUI"),
-          ("Documento No Homologado", "NIT"),
-     )
-     tipo = models.CharField(verbose_name="Tipo de Documento", max_length=25, choices=TIPOS_DOCUMENTO)
-     homologado = models.CharField(verbose_name="Homologacion", max_length=30, choices=HOMOLOGACION)
-     numero = models.CharField(verbose_name="Numero del documento sin guion")
-     user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name="documentos")
+    TIPOS_DOCUMENTO = (
+        ("DUI", "Documento Unico de Identidad"),
+        ("NIT","Numero de Identificacion Tributaria"),
+    )
+    HOMOLOGACION = (
+        ("Documento Homologado", "DUI"),
+        ("Documento No Homologado", "NIT"),
+    )
+    tipo = models.CharField(verbose_name="Tipo de Documento", max_length=25, choices=TIPOS_DOCUMENTO)
+    homologado = models.CharField(verbose_name="Homologacion", max_length=30, choices=HOMOLOGACION)
+    numero = models.CharField(verbose_name="Numero del documento sin guion")
+    user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name="documentos")
+     
+    class Meta:
+        verbose_name_plural = "Documentos de Identidad"
 
+    def __str__(self):
+        return f'{self.tipo}'
+
+class Entidad(models.Model):
+    
+    razonSocial = models.CharField(verbose_name="Razon Social", max_length=100)
+    documentoEntidad = models.ForeignKey(DocumentoIdentidad, on_delete=models.CASCADE, editable=False)
+    
+    class Meta:
+        verbose_name_plural = "Entidades"
+
+    def __str__(self):
+        return f'{self.razonSocial}'
+
+class ParametrosAuthHacienda(models.Model):
+    
+    userAgent = models.CharField(verbose_name="User Agent", max_length=50)
+    nit = models.CharField(verbose_name="User", max_length=50)
+    pwd = models.CharField(verbose_name="Password", max_length=100)
+    privateKey = models.TextField(verbose_name="Clave Privada de Hacienda")
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    
+    class Meta:
+        verbose_name_plural = "Parametros de Hacienda "
+
+    def __str__(self):
+        return f'{self.userAgent}'
+    
+    def set_password(self, raw_password):
+        self.pwd = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.pwd)

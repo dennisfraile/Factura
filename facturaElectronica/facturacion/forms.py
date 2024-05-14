@@ -127,7 +127,22 @@ class ApendiceForm(forms.ModelForm):
 
     class Meta:
         model = Apendice
-        fields =['campo','etiqueta','valor']
+        fields =['campo','etiqueta','valor', 'sujetoExcluido', 'comprobanteDonacion']
+        label = {
+            'codigo': 'Codigo',
+            'etiqueta': 'Etiqueta',
+            'valor': 'Valor',
+            'sujetoExcluido': 'Sujeto Excluido',
+            'comprobanteDonacion': 'Comprobante de Donacion',
+        }
+        
+        widgets = {
+            'codigo': forms.TextInput(attrs={'class': 'form-control'}),
+            'etiqueta': forms.TextInput(attrs={'class': 'form-control'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control'}),
+            'sujetoExcluido': forms.Select(attrs={'class': 'form-control'}),
+            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
+        }
 
 class TipoDocumentoForm(forms.ModelForm):
 
@@ -298,10 +313,12 @@ class OtroDocumentoAsociadoForm(forms.Form):
             'codDocAsociado': 'Documento Asociado',
             'descDocumento': 'Identificacion del Documento Asociado',
             'detalleDocumento': 'Descripccion de Documento Asociado',
+            'comprobanteDonacion': 'Comprobante de Donacion',
         }
         widgets = {
             'descDocumento': forms.TextInput(attrs={'class': 'form-control'}),
             'detalleDocumento': forms.TextInput(att={'class': 'form-control'}),
+            'comprobanteDonacion': forms.Select(att={'class': 'form-control'}),
         }
 
 class CuerpoDocumentoForm(forms.Form):
@@ -326,6 +343,7 @@ class CuerpoDocumentoForm(forms.Form):
             'montoDescu': 'Monto',
             'valorUni': 'Valor Unitario',
             'valor': 'Valor Donado',
+            'comprobanteDonacion': 'Comprobante de Donacion',
             
         }
         widgets = {
@@ -338,6 +356,7 @@ class CuerpoDocumentoForm(forms.Form):
             'montoDescu': forms.DecimalField(att={'class': 'form-control'}),
             'valorUni': forms.DecimalField(att={'class': 'form-control'}),
             'valor': forms.DecimalField(att={'class': 'form-control'}),
+            'comprobanteDonacion': forms.Select(att={'class': 'form-control'}),
         }
 
 class PagoDonacionForm(forms.Form):
@@ -371,22 +390,16 @@ class ComprobanteDonacionForm(forms.Form):
             'receptor': 'Donante',
             'codDomiciliado': 'Domicilio Fiscal',
             'codPais': 'Codigo de Pais',
-            'otrosDocumentos': 'Otros Documentos Asociados',
-            'cuerpoDocumento': 'Cuerpo del Documento',
             'valorTotal': 'Total de la Donacion',
             'totalLetras': 'Total en Letras',
             'pago': 'Pago',
-            'apendice':'Apendice',
         }
         widgets = {
             'identificador': forms.Select(att={'class': 'form-control'}),
             'emisor':forms.Select(att={'class': 'form-control'}),
             'receptor': forms.Select(att={'class': 'form-control'}),
             'codPais': forms.Select(att={'class': 'form-control'}),
-            'otrosdocumentos': forms.Select(att={'class': 'form-control'}),
-            'cuerpoDocumento': forms.Select(att={'class': 'form-control'}),
             'valorTotal': forms.DateTimeField(attrs={'class': 'form-control'}),
             'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
             'pago': forms.Select(att={'class': 'form-control'}),
-            'apendice': forms.Select(att={'class': 'form-control'}),
         }

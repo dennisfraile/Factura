@@ -1,0 +1,52 @@
+{% extends "../base.html" %}
+
+{% block content %}
+    <h1>Sujeto Excluido</h1>
+    <form method= "post">
+        {% csrf_token %}
+        <label for="entidad">Identificador</label>
+        {{ form.identificador }}
+        <br> 
+        <label for="entidad">Emisor</label>
+        {{ form.emisor }}
+        <br> 
+        <label for="entidad">Total de Operacion</label>
+        {{ form.totalCompra }}
+        <br> 
+        <label for="entidad">Monto Global del Descuento</label>
+        {{ form.descu}}
+        <br> 
+        <label for="entidad">Total del Monto de Descuento</label>
+        {{ form.totalDescu }}
+        <br> 
+        <label for="entidad">Subtotal</label>
+        {{ form.subtotal }}
+        <br> 
+        <label for="entidad">Retencion IVA MH</label>
+        {{ form.retencionIVAMH }}
+        <br> 
+        <label for="entidad">IVA Retenido</label>
+        {{ form.ivaRete1 }}
+        <br> 
+        <label for="entidad">Retencion de Renta</label>
+        {{ form.reteRenta }}
+        <br> 
+        <label for="entidad">Total a Pagar</label>
+        {{ form.totalPagar }}
+        <br> 
+        <label for="entidad">Total en Letras</label>
+        {{ form.totalLetras }}
+        <br> 
+        <label for="entidad">Condicion de la Operacion</label>
+        {{ form.condicionOperacion }}
+        <br> 
+        <label for="entidad">Pago</label>
+        {{ form.pago }}
+        <br> 
+        <label for="entidad">Observaciones</label>
+        {{ form.observaciones }}
+        <br> 
+        <input class="btn btn-success" type="submit" value="Guardar">
+        <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
+    </form>
+{% endblock %}

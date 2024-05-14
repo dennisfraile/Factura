@@ -1,0 +1,31 @@
+{% extends "../base.html" %}
+
+{% block content %}
+    <h1>Comprobante Donacion</h1>
+    <form method= "post">
+        {% csrf_token %}
+        <label for="entidad">Identificador</label>
+        {{ form.identificador }}
+        <br> 
+        <label for="entidad">Emisor</label>
+        {{ form.emisor }}
+        <br> 
+        <label for="entidad">Domicilio Fiscal</label>
+        {{ form.codDomicilio }}
+        <br> 
+        <label for="entidad">Pais</label>
+        {{ form.codPais}}
+        <br> 
+        <label for="entidad">Total de la Donacion</label>
+        {{ form.valorTotal }}
+        <br> 
+        <label for="entidad">Total en Letras</label>
+        {{ form.totalLetras }}
+        <br> 
+        <label for="entidad">Pago de Donacion</label>
+        {{ form.pago }}
+        <br> 
+        <input class="btn btn-success" type="submit" value="Guardar">
+        <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
+    </form>
+{% endblock %}

@@ -5,6 +5,7 @@ from django.forms.models import BaseModelForm
 from django.http.response import HttpResponse
 from .models import *
 from .forms import *
+from usuarios.models import *
 from datetime import datetime, timedelta, date
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
@@ -17,6 +18,9 @@ from django.urls import reverse_lazy
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests
+import jwt
 # Create your views here.
 
 @login_required(redirect_field_name='/ingresar')
@@ -350,7 +354,146 @@ class SujetoExcluidoDetailView(DetailView):
     model = SujetoExcluido
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)    
+        context = super().get_context_data(**kwargs)
+        sujetoExcluido = SujetoExcluido.objects.filter(id=context['object'].id) 
+        context['sujetoExcluido'] = sujetoExcluido
+        context['show'] = True
+        return context   
+
+@login_required(redirect_field_name='/ingresar')
+class SujetoExcluidoView(UserPassesTestMixin, DetailView):
+    """
+    Muestra los datos de un sujeto excluido
+    """
+    
+    login_url = '/ingresar/'
+    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'
+    model = SujetoExcluido
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+class Transmitir(View):
+    @csrf_exempt
+    def transmitir(self, factura, idEnvio,version, ambiente, tipoDte, codigoGeneracion):
+        user = get_object_or_404(User, pk=self.user.pk)
+        documentoEntidad = DocumentoIdentidad.objects.filter(user=user.id)
+        entidad = Entidad.objects.filter(documentoEntidad=documentoEntidad.user.id)
+        authHacienda = ParametrosAuthHacienda.objects.filter(entidad=entidad.id)
+        privateKey = authHacienda.privateKey
+        url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
+        parametros_auth = {
+            'content_Type' : 'application/x-www-form-urlencoded',
+            'user_agent ': authHacienda.userAgent,
+            'user' : authHacienda.user,
+            'pwd' : authHacienda.pwd,
+            }
+        if requests.method == 'POST':
+            url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
+            
+            try:
+                acesso = requests.post(url_auth, params=parametros_auth).json()  
+                
+                if acesso.status_code == 200:
+                    token = acesso['body']['token']
+                    private = open('clave_privada.pem', 'r')
+                    encoded = jwt.encode(factura, privateKey, algorithm="HS256")
+                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
+                    parametros_recepcion = {
+                        'Authorization': token,
+                        'User-Agent': authHacienda.userAgent,
+                        'content-Type': 'application/JSON',
+                        'ambiente': ambiente,
+                        'idEnvio': idEnvio,
+                        'version': version,
+                        'tipoDte': tipoDte,
+                        'documento': encoded,
+                        'codigoGeneracion': codigoGeneracion,
+                    }
+                    try:
+                        transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
+                    except:
+                        messages.success(self.request, 'Ocurrio en la transmision de la factura' + transmitir.status_code)
+                    messages.success(self.request, 'Se logueo con exito en hacienda')
+                    stastus_code = acesso.status_code
+                    return stastus_code
+                
+                else:
+                    stastus_code = acesso.status_code
+                    messages.success(self.request, 'Ocurrio un error con las credenciales' + acesso.status_code)
+                    return redirect('authHacienda', authHacienda.pk)
+                
+            except requests.exceptions.RequestException as e:
+                stastus_code = acesso.status_code
+                messages.success(self.request, 'Ocurrio un error al hacer la solicitud a la api de hacienda ' + str(e) + acesso.status_code)
+        else:
+            stastus_code = acesso.status_code
+            messages.success(self.request, 'Error esta vista solo admite solicitudes POST, error 405')
+            return redirect(reverse_lazy('sujetoExcluidoMonth',kwargs={'year':año, 'month':mes}))
+
+@login_required(redirect_field_name='/ingresar')
+class SujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
+    
+    login_url = '/ingresar/'
+    model = SujetoExcluido
+    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'    
+    
+    def post(self, request, *args, **kwargs):
+        j=0
+        i=0
+        pk=self.kwargs.get("pk")
+        resultados = dict(request.POST)
+        operacionSujetoExcluido = OperacionesSujetoExcluido.objects.filter(sujetoExcluido=pk)
+        id_identificador = request.POST.get('identificador')
+        identificador = get_object_or_404(Identificador, pk=id_identificador)
+        id_emisor = request.POST.get('emisor')
+        emisor = get_object_or_404(Emisor, pk=id_emisor)
+        id_receptor = request.POST.get('receptor')
+        receptor = get_object_or_404(Receptor, pk=id_receptor)
+
+class OperacionesSujetoExcluidoView(View):
+    login_url = '/ingresar/'
+    template_name = 'operacion_sujeto_excluido_view.html'
+    model = OperacionesSujetoExcluido
+    
+    def get_context_data(self, **kwargs) :
+        user = get_object_or_404(User, pk=self.user.pk)
+        documentoEntidad = DocumentoIdentidad.objects.filter(user=user.id)
+        entidad = Entidad.objects.filter(documentoEntidad=documentoEntidad.user.id)
+        context = super(OperacionesSujetoExcluidoView, self).get_context(**kwargs)
+        operacionesSujetoExcluido = FormaPago.objects.filter(entidad=entidad.id)
+        context['operaciones'] = operacionesSujetoExcluido
+        return context
+
+@login_required(redirect_field_name='/ingresar')
+class OperacionesSujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'operacion_sujeto_excluido_form.html'
+    form_class = OperacionesSujetoExcluidoForm
+    
+    def get_success_url(self):
+        p = self.kwargs
+        id = p.get("pk")
+        return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk': id})
+    
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+@login_required(redirect_field_name='/ingresar')
+class OperacionesSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
+    
+    login_url = '/ingresar'
+    template_name = 'operacion_sujeto_excluido_form.html'
+    form_class = OperacionesSujetoExcluidoForm
+    
+    def get_success_url(self):
+        p = self.kwargs
+        id = p.get("pk")
+        return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk': id})
+    
+    def form_valid(self, form):
+        return super().form_valid(form) 
 
 @login_required(redirect_field_name='/ingresar')
 class FormaPagoView(View):
@@ -360,7 +503,7 @@ class FormaPagoView(View):
     model = FormaPago
     
     def get_context_data(self, **kwargs) :
-        context = super(FormaPago, self).get_context(**kwargs)
+        context = super(FormaPagoView, self).get_context(**kwargs)
         formaPago = FormaPago.objects.all()
         context['registro'] = formaPago
         return context
@@ -731,7 +874,7 @@ class OtroDocumentoAsociadoView(View):
     def get_context_data(self, **kwargs) :
         context = super(OtroDocumentoAsociado, self).get_context(**kwargs)
         otroDocumentoAsociado = OtroDocumentoAsociado.objects.all()
-        context['registro'] = otroDocumentoAsociado
+        context['otroDocumentoAsociado'] = otroDocumentoAsociado
         return context
 
 @login_required(redirect_field_name='/ingresar')    
@@ -740,30 +883,29 @@ class OtroDocumentoAsociadoCreateView(UserPassesTestMixin,CreateView):
     login_url = '/ingresar'
     template_name = 'otro_documento_asociado_form.html'
     form_class = OtroDocumentoAsociadoForm
-    model = OtroDocumentoAsociado
     
     def get_success_url(self):
-        return reverse_lazy('otroDocumentoAsociadoList')
+        p = self.kwargs
+        id = p.get("pk")
+        return reverse_lazy('otroDocumentoDetailView', kwargs={'pk': id})
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el otro documento asociado con exito")
-        return redirect('otroDocumentoAsociadoList')
+    def form_valid(self, form):
+        return super().form_valid(form)
+    
 
 @login_required(redirect_field_name='/ingresar')
 class OtroDocumentoAsociadoUpdateView(UserPassesTestMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'otro_documento_asociado_form.html'
     form_class = OtroDocumentoAsociadoForm
-    model = OtroDocumentoAsociado
     
     def get_success_url(self):
-        return reverse_lazy('otroDocumentoAsociadoList')
-
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado otro documento asociado con exito")
-        return redirect('otroDocumentoAsociadoList')
+        p = self.kwargs
+        id = p.get("pk")
+        return reverse_lazy('otroDocumentoDetailView', kwargs={'pk': id})
+    
+    def form_valid(self, form):
+        return super().form_valid(form)
 
 @login_required(redirect_field_name='/ingresar')
 class CuerpoDocumentoView(View):
@@ -775,7 +917,7 @@ class CuerpoDocumentoView(View):
     def get_context_data(self, **kwargs) :
         context = super(CuerpoDocumento, self).get_context(**kwargs)
         cuerpoDocumento = CuerpoDocumento.objects.all()
-        context['registro'] = cuerpoDocumento
+        context['cuerpoDocumento'] = cuerpoDocumento
         return context
 
 @login_required(redirect_field_name='/ingresar')    
@@ -784,15 +926,14 @@ class CuerpoDocumentoCreateView(UserPassesTestMixin,CreateView):
     login_url = '/ingresar'
     template_name = 'cuerpo_documento_form.html'
     form_class = CuerpoDocumentoForm
-    model = CuerpoDocumento
     
     def get_success_url(self):
-        return reverse_lazy('cuerpoDocumentoList')
+        p = self.kwargs
+        id = p.get("pk")
+        return reverse_lazy('cuerpoDocumentoDetailView', kwargs={'pk': id})
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el cuerpo del documento con exito")
-        return redirect('cuerpoDocumentoList')
+    def form_valid(self, form):
+        return super().form_valid(form)
 
 @login_required(redirect_field_name='/ingresar')
 class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
@@ -802,24 +943,24 @@ class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
     model = CuerpoDocumento
     
     def get_success_url(self):
-        return reverse_lazy('cuerpoDocumentoList')
-
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el cuerpo del documento con exito")
-        return redirect('cuerpoDocumentoList')
+        p = self.kwargs
+        id = p.get("pk")
+        return reverse_lazy('cuerpoDocumentoDetailView', kwargs={'pk': id})
+    
+    def form_valid(self, form):
+        return super().form_valid(form)
 
 @login_required(redirect_field_name='/ingresar')
 class PagoDonacionView(View):
     
     login_url = '/ingresar/'
     template_name = 'pago_donacion_view.html'
-    model = OtroDocumentoAsociado
+    model = PagoDonacion
     
     def get_context_data(self, **kwargs) :
         context = super(PagoDonacion, self).get_context(**kwargs)
         pagoDonacion = PagoDonacion.objects.all()
-        context['registro'] = PagoDonacion
+        context['pagoDonacion'] = PagoDonacion
         return context
 
 @login_required(redirect_field_name='/ingresar')    
