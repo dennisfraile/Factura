@@ -28,8 +28,9 @@ urlpatterns = [
     path('factura/unidadMedidaUpdate/<int:pk>', UnidadMedidaUpdateView.as_view(), name='unidadMedidaUpdate'),
     
     path('facturaSujetoExcluido/operacionSujetoExcluido', OperacionSujetoExcluidoView.as_view(), name='index_operacionSujetoExcluido'),
-    path('facturaSujetoExcluido/operacionSujetoExcluidoCreate', OperacionSujetoExcluidoCreateView.as_view(), name='operacionSujetoExcluidoCreate'),
+    path('facturaSujetoExcluido/operacionSujetoExcluidoCreate/<int:id>', OperacionSujetoExcluidoCreateView.as_view(), name='operacionSujetoExcluidoCreate'),
     path('facturaSujetoExcluido/operacionSujetoExcluidoUpdate/<int:pk>', OperacionSujetoExcluidoUpdateView.as_view(), name='operacionSujetoExcluidoUpdate'),
+    path('facturaSujetoExcluido/operacionSujetoExcluidoVer/<int:pk>', OperacionSujetoExcluidoDetailView.as_view(), name='operacionSujetoExcluidoVer'),
     
     path('facturaSujetoExcluido/formaPago', FormaPagoView.as_view(), name='index_formaPago'),
     path('facturaSujetoExcluido/formaPagoCreate', FormaPagoCreateView.as_view(), name='formaPagoCreate'),
@@ -51,16 +52,13 @@ urlpatterns = [
     path('factura/identificadorCreate', IdentificadorCreateView.as_view(), name='identificadorCreate'),
     path('factura/identificadorUpdate/<int:pk>', IdentificadorUpdateView.as_view(), name='identificadorUpdate'),
     
-    path('factura/emisor', EmisorView.as_view(), name='index_emisor'),
-    path('factura/emisorCreate', EmisorCreateView.as_view(), name='emisorCreate'),
-    path('factura/emisorUpdate/<int:pk>', EmisorUpdateView.as_view(), name='emisorUpdate'),
-    
     path('factura/receptor', ReceptorView.as_view(), name='index_receptor'),
     path('factura/receptorCreate', ReceptorCreateView.as_view(), name='receptorCreate'),
     path('factura/receptorUpdate/<int:pk>', ReceptorUpdateView.as_view(), name='receptorUpdate'),
     
     path('facturaSujetoExcluido/sujetoExcluidoMonth/<int:year>/<int:month>', SujetoExcluidoMonthView.as_view(), name='sujetoExcluidoMonth'),
     path('facturaSujetoExcluido/sujetoExcluidoVer/<int:pk>', SujetoExcluidoDetailView.as_view(), name='sujetoExcluidoDetailView'),
+    path('facturaSujetoExcluido/transmitirSujetoExcluido/<int:pk>', Transmitir.as_view(), name='transmitirSujetoExcluido'),
     
     path('comprobanteDonacion/otroDocumentoAsociado', OtroDocumentoAsociadoView.as_view(), name='index_otroDocumentoAsociado'),
     path('comprobanteDonacion/otroDocumentoAsociadoCreate', OtroDocumentoAsociadoCreateView.as_view(), name='otroDocumentoAsociadoCreate'),

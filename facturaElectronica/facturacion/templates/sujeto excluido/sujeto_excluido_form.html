@@ -4,48 +4,85 @@
     <h1>Sujeto Excluido</h1>
     <form method= "post">
         {% csrf_token %}
-        <label for="entidad">Identificador</label>
-        {{ form.identificador }}
+        <div class="form-group row">
+            <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label}}</label>
+            <div class="col-sm-8">
+                {{ form.identificador }}
+            </div>
+            <div class="col-sm-2">
+                <a id="identificador" href="{% url 'identificadorCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
         <br> 
-        <label for="entidad">Emisor</label>
-        {{ form.emisor }}
+        <div class="form-group row">
+            <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
+            <div class="col-sm-8">
+                {{ form.receptor }}
+            </div>
+            <div class="col-sm-2">
+                <a id="receptor" href="{% url 'receptorCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
         <br> 
-        <label for="entidad">Total de Operacion</label>
+        {{ form.totalCompra.label_tag }}
         {{ form.totalCompra }}
         <br> 
-        <label for="entidad">Monto Global del Descuento</label>
+        {{ form.descu.label_tag }}
         {{ form.descu}}
         <br> 
-        <label for="entidad">Total del Monto de Descuento</label>
+        {{ form.totalDescu.label_tag }}
         {{ form.totalDescu }}
         <br> 
-        <label for="entidad">Subtotal</label>
+        {{ form.subtotal.label_tag }}
         {{ form.subtotal }}
         <br> 
-        <label for="entidad">Retencion IVA MH</label>
+        {{ form.retencionIVAMH.label_tag }}
         {{ form.retencionIVAMH }}
         <br> 
-        <label for="entidad">IVA Retenido</label>
+        {{ form.ivaRete1.label_tag }}
         {{ form.ivaRete1 }}
         <br> 
-        <label for="entidad">Retencion de Renta</label>
+        {{ form.reteRenta.label_tag }}
         {{ form.reteRenta }}
         <br> 
-        <label for="entidad">Total a Pagar</label>
+        {{ form.totalPagar.label_tag }}
         {{ form.totalPagar }}
         <br> 
-        <label for="entidad">Total en Letras</label>
+        {{ form.totalLetras.label_tag }}
         {{ form.totalLetras }}
         <br> 
-        <label for="entidad">Condicion de la Operacion</label>
+        {{ form.condicionOperacion.label_tag }}
         {{ form.condicionOperacion }}
         <br> 
-        <label for="entidad">Pago</label>
-        {{ form.pago }}
+        <div class="form-group row">
+            <label for="{{ form.pago.id_for_label }}" class="col-md-2 control-label">{{ form.pago.label}}</label>
+            <div class="col-sm-8">
+                {{ form.pago }}
+            </div>
+            <div class="col-sm-2">
+                <a id="pago" href="{% url 'pagoCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Pago">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
         <br> 
-        <label for="entidad">Observaciones</label>
+        {{ form.observaciones.label_tag }}
         {{ form.observaciones }}
-        <br> 
+        <br>
+        <input type="hidden" name="origin" value="sujetoexlcuido"> 
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
     </form>

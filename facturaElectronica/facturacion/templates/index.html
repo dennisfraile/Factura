@@ -2,9 +2,48 @@
 
 {% block content %}
   <div class="container-fluid py-1">
-    <h3 class="display-5 fw-bold">Panel de facturas</h3>
-    <p class="col-md-8 fs-4">Aquí puedes ver los enlaces a la administracion de las diferentes facturas.</p>
-
+    <h3 class="display-5 fw-bold">Panel Principal</h3>
+    <p class="col-md-8 fs-4">Aquí puedes ver los enlaces a las diferentes Areas del Sistema.</p>
+    {% if user.is_superuser %}
+      <div class="row">
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="col-lg-4 d-flex align-items-stretch">
+            <!--CARD HERE-->
+            <div class="card">
+              <div class="card-header">
+                Panel Referente a los usuarios de la Entidad
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Entidad</h5>
+                <p class="card-text">Aquí puedes ver los usuarios y datos de la entidad.</p>
+                <a href="{% url 'indexEntidad'  %}" class="btn btn-primary">Ver Info de la Entidad</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div class="row">
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="card">
+            <div class="card-header">
+              Panel de Datos Complementarios
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Datos Complementarios</h5>
+              <p class="card-text">Aquí se muestran subpanels para ingresar datos compelemntarios como: municipio departamento,
+                pais, unidad de medida, tipo de documento, etc.
+              </p>
+              <a href="{% url 'indexComplementario'  %}" class="btn btn-primary">Ir a panel Complementario</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-lg-4 d-flex align-items-stretch">
         <!--CARD HERE-->
@@ -16,8 +55,8 @@
             </div>
             <div class="card-body">
               <h5 class="card-title">Facturas de Consumidor Final</h5>
-              <p class="card-text">Aquí puedes ver todas las facturas de consumidor final que se han transmitido a hacienda.</p>
-              <a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Facturas de Consumidor Final</a>
+              <p class="card-text">Esta funcionalidad esta en proceso de implementacion, se paciente pronto estara para que la utilices</p>
+              <!--<a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Facturas de Consumidor Final</a>-->
             </div>
           </div>
         </div>
@@ -40,8 +79,8 @@
           </div>
           <div class="card-body">
             <h5 class="card-title">Comprobantes de Donacion</h5>
-            <p class="card-text">Aquí puedes ver todas los comprobantes de donacion que se han transmitido a hacienda.</p>
-            <a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Comprobantes de Donacion</a>
+            <p class="card-text">Esta funcionalidad esta en proceso de implementacion, se paciente pronto estara para que la utilices</p>
+            <!--<a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Comprobantes de Donacion</a>-->
           </div>
         </div>
       </div>
@@ -53,8 +92,8 @@
           </div>
           <div class="card-body">
             <h5 class="card-title">Comprobantes de Credito Fiscal</h5>
-            <p class="card-text">Aquí puedes ver todas los comprobantes de credito fiscal que se han transmitido a hacienda.</p>
-            <a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Comprobantes de Credito Fiscal</a>
+            <p class="card-text">Esta funcionalidad esta en proceso de implementacion, se paciente pronto estara para que la utilices</p>
+            <!--<a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Comprobantes de Credito Fiscal</a>-->
           </div>
         </div>
       </div>

@@ -4,8 +4,32 @@
     <h1>Pago</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.codigo.label_tag }}
+        {{ form.codigo }}
+        <div class="form-group row">
+            <label for="{{ form.formaPago.id_for_label }}" class="col-md-2 control-label">{{ form.formaPago.label}}</label>
+            <div class="col-sm-8">
+                {{ form.formaPago }}
+            </div>
+            <div class="col-sm-2">
+                <a id="formapago" href="{% url 'formaPagoCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Forma de Pago">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
+        {{ form.montoPago.label_tag }}
+        {{ form.montoPago }}
+        {{ form.referencia.label_tag }}
+        {{ form.referencia }}
+        {{ form.plazo.label_tag }}
+        {{ form.plazo }}
+        {{ form.periodo.label_tag }}
+        {{ form.periodo }}
         <br>
+        <input type="hidden" name="origin" value="pago">
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
     </form>

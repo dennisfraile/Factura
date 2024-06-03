@@ -9,6 +9,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
+from facturacion.models import Direccion
 
 class ActividadEconomica(models.Model):
      
@@ -21,21 +22,38 @@ class ActividadEconomica(models.Model):
      def __str__(self):
         return f'{self.codigo}'
 
+class Entidad(models.Model):
+    
+    razonSocial = models.CharField(verbose_name="Razon Social", max_length=100)
+    direccionEmisor = models.ForeignKey(Direccion, on_delete=models.CASCADE, editable=False)
+    cellphone = models.CharField(verbose_name="Telefono movil del usuario", 
+                                              help_text="Colocar el número sin identificador de país, sin espacios y sin guion." , 
+                                              max_length=30)
+    codEstableMH = models.CharField(verbose_name="Codigo del establecimiento asignado por el MH", max_length=4, null=True)
+    codEstable = models.CharField(verbose_name="Codigo del establecimiento asignado por el contribuyente", max_length=10, null=True)
+    codPuntoVentaMH = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el MH", max_length=4, null=True)
+    codPuntoVenta = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el Contribuyente", max_length=15, null=True)
+    email = models.EmailField(verbose_name="Correo electronico de la entidad", unique=True)
+    nit = models.CharField(verbose_name="Numero de NIT sin guiones",max_length=30)
+    nrc = models.CharField(verbose_name="NRC", max_length=100, null=True)
+    actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE, editable=False)
+    class Meta:
+        verbose_name_plural = "Entidades"
+
+    def __str__(self):
+        return f'{self.razonSocial}'
+
 class CustomerUser(AbstractBaseUser, PermissionsMixin):
-    TIPO_USUARIO = (
-         ("EMISOR","Usuario con acceso en el sistema"),
-         ("RECEPTOR","Usuario sin acceso al sistema"),
-    )
-    type_user = models.CharField(verbose_name="Tipo de usuario", max_length=50, choices=TIPO_USUARIO)
     name = models.CharField(verbose_name="Nombre del usuario", max_length=100)
     lastname = models.CharField(verbose_name="Apellido del usuario", max_length=100)
-    email = models.EmailField(verbose_name="Correo electrnico del usuario", unique=True)
+    email = models.EmailField(verbose_name="Correo electronico del usuario", unique=True)
     cellphone = models.CharField(verbose_name="Telefono movil del usuario", 
-                                              help_text="Colocal el número sin identificador de país, sin espacios y sin guion." , 
+                                              help_text="Colocar el número sin identificador de país, sin espacios y sin guion." , 
                                               max_length=20)
     organizacion = models.CharField(verbose_name="Organizaciones a las que esta asociado", max_length=100)
     nrc = models.CharField(verbose_name="NRC", max_length=100)
     actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE, editable=False)
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, null=True, related_name="Usuarios")
     
     pass
     date_joined = models.DateTimeField(gettext_lazy("date joined"),auto_now_add=True)
@@ -55,10 +73,6 @@ class CustomerUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name_plural = "Usuarios"
     
-    def save(self, *args, **kwargs):
-         if self.type_user is "RECEPTOR":
-              self.set_unusable_password()
-         super().save(*args, **kwargs)
 
     @property
     def full_name(self):
@@ -86,7 +100,7 @@ def generate_temporary_password():
 
 @receiver(post_save, sender=CustomerUser)
 def send_welcome_email(sender, instance, created, **kwargs):
-    if created and not instance.is_staff and not instance.type_user != "RECEPTOR":
+    if created and not instance.is_staff:
         # Asigna una contraseña temporal al usuario
         temporary_password = generate_temporary_password()
         instance.set_password(temporary_password)
@@ -99,43 +113,13 @@ def send_welcome_email(sender, instance, created, **kwargs):
         to_email = [instance.email]
         send_mail(subject, message, from_email, to_email)
 
-class DocumentoIdentidad(models.Model):
-    TIPOS_DOCUMENTO = (
-        ("DUI", "Documento Unico de Identidad"),
-        ("NIT","Numero de Identificacion Tributaria"),
-    )
-    HOMOLOGACION = (
-        ("Documento Homologado", "DUI"),
-        ("Documento No Homologado", "NIT"),
-    )
-    tipo = models.CharField(verbose_name="Tipo de Documento", max_length=25, choices=TIPOS_DOCUMENTO)
-    homologado = models.CharField(verbose_name="Homologacion", max_length=30, choices=HOMOLOGACION)
-    numero = models.CharField(verbose_name="Numero del documento sin guion")
-    user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, related_name="documentos")
-     
-    class Meta:
-        verbose_name_plural = "Documentos de Identidad"
-
-    def __str__(self):
-        return f'{self.tipo}'
-
-class Entidad(models.Model):
-    
-    razonSocial = models.CharField(verbose_name="Razon Social", max_length=100)
-    documentoEntidad = models.ForeignKey(DocumentoIdentidad, on_delete=models.CASCADE, editable=False)
-    
-    class Meta:
-        verbose_name_plural = "Entidades"
-
-    def __str__(self):
-        return f'{self.razonSocial}'
-
 class ParametrosAuthHacienda(models.Model):
     
     userAgent = models.CharField(verbose_name="User Agent", max_length=50)
-    nit = models.CharField(verbose_name="User", max_length=50)
+    nit = models.CharField(verbose_name="NIT", max_length=50)
     pwd = models.CharField(verbose_name="Password", max_length=100)
     privateKey = models.TextField(verbose_name="Clave Privada de Hacienda")
+    publicKey = models.TextField(verbose_name="Clave Publica de Hacienda")
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     
     class Meta:

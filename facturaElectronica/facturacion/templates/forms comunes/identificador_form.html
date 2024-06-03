@@ -4,8 +4,38 @@
     <h1>Identificador</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.version.label_tag }}
+        {{ form.version }}
+        {{ form.ambiente.label_tag }}
+        {{ form.ambiente }}
+        <div class="form-group row">
+            <label for="{{ form.tipoDte.id_for_label }}" class="col-md-2 control-label">{{ form.tipoDte.label}}</label>
+            <div class="col-sm-8">
+                {{ form.tipoDte }}
+            </div>
+            <div class="col-sm-2">
+                <a id="tipodocumento" href="{% url 'tipoDocumentoCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Tipo de Documento">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
+        {{ form.tipoModelo.label_tag }}
+        {{ form.tipoModelo }}
+        {{ form.tipoOperacion.label_tag }}
+        {{ form.tipoOperacion }}
+        {{ form.tipoContingencia.label_tag }}
+        {{ form.tipoContingencia }}
+        {{ form.motivoContin.label_tag }}
+        {{ form.motivoContin }}
+        {{ form.fechaEmi.label_tag }}
+        {{ form.fechaEmi }}
+        {{ form.tipoMoneda.label_tag }}
+        {{ form.tipoMoneda }}
         <br>
+        <input type="hidden" name="origin" value="identificador">
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
     </form>

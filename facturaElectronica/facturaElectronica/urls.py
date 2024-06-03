@@ -19,10 +19,9 @@ from django.urls import path, include, re_path
 from usuarios.views import *
 
 urlpatterns = [
-    re_path(r'^ingresar/$', views.login_view, name='login-panel'),
-    re_path(r'^panel/$', views.panel_view),
+    path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
     path('facturas/', include('facturacion.urls')),
-    path('admin/', admin.site.urls),
+    
     
 ]

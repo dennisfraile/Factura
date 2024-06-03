@@ -1,5 +1,12 @@
 from django.db import models
 from usuarios.models import *
+from django.db.models import Max
+import threading
+import uuid
+import re
+from django.core.exceptions import ValidationError
+import random
+import string
 # Create your models here.
 
 class Pais(models.Model):
@@ -39,7 +46,7 @@ class Direccion(models.Model):
 
     complementoDireccion = models.CharField(verbose_name = "Direccion complemento",max_length=100)
     municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE, editable=False)
-    
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="direcciones")
 
     class Meta:
         verbose_name_plural = "Direcciones"
@@ -95,13 +102,17 @@ class TipoDocumento(models.Model):
     codigo = models.CharField(verbose_name="Codigo",max_length=3)
     valores = models.CharField(verbose_name="Valores",max_length=50)
 
-    #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
         verbose_name_plural = "Tipos de Documentos"
 
     def __str__(self):
         return f'{self.codigo}'
+
+def generateNumeroControl():
+    part1 = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    part2 = ''.join(random.choices(string.digits, k=15))
+    return f'DTE-14-{part1}-{part2}'
+
 
 class Identificador(models.Model):
   
@@ -128,48 +139,55 @@ class Identificador(models.Model):
     version = models.IntegerField(verbose_name="Version")
     ambiente = models.CharField(verbose_name="Ambiente de destino", max_length=20, choices=AMBIENTE_DESTINO)
     tipoDte = models.ForeignKey(TipoDocumento, ondelete=models.CASCADE, editable=False)
-    numeroControl = models.CharField(verbose_name="Numero de control", max_length=31)
-    codigoGeneracion = models.CharField(verbose_name="Codigo de generacion", max_length=36)
+    numeroControl = models.CharField(verbose_name="Numero de control", max_length=31, default=generateNumeroControl)
+    codigoGeneracion = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     tipoModelo = models.CharField(verbose_name="Modelo de facturacion", choices=MODELO_FACTURACION)
     tipoOperacion = models.CharField(verbose_name="Tipo de Transmision", choices=TIPO_TRANSMICION)
-    tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia", choices=TIPO_CONTINGENCIA)
+    tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia", choices=TIPO_CONTINGENCIA, null=True)
     motivoContin = models.CharField(verbose_name="Motivo de Contingencia", max_length=500)
-    fechaEmi = models.DateTimeField(verbose_name="Fecha de Generacion",auto_now_add=True)
     tipoMoneda = models.CharField(verbose_name="Tipo de Moneda", max_length=30) 
     
     #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)  
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False) 
+    
     class Meta:
         verbose_name_plural = "Identificaciones"
 
     def __str__(self):
         return f'{self.version}'
 
-class Emisor(models.Model):
-
-    #Emisor
-    emisor = models.ForeignKey(CustomerUser, ondelete=models.CASCADE, editable=False)
-    direccionEmisor = models.ForeignKey(Direccion, on_delete=models.CASCADE, editable=False)
-    codEstableMH = models.CharField(verbose_name="Codigo del establecimiento asignado por el MH", max_length=4)
-    codEstable = models.CharField(verbose_name="Codigo del establecimiento asignado por el contribuyente", max_length=10)
-    codPuntoVentaMH = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el MH", max_length=4)
-    codPuntoVenta = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el Contribuyente", max_length=15)
-    class Meta:
-        verbose_name_plural = "Emisores"
-
-    def __str__(self):
-        return f'{self.emisor_name}'
-
 class Receptor(models.Model):
 
-    receptor = models.ForeignKey(CustomerUser, on_delete=models.CASCADE, editable=False)
+    TIPOS_DOCUMENTO = (
+        ("13","DUI"),
+        ("36","NIT"),
+        ("37","Otro"),
+        ("03","Pasaporte"),
+        ("02","Carnet de Residente"),
+    )
+    HOMOLOGACION = (
+        ("DUI","Documento Homologado"),
+        ("NIT","Documento No Homologado"),
+    )
+    tipo = models.CharField(verbose_name="Tipo de Documento", max_length=25, choices=TIPOS_DOCUMENTO)
+    homologado = models.CharField(verbose_name="Homologacion", max_length=30, choices=HOMOLOGACION)
+    numero = models.CharField(verbose_name="Numero del documento sin guion",max_length=20)
+    nombre = models.CharField(verbose_name="Nombre, Denominacion o Razon Social del contribuyente", max_length=250)
+    actividadEconomica = models.ForeignKey(ActividadEconomica, on_delete=models.SET_NULL, null=True, blank=True , editable=False)
     direccionReceptor = models.ForeignKey(Direccion, on_delete=models.CASCADE, editable=False)
-
+    cellphone = models.CharField(verbose_name="Telefono movil del usuario", 
+                                              help_text="Colocar el número sin identificador de país, sin espacios y sin guion." , 
+                                              max_length=30)
+    email = models.EmailField(verbose_name="Correo electronico de la entidad", unique=True, max_length=100)
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="sujetosExcluidos")
     class Meta:
         verbose_name_plural = "Receptores"
 
     def __str__(self):
         return f'{self.receptor_name}'
+
+
 class SujetoExcluido(models.Model):
     
     CONDICION_OPERACION = (
@@ -187,7 +205,7 @@ class SujetoExcluido(models.Model):
     identificador = models.ForeignKey(Identificador, ondelete=models.CASCADE, editable=False)
     
     #Emisor
-    emisor = models.ForeignKey(Emisor, ondelete=models.CASCADE, editable=False)
+    emisor = models.ForeignKey(Entidad, ondelete=models.CASCADE, editable=False)
     
     #Sujeto Excluido
     receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE, editable=False)
@@ -210,12 +228,30 @@ class SujetoExcluido(models.Model):
     transmitido = models.BooleanField(default=False)
 
     #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)    
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="sujetosExcluidos")    
     class Meta:
         verbose_name_plural = "Sujetos Excluidos"
 
     def __str__(self):
         return f'{self.identificador}'
+    
+    def get_formatted_time(self):
+        return self.fechaEmi.strftime('%H:%M:%S')
+    
+    def clean(self):
+        super().clean()
+        pattern = re.compile(r'^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$')
+        formatted_time = self.get_formatted_time()
+        if not pattern.match(formatted_time):
+            try:
+                # Intentar ajustar la hora al formato correcto
+                self.fechaTransmicion = self.fechaTransmicion.replace(second=0, microsecond=0)
+                formatted_time = self.get_formatted_time()
+
+                if not pattern.match(formatted_time):
+                    raise ValidationError(f'Failed to format time correctly. Time {formatted_time} does not match the required pattern.')
+            except ValueError as e:
+                raise ValidationError(f'Error formatting time: {e}')
 
 class OperacionesSujetoExcluido(models.Model):
     
@@ -226,18 +262,18 @@ class OperacionesSujetoExcluido(models.Model):
         ("4", "Otros tributos por item")
     )
 
-    numItem = models.IntegerField(verbose_name = "N° item", required=True)
-    tipoItem = models.CharField(verbose_name = "Tipo de item", required=True, choice=TIPO_ITEM)
-    codigo = models.CharField(verbose_name = "Codigo", max_length=25, required=True)
+    numItem = models.IntegerField(verbose_name = "N° item", max_length=2000)
+    tipoItem = models.CharField(verbose_name = "Tipo de item", choice=TIPO_ITEM)
+    codigo = models.CharField(verbose_name = "Codigo", max_length=25, null=True)
     uniMedida = models.ForeignKey(UnidadMedida,  ondelete=models.CASCADE, editable=False)
-    cantidad = models.IntegerField(verbose_name = "Cantidad", max_digits=12, decimal_places=2 , required=True)
-    montoDescu = models.DecimalField(verbose_name = "Monto", max_digits=12, decimal_places=2 , required=True)
-    compra = models.DecimalField(verbose_name = "Ventas", max_digits=12, decimal_places=2 ,required=True)
+    cantidad = models.IntegerField(verbose_name = "Cantidad", max_digits=12, decimal_places=2 )
+    montoDescu = models.DecimalField(verbose_name = "Monto", max_digits=12, decimal_places=2 )
+    compra = models.DecimalField(verbose_name = "Ventas", max_digits=12, decimal_places=2)
     retencion = models.DecimalField(verbose_name="Retencion", max_digits=12, decimal_places=2)
-    descripccion = models.TextField(verbose_name="Descripccion", max_length=100, required=True)
-    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=12, decimal_places=2 ,required=True)
+    descripccion = models.TextField(verbose_name="Descripccion", max_length=1000)
+    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=12, decimal_places=2)
     
-    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False)
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False, related_name="operacionesSujetoExcluido")
     
     #Entidad a la que pertenece
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
@@ -253,8 +289,6 @@ class PagoDonacion(models.Model):
     montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=12, decimal_places=2)
     referencia = models.CharField(verbose_name="Referencia de la modalidad de pago", max_length=50)
 
-    #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
         verbose_name_plural = "Pagos de donacion"
 
@@ -270,7 +304,7 @@ class ComprobanteDonacion(models.Model):
     identificador = models.ForeignKey(Identificador, ondelete=models.CASCADE, editable=False) 
 
     #Donatorio
-    emisor = models.ForeignKey(Emisor, ondelete=models.CASCADE, editable=False)
+    emisor = models.ForeignKey(Entidad, ondelete=models.CASCADE, editable=False)
     
     #Donante
     receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE, editable=False)
@@ -346,12 +380,12 @@ class CuerpoDocumento(models.Model):
 class Apendice(models.Model):
 
     campo = models.CharField(verbose_name="Nombre del campo", max_length=25)
-    etiqueta = models.TextField(verbose_name="Descripccion")
+    etiqueta = models.TextField(verbose_name="Descripccion", max_length=50)
     valor = models.CharField(verbose_name="Valor/Dato", max_length=150)
     
     #Facturas Asociadas
-    sujetoExcluido = models.ForeignKey(SujetoExcluido, null=True, on_delete=models.CASCADE, editable=False)
-    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, null=True, on_delete=models.CASCADE, editable=False)
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, null=True, on_delete=models.CASCADE, editable=False, related_name="apendices")
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, null=True, on_delete=models.CASCADE, editable=False, related_name="apendices")
 
     #Entidad a la que pertenece
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
@@ -360,3 +394,13 @@ class Apendice(models.Model):
 
     def __str__(self):
         return f'{self.campo}'
+
+class ResponseHacienda(models.Model):
+    
+    nombre = models.CharField(max_length=100)
+    datosJson = models.JSONField()
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False, null=True, related_name="responses")
+    comprobanteDonacion = models.ForeignKey(PagoDonacion, on_delete=models.CASCADE, editable=False, null=True, related_name="responses")
+    
+    class Meta:
+        verbose_name_plural = "Responses"

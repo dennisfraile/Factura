@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Entidad</h1>
+    <form method= "post">
+        {% csrf_token %}
+        {{ form.razonSocial.label_tag }}
+        {{ form.razonSocial }}
+        <div class="form-group row">
+            <label for="{{ form.direccionEmisor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionEmisor.label}}</label>
+            <div class="col-sm-8">
+                {{ form.direccionEmisor }}
+            </div>
+            <div class="col-sm-2">
+                <a id="tramite" href="{% url 'direccionCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Direccion">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
+        {{ form.cellphone.label_tag }}
+        {{ form.cellphone }}
+        {{ form.codEstableMH.label_tag }}
+        {{ form.codEstableMH }}
+        {{ form.codEstable.label_tag }}
+        {{ form.codPuntoEstable }}
+        {{ form.codPuntoVentaMH.label_tag }}
+        {{ form.codPuntoVentaMH }}
+        {{ form.codPuntoVenta.label_tag }}
+        {{ form.codPuntoVenta }}
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {{ form.nit.label_tag }}
+        {{ form.nit }}
+        {{ form.nrc.label_tag }}
+        {{ form.nrc }}
+        <div class="form-group row">
+            <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
+            <div class="col-sm-8">
+                {{ form.actividadEconomica }}
+            </div>
+            <div class="col-sm-2">
+                <a id="tramite" href="{% url 'actividadEconomicaCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Actividad Economica">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
+        <br>
+        <input type="hidden" name="origin" value="entidad">
+        <input class="btn btn-success" type="submit" value="Guardar">
+        <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
+    </form>
+{% endblock %}

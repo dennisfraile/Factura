@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-fluid py-1">
+    <h3 class="display-5 fw-bold">Panel Complementario</h3>
+    <p class="col-md-8 fs-4">Aquí puedes ver los enlaces a las diferentes apartdos para completar informacion general de cada factura.</p>
+    <div class="row">
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="col-lg-4 d-flex align-items-stretch">
+            <!--CARD HERE-->
+            <div class="card">
+              <div class="card-header">
+                Panel de Pais
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Pais</h5>
+                <p class="card-text">Aquí puedes crear y editar la info de un pais.</p>
+                <a href="{% url 'index_pais'  %}" class="btn btn-primary">Ir a Index Pais</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="card">
+            <div class="card-header">
+              Panel de Departamentos
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Departamentos</h5>
+              <p class="card-text">Aquí puedes crear y editar la info de un Departamento.</p>
+              <a href="{% url 'index_departamento'  %}" class="btn btn-primary">Ir a Index Departamento</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="card">
+            <div class="card-header">
+              Panel de Municipios
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Municipios</h5>
+              <p class="card-text">Aquí puedes crear y editar la info de un Municipio</p>
+              <a href="{% url 'index_municipio'  %}" class="btn btn-primary">Ir a Index de Municipio</a>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            Panel de Unidad de Medida
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Unidad de Medida</h5>
+            <p class="card-text">Aquí puedes crear y editar la info de una Unidad de Medida.</p>
+            <a href="{% url 'index_unidadMedida %}" class="btn btn-primary">Ir a Index de Unidad de Medida</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="card">
+          <div class="card-header">
+            Panel de Forma de Pago
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Forma de Pago</h5>
+            <p class="card-text">Aquí puedes crear y editar la info de una Forma de Pago.</p>
+            <a href="{% url 'index_formaPago'  %}" class="btn btn-primary">Ir a Index de Forma de Pago</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="card">
+          <div class="card-header">
+            Panel de Tipo de Documento
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Tipo de Documento</h5>
+            <p class="card-text">Aquí puedes crear y editar la info de un Tipo de Documento.</p>
+            <a href="{% url 'index_tipoDocumento'  %}" class="btn btn-primary">Ir a Index de Tipo de Documento</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <a href="{% url 'panel_facturas' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al Panel de Facturas</a>
+  </div>
+{% endblock %}

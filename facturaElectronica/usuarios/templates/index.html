@@ -10,12 +10,25 @@
         <!--CARD HERE-->
         <div class="card">
           <div class="card-header">
+            Entidad
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Entidad</h5>
+            <p class="card-text">Aquí puedes ver la info sobrte la Entidad.</p>
+            <!-- <a href="{% url 'entidad' %}" class="btn btn-primary">Acceder</a>-->
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <!--CARD HERE-->
+        <div class="card">
+          <div class="card-header">
             Usuarios
           </div>
           <div class="card-body">
             <h5 class="card-title">Usuarios</h5>
-            <p class="card-text">Aquí puedes ver los usuarios que posee el sistema.</p>
-            <a href="{% url 'ticketsList' year=2023 month=01 %}" class="btn btn-primary">Acceder</a>
+            <p class="card-text">Aquí puedes ver los usuarios que posee la Entidad.</p>
+            <a href="{% url 'index_user %}" class="btn btn-primary">Acceder</a>
           </div>
         </div>
       </div>
@@ -29,7 +42,7 @@
             <h5 class="card-title">Roles</h5>
             <p class="card-text">Aquí puedes ver los roles disponibles
               para los usuarios.</p>
-            <a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Roles</a>
+            <!--<a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Roles</a>-->
           </div>
         </div>
       </div>

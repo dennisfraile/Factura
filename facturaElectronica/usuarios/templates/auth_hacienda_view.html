@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Parametros de Auth Hacienda</h1>
+    <label for="userAgent">User Agent</label>
+    <input name="userAgent" type="text" readonly value="{{ parametro.userAgent }}">
+    <label for="nit">NIT</label>
+    <input name="nit" type="text" readonly value="{{ parametro.nit }}">
+
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+{% endblock %}

@@ -83,7 +83,6 @@ class OperacionesSujetoExcluidoForm(forms.ModelForm):
             'uniMedida': forms.Select(attrs={'class': 'form-control'}),
             'cantidad' : forms.IntegerField(attrs={'class': 'form-control'}),
             'montoDescu' : forms.DecimalField(attrs={'class': 'form-control'}),
-            'montoDescu' : forms.DecimalField(attrs={'class': 'form-control'}),
             'compra' : forms.DecimalField(attrs={'class': 'form-control'}),
             'retencion' : forms.DecimalField(attrs={'class': 'form-control'}),
             'description' : forms.TextField(attrs={'class': 'form-control'}),
@@ -127,21 +126,17 @@ class ApendiceForm(forms.ModelForm):
 
     class Meta:
         model = Apendice
-        fields =['campo','etiqueta','valor', 'sujetoExcluido', 'comprobanteDonacion']
+        fields =['campo','etiqueta','valor']
         label = {
             'codigo': 'Codigo',
             'etiqueta': 'Etiqueta',
             'valor': 'Valor',
-            'sujetoExcluido': 'Sujeto Excluido',
-            'comprobanteDonacion': 'Comprobante de Donacion',
         }
         
         widgets = {
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'etiqueta': forms.TextInput(attrs={'class': 'form-control'}),
             'valor': forms.TextInput(attrs={'class': 'form-control'}),
-            'sujetoExcluido': forms.Select(attrs={'class': 'form-control'}),
-            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class TipoDocumentoForm(forms.ModelForm):
@@ -186,8 +181,6 @@ class IdentificadorForm(forms.ModelForm):
             'version': 'Version',
             'ambiente': 'Ambiente de destino',
             'tipoDte': 'Tipo de documento',
-            'numeroControl': 'Numero de control',
-            'codigoGeneracion': 'Generacion de generacion',
             'tipoModelo': 'Modelo de Facturacion',
             'tipoOperacion':'Tipo de transmicion',
             'tipoContingencia':'Tipo de contingencia',
@@ -198,51 +191,67 @@ class IdentificadorForm(forms.ModelForm):
         widgets = {
             'version': forms.IntegerField(attrs={'class': 'form-control'}),
             'tipoDte': forms.Select(attrs={'class': 'form-control'}),
-            'numeroControl': forms.TextInput(attrs={'class': 'form-control'}),
-            'codigoGenercacion': forms.TextInput(attrs={'class': 'form-control'}),
             'motivoContin': forms.TextInput(attrs={'class': 'form-control'}),
             'fechaEmi': forms.DateInput(attrs={'class': 'form-control'}),
             'tipoMoneda': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-class EmisorForm(forms.ModelForm):
-    class Meta:
-        models = Emisor
-        fields = [
-            'emisor','direccionEmisor','codEstableMH',
-            'codEstable','codPuntoVentaMH','codPuntoVenta',
-            ]
-        label = {
-            'emisor':'Emisor',
-            'direccionEmisor':'Direccion del emisor',
-            'codEstableMH': 'Codigo del establecimiento asignado por MH',
-            'codEstable':'Codigo del establecimiento asignado por contribuyente',
-            'codPuntoVentaMH':'Codigo punto venta asignado por MH',
-            'codPuntoVenta':'Codigo punto venta asignado por contriobuyente',
-        }
-        widgets = {
-            'emisor': forms.Select(attrs={'class': 'form-control'}),
-            'direccionEmisor': forms.Select(attrs={'class': 'form-control'}),
-            'codEstableMh':  forms.TextInput(attrs={'class': 'form-control'}),
-            'codEstable':  forms.TextInput(attrs={'class': 'form-control'}),
-            'codPuntoVentaMH':  forms.TextInput(attrs={'class': 'form-control'}),
-            'codPuntoVenta':  forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
 class ReceptorForm(forms.Form):
+    
+    direccionReceptor = forms.ModelChoiceField(queryset=Direccion.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Direccion del Receptor")
+    def __init__(self, *args, **kwargs):
+        entidad = kwargs.pop('entidad',None)
+        super().__init__(*args, **kwargs)
+        if entidad:
+            self.fields['direccionReceptor'].queryset = Direccion.objects.filter(entidad=entidad)
+            
+    tipo = forms.ChoiceField(
+        choices={
+            ("13","DUI"),
+            ("36","NIT"),
+            ("37","Otro"),
+            ("03","Pasaporte"),
+            ("02","Carnet de Residente")
+        }
+    )
+    homologado = forms.ChoiceField(
+        choices={
+            ("DUI","Documento Homologado"),
+            ("NIT","Documento No Homologado")
+        }
+    )
     class Meta:
         models = Receptor
-        fields = ['receptor', 'direccionReceptor']
+        fields = ['tipo', 'homologado','numero', 'nombre', 'actividadEconomica', 'direccionReceptor','cellphone', 'email']
         label ={
-            'receptor': 'Receptor', 
-            'direccionReceptor':'Direccion del receptor'
+            'tipo': 'Tipo', 
+            'homologado':'Homologado',
+            'numero':'Numero',
+            'nombre':'Nombre',
+            'actividadEconomica':'ActividadEconomica',
+            'cellphone':'Numero de Telefono',
+            'email':'Email',
             }
         widgets = {
-            'receptor': forms.Select(attrs={'class':'form-control'}),
-            'direccionReceptor': forms.Select(attrs={'class':'form-control'}),
+            'numero': forms.TextInput(attrs={'class':'form-control'}),
+            'nombre': forms.TextInput(attrs={'class':'form-control'}),
+            'actividadEconomica': forms.Select(attrs={'class':'form-control'}),
+            'cellphone': forms.TextInput(attrs={'class':'form-control'}),
+            'email': forms.EmailField(attrs={'class':'form-control'}),
         }
 
 class SujetoExcluidoForm(forms.Form):
+    
+    identificador = forms.ModelChoiceField(queryset=Identificador.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Identificador")
+    receptor = forms.ModelChoiceField(queryset=Receptor.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Receptor")
+    pago = forms.ModelChoiceField(queryset=Pago.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Pago")
+    def __init__(self, *args, **kwargs):
+        entidad = kwargs.pop('entidad',None)
+        super().__init__(*args, **kwargs)
+        if entidad:
+            self.fields['identificador'].queryset = Identificador.objects.filter(entidad=entidad)
+            self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
+            self.fields['pago'].queryset = Pago.objects.filter(identificador=entidad)
     class Meta:
         models = SujetoExcluido
         condicionOperacion = forms.ChoiceField(
@@ -259,12 +268,9 @@ class SujetoExcluidoForm(forms.Form):
                 ("C9", "Otras retenciones IVA casos especiales")
             }
         )
+        
         fields = '__all__'
         label = {
-            'identificador':'Identificador',
-            'emisor':'Emisor',
-            'receptor':'Receptor',
-            'operaciones':'Operaciones',
             'totalCompra':'Total de Operaciones',
             'descu':'Monto Global del Descuento',
             'totalDescu':'Total del monto de Descuento',
@@ -275,15 +281,9 @@ class SujetoExcluidoForm(forms.Form):
             'totalPagar':'Total a Pagar',
             'totalLetras':'Total en Letras',
             'condicionOperacion':'Condicion de Operacion',
-            'pago':'Pagos',
             'observaciones':'Observaciones',
-            'apendice':'Apendice',
         }
         widgets = {
-            'identificador': forms.Select(attrs={'class': 'form-control'}),
-            'emisor': forms.Select(attrs={'class': 'form-control'}),
-            'receptor': forms.Select(attrs={'class': 'form-control'}),
-            'operaciones': forms.Select(attrs={'class': 'form-control'}),
             'totalCompra': forms.DecimalField(attrs={'class': 'form-control'}),
             'descu': forms.DecimalField(attrs={'class': 'form-control'}),
             'totalDescu': forms.DecimalField(attrs={'class': 'form-control'}),
@@ -292,9 +292,7 @@ class SujetoExcluidoForm(forms.Form):
             'reteRenta': forms.DecimalField(attrs={'class': 'form-control'}),
             'totalPagar': forms.DecimalField(attrs={'class': 'form-control'}),
             'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
-            'pago': forms.Select(attrs={'class': 'form-control'}),
             'observaciones':forms.TextInput(attrs={'class': 'form-control'}),
-            'apendice': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class OtroDocumentoAsociadoForm(forms.Form):

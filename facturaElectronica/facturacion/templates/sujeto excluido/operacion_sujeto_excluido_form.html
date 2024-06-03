@@ -4,7 +4,38 @@
     <h1>Operacion Sujeto Excluido</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.numItem.label_tag }}
+        {{ form.numItem }}
+        {{ form.tipoItem.label_tag }}
+        {{ form.tipoItem }}
+        {{ form.codigo.label_tag }}
+        {{ form.codigo }}
+        <div class="form-group row">
+            <label for="{{ form.uniMedida.id_for_label }}" class="col-md-2 control-label">{{ form.uniMedida.label}}</label>
+            <div class="col-sm-8">
+                {{ form.uniMedida }}
+            </div>
+            <div class="col-sm-2">
+                <a id="unidadmedida" href="{% url 'unidadMedidaCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Unidad de Medida">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
+        {{ form.cantidad.label_tag }}
+        {{ form.cantidad }}
+        {{ form.montoDescu.label_tag }}
+        {{ form.montoDescu }}
+        {{ form.compra.label_tag }}
+        {{ form.compra }}
+        {{ form.retencion.label_tag }}
+        {{ form.retencion }}
+        {{ form.descripccion.label_tag }}
+        {{ form.descripccion }}
+        {{ form.precioUni.label_tag }}
+        {{ form.precioUni }}
         <br>
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>

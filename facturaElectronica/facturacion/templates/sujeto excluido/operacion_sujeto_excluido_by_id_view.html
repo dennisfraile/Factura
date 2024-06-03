@@ -13,7 +13,7 @@
 </div>
   <div class="container-fluid py-5">
     <div class="container-fluid">
-      <h3 class="display-5 fw-bold">Detalle del operacion de sujeto excluido {{object.numItem}}
+      <h3 class="display-5 fw-bold">Detalle de la operacion de sujeto excluido {{object.numItem}}
         <a id="operacionsujetoexcluido" href="{% url 'updateOperacionSujetoExcluido' object.id %}" 
             class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Operacion Sujeto Excluido">
             <span class="material-symbols-outlined">
@@ -24,7 +24,7 @@
       </div>
     <div class="table-responsive">
       < class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
-        {% if object %}
+        {% if operacion %}
           <table>
             <thead>
               <tr>
@@ -35,49 +35,49 @@
               <tr>
                 <td>
                   <label for="numItem">N° item</label>
-                  <input name="numItem" type="text" readonly class="form-control" value="{{ object.numItem }}">
+                  <input name="numItem" type="text" readonly class="form-control" value="{{ operacion.numItem }}">
                 </td>
                 <td>
                   <label for="tipoItem">Tipo de Item</label>
-                  <input name="tipoItem" type="text" readonly class="form-control" value="{{ object.tipoItem }}">
+                  <input name="tipoItem" type="text" readonly class="form-control" value="{{ operacion.tipoItem }}">
                 </td>
               </tr>
               <tr>
                 <td>
                   <label for="codigo">Codigo</label>
-                  <input name="codigo" type="text" readonly class="form-control" value="{{ object.codigo }}">
+                  <input name="codigo" type="text" readonly class="form-control" value="{{ operacion.codigo }}">
                 </td>
                 <td>
                   <label for="unidadMedida">Unidad de Medida</label>
-                  <input name="unidadMedida" type="text" readonly class="form-control" value="{{ object.unidadMedida.valor }}">
+                  <input name="unidadMedida" type="text" readonly class="form-control" value="{{ operacion.unidadMedida.valor }}">
                 </td>
               </tr>
               <tr>
                 <td>
                   <label for="cantidad">Cantidad</label>
-                  <input name="cantidad" type="text" readonly class="form-control" value="{{ object.cantidad }}">
+                  <input name="cantidad" type="text" readonly class="form-control" value="{{ operacion.cantidad }}">
                 </td>
                 <td>     
                   <label for="montoDescu">Monto</label>
-                  <input name="montoDescu" type="text" readonly class="form-control" value="{{ object.montoDescu }}">
+                  <input name="montoDescu" type="text" readonly class="form-control" value="{{ operacion.montoDescu }}">
                 </td>
                 <td>
                   <label for="compra">Ventas</label>
-                  <input name="compra" type="text" readonly class="form-control" value="{{ object.compra }}">
+                  <input name="compra" type="text" readonly class="form-control" value="{{ operacion.compra }}">
                 </td>
               </tr>
               <tr>
                 <td>
                   <label for="retencion">Retencion</label>
-                  <input name="retencion" type="text" readonly class="form-control" value="{{ object.retencion }}">
+                  <input name="retencion" type="text" readonly class="form-control" value="{{ operacion.retencion }}">
                 </td>
                 <td>
                   <label for="descripccion">Descripccion</label>
-                  <input name="descripccion" type="text" readonly class="form-control" value="{{ object.descripccion }}">
+                  <input name="descripccion" type="text" readonly class="form-control" value="{{ operacion.descripccion }}">
                 </td>
                 <td>
                   <label for="precioUni">Precio Unitario</label>
-                  <input name="precioUni" type="text" readonly class="form-control" value="{{ object.precioUni }}">
+                  <input name="precioUni" type="text" readonly class="form-control" value="{{ operacion.precioUni }}">
                 </td>
               </tr>
             </tbody>

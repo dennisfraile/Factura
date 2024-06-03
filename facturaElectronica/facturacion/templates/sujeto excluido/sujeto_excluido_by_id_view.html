@@ -29,14 +29,20 @@
             <thead>
               <tr>
                 <th scope="col"><h2>Identificacion</h2></th>
+                {% if not sujetoExcluido.transmitido  %}
+                  <th scope="col">
+                      <a id="identificador" href="{% url 'identificadorUpdate' object.identificador.id %}" 
+                      class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Identificador">
+                        <span class="material-symbols-outlined">
+                          edit
+                        </span>
+                      </a>
+                  </th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>
-                  <label for="id">ID</label>
-                  <input name="id" type="text" readonly class="form-control" value="{{ object.id }}">
-                </td>
                 <td>
                   <label for="version">Version</label>
                   <input name="version" type="text" readonly class="form-control" value="{{ object.version }}">
@@ -47,10 +53,6 @@
                 </td>
               </tr>
               <tr>
-                <td>
-                  <label for="tipoDte">Tipo de documento</label>
-                  <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
-                </td>
                 <td>
                   <label for="tipoDte">Tipo de documento</label>
                   <input name="tipoDte" type="text" readonly class="form-control" value="{{ object.tipoDte.valores }}">
@@ -104,21 +106,42 @@
               <tr>
                 <td>
                   <label for="emisor">Emisor</label>
-                  <input name="emisor" type="text" readonly class="form-control" value="{{ object.emisor.name }}">
+                  <input name="emisor" type="text" readonly class="form-control" value="{{ object.emisor.razonSocial }}">
                 </td>
                 <td>
                   <label for="direccionEmisor">Direccion del Emisor</label>
-                  <input name="direccionEmisor" type="text" readonly class="form-control" value="{{ object.direccionEmisor.complementoDireccion }}">
-                </td>
-                <td>
-                  <label for="codEstableMH">Codigo del establecimiento asignado por el contribuyente</label>
-                  <input name="codEstableMH" type="text" readonly class="form-control" value="{{ object.codEstableMH }}">
+                  <input name="direccionEmisor" type="text" readonly class="form-control" value="{{ object.emisor.direccionEmisor.complementoDireccion }}">
                 </td>
               </tr>
               <tr>
                 <td>
-                  <label for="codEstable">Codigo del punto de venta asignado por el MH</label>
-                  <input name="codEstable" type="text" readonly class="form-control" value="{{ object.codEstable }}">
+                  <label for="cellphone">Telefono Movil</label>
+                  <input name="cellphone" type="text" readonly class="form-control" value="{{ object.emisor.cellphone }}">
+                </td>
+                <td>
+                  <label for="email">Email</label>
+                  <input name="email" type="text" readonly class="form-control" value="{{ object.emisor.email }}">
+                </td>
+                <td>
+                  <label for="nit">NIT</label>
+                  <input name="nit" type="text" readonly class="form-control" value="{{ object.emisor.nit }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="codEstableMH">Codigo del establecimiento asignado por el MH</label>
+                  <input name="codEstableMH" type="text" readonly class="form-control" value="{{ object.emisor.codEstableMH }}">
+                </td>
+                <td>
+                  <label for="codPuntoVentaMH">Codigo del punto de venta asignado por el MH</label>
+                  <input name="codPuntoVentaMH" type="text" readonly class="form-control" value="{{ object.emisor.codPuntoVentaMH }}">
+                </td>
+                
+              </tr>
+              <tr>
+                <td>
+                  <label for="codEstable">Codigo del establecimiento asignado por el contribuyente</label>
+                  <input name="codEstable" type="text" readonly class="form-control" value="{{ object.emisor.codEstable }}">
                 </td>
                 <td>
                   <label for="codPuntoVenta">Codigo del punto de venta asignado por el contribuyente</label>
@@ -131,24 +154,60 @@
             <thead>
               <tr>
                 <th scope="col"><h2>Datos del sujeto excluido</h2></th>
+                {% if not sujetoExcluido.transmitido %}
+                  <th scope="col">
+                    <a id="receptor" href="{% url 'receptorUpdate' object.receptor.id %}" 
+                      class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Receptor">
+                      <span class="material-symbols-outlined">
+                        edit
+                      </span>
+                    </a>
+                  </th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>
-                  <label for="receptor">Receptor</label>
-                  <input name="receptor" type="text" readonly class="form-control" value="{{ object.receptor.name }}">
+                  <label for="nombre">Nombre o Razon Social</label>
+                  <input name="nombre" type="text" readonly class="form-control" value="{{ object.receptor.nombre }}">
                 </td>
                 <td>
-                  <label for="direccionReceptor">Direccion del Receptor</label>
-                  <input name="direccionReceptor" type="text" readonly class="form-control" value="{{ object.direccionReceptor.complemento }}">
+                  <label for="direccionReceptor">Tipo de Documento</label>
+                  <input name="direccionReceptor" type="text" readonly class="form-control" value="{{ object.receptor.direccionReceptor.complementoDireccion }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="actividadEconomica">Actividad Economica</label>
+                  <input name="actividadEconomica" type="text" readonly class="form-control" value="{{ object.actividadEconomica.valor }}">
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="tipo">Tipo de Documento</label>
+                  <input name="tipo" type="text" readonly class="form-control" value="{{ object.receptor.tipo }}">
+                </td>
+                <td>
+                  <label for="numero">Numero de Documento</label>
+                  <input name="numero" type="text" readonly class="form-control" value="{{ object.receptor.numero }}">
                 </td>
               </tr>
             </tbody>
           </table> 
         </div>
         <div class="border-light shadow-sm table-wrapper table-responsive-sm pt-0">
-          <h1>Cuerpo del documento</h1>
+          <div class="card-body submit-row">
+            <h1>Cuerpo del documento</h1>
+            {% if not sujetoExcluido.transmitido %}
+              <a id="operacion" href="{% url 'operacionSujetoExcluidoCreate' object.id %}" 
+                class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Operacion de SE">
+                  <span class="material-symbols-outlined">
+                    list_alt_add
+                  </span>
+              </a>
+            {% endif %}
+          </div>
           {% if object_list %}
             <h2>Operaciones</h2>
             <table>
@@ -162,6 +221,7 @@
                 <th scope="col">Ventas</th>
                 <th scope="col">Retencion</th>
                 <th scope="col">Precio Unitario</th>
+                <th scope="col">Acciones</th>
               </thead>
               <tbody>
                 {% for operaciones in object_list.operacion %}
@@ -176,23 +236,32 @@
                       <h2>{{operaciones.codigo}}</h2>
                     </td>
                     <td>
-                      <h2>{{operaciones.uniMedida.valor}}</h2>
-                    </td>
-                    <td>
                       <h2>{{operaciones.cantidad}}</h2>
-                    </td>
-                    <td>
-                      <h2>{{operaciones.montoDescu}}</h2>
                     </td>
                     <td>
                       <h2>{{operaciones.compra}}</h2>
                     </td>
                     <td>
-                      <h2>{{operaciones.retencion}}</h2>
-                    </td>
-                    <td>
                       <h2>{{operaciones.precioUni}}</h2>
                     </td>
+                    <td id="col1">
+                      <a id="operacionver" href="{% url 'operacionVer' object.id %}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Operacion">
+                          <span class="material-symbols-outlined">
+                          visibility 
+                          </span>
+                        </a>
+                    </td>
+                    {% if not sujetoExcluido.transmitido %}
+                      <td id="col">
+                        <a id="operacionupdate" href="{% url 'operacionSujetoExcluidoUpdate' object.id %}" 
+                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Operacion">
+                            <span class="material-symbols-outlined">
+                            edit 
+                            </span>
+                        </a>
+                      </td>
+                    {% endif %}
                   </tr>
                 {% endfor %}
               </tbody>
@@ -260,15 +329,20 @@
                 <td>
                   <table>
                     <thead>
+                      <th scope="col">Codigo</th>
                       <th scope="col">Forma de Pago</th>
                       <th scope="col">Monto por forma de pago</th>
                       <th scope="col">Referencia de la modalidad de pagos</th>
                       <th scope="col">Plazo</th>
                       <th scope="col">Period de plazo</th>
+                      <th scope="col">Accion</th>
                     </thead>
                     <tbody>
                       {% for pagos in object_list.pago %}
                         <tr>
+                          <td>
+                            <h2>{{pagos.formaPago.codigo}}</h2>
+                          </td>
                           <td>
                             <h2>{{pagos.formaPago.valor}}</h2>
                           </td>
@@ -284,6 +358,16 @@
                           <td>
                             <h2>{{pagos.periodo}}</h2>
                           </td>
+                          {% if not sujetoExcluido.transmitido %}
+                            <td>
+                              <a id="pagoupdate" href="{% url 'pagoUpdate' object.pago.id %}" 
+                                class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Pago">
+                                <span class="material-symbols-outlined">
+                                edit 
+                                </span>
+                              </a>
+                            </td>
+                          {% endif %}
                         </tr>
                       {% endfor %}
                     </tbody>
@@ -300,6 +384,7 @@
               <th scope="col">Nombre de campo</th>
               <th scope="col">Descripccion</th>
               <th scope="col">Valor/Dato</th>
+              <th scope="col">Accion</th>
             </thead>
             <tbody>
               {% for apendices in object_list.apendices %}
@@ -313,6 +398,16 @@
                   <td>
                     <h2>{{apendices.valor}}</h2>
                   </td>
+                  {% if not sujetoExcluido.transmitido %}
+                    <td id="col">
+                      <a id="apendiceupdate" href="{% url 'apendiceUpdate' apendices.id %}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Apendice">
+                          <span class="material-symbols-outlined">
+                          edit 
+                          </span>
+                        </a>
+                    </td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>
@@ -322,8 +417,15 @@
         {% endif %}
         
       </div>
-    </div>
-    <br>
+    </div class="card-body submit-row">
+    {% if not sujetoExcluido.transmitido %}
+      <a id="transmitir" href="{% url 'transmitirSujetoExcluido' object.id %}" 
+          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Transmitir Sujeto Excluido">
+          <span class="material-symbols-outlined">
+          article_shortcut
+          </span>
+      </a>
+    {% endif %}
     <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
   </div>
 {% endblock %}

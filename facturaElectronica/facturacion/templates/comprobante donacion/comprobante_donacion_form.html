@@ -4,25 +4,25 @@
     <h1>Comprobante Donacion</h1>
     <form method= "post">
         {% csrf_token %}
-        <label for="entidad">Identificador</label>
+        <label for="identificador">Identificador</label>
         {{ form.identificador }}
         <br> 
-        <label for="entidad">Emisor</label>
+        <label for="emisor">Emisor</label>
         {{ form.emisor }}
         <br> 
-        <label for="entidad">Domicilio Fiscal</label>
+        <label for="codDomicilio">Domicilio Fiscal</label>
         {{ form.codDomicilio }}
         <br> 
-        <label for="entidad">Pais</label>
+        <label for="codPais">Pais</label>
         {{ form.codPais}}
         <br> 
-        <label for="entidad">Total de la Donacion</label>
+        <label for="valorTotal">Total de la Donacion</label>
         {{ form.valorTotal }}
         <br> 
-        <label for="entidad">Total en Letras</label>
+        <label for="totalLetras">Total en Letras</label>
         {{ form.totalLetras }}
         <br> 
-        <label for="entidad">Pago de Donacion</label>
+        <label for="pago">Pago de Donacion</label>
         {{ form.pago }}
         <br> 
         <input class="btn btn-success" type="submit" value="Guardar">

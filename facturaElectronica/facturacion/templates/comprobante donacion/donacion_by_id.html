@@ -159,6 +159,7 @@
                   <th scope="col">Documento Asociado</th>
                   <th scope="col">Identificacion de Documento Asociado</th>
                   <th scope="col">Descripccion de Documento Asociado</th>
+                  <th scope="col">Accion</th>
                 </thead>
                 <tbody>
                   {% for docAsociados in object_list.docAsociado %}
@@ -171,6 +172,14 @@
                       </td>
                       <td>
                         <h2>{{docAsociados.detalleDocumento}}</h2>
+                      </td>
+                      <td id="col">
+                        <a id="otrodocumentoasociadoupdate" href="{% url 'otroDocumentoAsociadoUpdate' object.id %}" 
+                            class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Otro Documento Asociado">
+                            <span class="material-symbols-outlined">
+                            edit 
+                            </span>
+                          </a>
                       </td>
                     </tr>
                   {% endfor %}
@@ -187,12 +196,9 @@
                 <th scope="col">Tipo de Donacion</th>
                 <th scope="col">Cantidad</th>
                 <th scope="col">Codigo</th>
-                <th scope="col">Unidad de medida</th>
-                <th scope="col">Descripccion</th>
-                <th scope="col">Depreciacion</th>
-                <th scope="col">Monto del Descuento</th>
                 <th scope="col">Valor Unitario</th>
                 <th scope="col">Valor Donado</th>
+                <th scope="col">Acciones</th>
               </thead>
               <tbody>
                 {% for cuerpoDocumentos in object_list.cuerpoDocumento %}
@@ -210,23 +216,27 @@
                       <h2>{{cuerpoDocumentos.codigo}}</h2>
                     </td>
                     <td>
-                      <h2>{{cuerpoDocumentos.uniMedida}}</h2>
-                    </td>
-                    <td>
-                      <h2>{{cuerpoDocumentos.descripccion}}</h2>
-                    </td>
-                    <td>
-                      <h2>{{cuerpoDocumentos.depreciacion}}</h2>
-                    </td>
-                    <td>
-                      <h2>{{cuerpoDocumentos.montoDescu}}</h2>
-                    </td>
-                    <td>
                       <h2>{{cuerpoDocumentos.valorUni}}</h2>
                     </td>
                     <td>
                         <h2>{{cuerpoDocumentos.valor}}</h2>
-                      </td>
+                    </td>
+                    <td id="col">
+                      <a id="cuerpodocumentover" href="{% url 'cuerpoDocumentoVer' object.id %}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Cuerpo del Documento">
+                          <span class="material-symbols-outlined">
+                          visibility 
+                          </span>
+                        </a>
+                    </td>
+                    <td id="col">
+                      <a id="cuerpodocumentoupdate" href="{% url 'cuerpoDocumentoUpdate' object.id %}" 
+                          class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Cuerpo del Documento">
+                          <span class="material-symbols-outlined">
+                          edit 
+                          </span>
+                        </a>
+                    </td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -237,6 +247,7 @@
             <thead>
               <tr>
                 <th scope="col"><h2>Resumen</h2></th>
+                <th scope="col"><h2>Accion</h2></th>
               </tr>
             </thead>
             <tbody>
