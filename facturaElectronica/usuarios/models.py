@@ -43,7 +43,20 @@ class Entidad(models.Model):
     def __str__(self):
         return f'{self.razonSocial}'
 
-class CustomerUser(AbstractBaseUser, PermissionsMixin):
+class Permiso(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+class Rol(models.Model):
+    nombre = models.CharField(max_length=100)
+    permisos = models.ManyToManyField(Permiso, related_name='roles')
+
+    def __str__(self):
+        return self.nombre
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(verbose_name="Nombre del usuario", max_length=100)
     lastname = models.CharField(verbose_name="Apellido del usuario", max_length=100)
     email = models.EmailField(verbose_name="Correo electronico del usuario", unique=True)
@@ -53,7 +66,9 @@ class CustomerUser(AbstractBaseUser, PermissionsMixin):
     organizacion = models.CharField(verbose_name="Organizaciones a las que esta asociado", max_length=100)
     nrc = models.CharField(verbose_name="NRC", max_length=100)
     actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE, editable=False)
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, null=True, related_name="Usuarios")
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, null=True, related_name="usuarios")
+    is_entidad_superuser = models.BooleanField(default=False)
+    is_system_superuser = models.BooleanField(default=False)
     
     pass
     date_joined = models.DateTimeField(gettext_lazy("date joined"),auto_now_add=True)
@@ -73,6 +88,10 @@ class CustomerUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name_plural = "Usuarios"
     
+    def has_permission(self, permission_name):
+        if self.is_system_superuser:
+            return True
+        return any(group.permissions.filter(codename=permission_name).exists() for group in self.groups.all())
 
     @property
     def full_name(self):

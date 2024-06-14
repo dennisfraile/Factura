@@ -1161,7 +1161,7 @@ class ReceptorUpdateView(UserPassesTestMixin, UpdateView):
             return redirect('identificadorList')
 
     def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
+        id=self.kwargs.get("pk")
         tipo = request.POST.get('tipo')
         homologado = request.POST.get('homologado')
         numero = request.POST.get('numero')
@@ -1172,7 +1172,7 @@ class ReceptorUpdateView(UserPassesTestMixin, UpdateView):
         direccionReceptor = get_object_or_404(Direccion,id=direccionReceptorId)
         cellphone = request.POST.get('cellphone')
         email = request.POST.get('email')
-        receptor = Receptor.objects.update(tipo=tipo, homologado=homologado, numero=numero,nombre=nombre,actividadEconomica=actividadEconomica,
+        receptor = Receptor.objects.filter(id=id).update(tipo=tipo, homologado=homologado, numero=numero,nombre=nombre,actividadEconomica=actividadEconomica,
                                            direccionReceptor=direccionReceptor, cellphone=cellphone, email=email)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el receptor:"+ nombre +" con exito")
         return redirect(self.get_success_url())
@@ -1200,10 +1200,20 @@ class OtroDocumentoAsociadoCreateView(UserPassesTestMixin,CreateView):
     def get_success_url(self):
         p = self.kwargs
         id = p.get("pk")
-        return reverse_lazy('otroDocumentoDetailView', kwargs={'pk': id})
+        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
     
-    def form_valid(self, form):
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        id=self.kwargs.get("pk")
+        codDocAsociado = request.POST.get('codDocAsociado')
+        descDocumento = request.POST.get('descDocumento')
+        detalleDocumento = request.POST.get('detalleDocumento')
+        user = request.user
+        entidad = user.Usuarios.all()
+        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+        otroDocumentoAsociado = OtroDocumentoAsociado.objects.create(codDocAsociado=codDocAsociado, descDocumento=descDocumento, detalleDocumento=detalleDocumento,
+                                                                     comprobanteDonacion=comprobanteDonacion,entidad=entidad)
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado un nuevo comprobante de donacion con exito con exito")
+        return redirect(self.get_success_url())
     
 
 @login_required(redirect_field_name='/ingresar')
@@ -1215,10 +1225,16 @@ class OtroDocumentoAsociadoUpdateView(UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         p = self.kwargs
         id = p.get("pk")
-        return reverse_lazy('otroDocumentoDetailView', kwargs={'pk': id})
+        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
     
-    def form_valid(self, form):
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        id=self.kwargs.get("pk")
+        codDocAsociado = request.POST.get('codDocAsociado')
+        descDocumento = request.POST.get('descDocumento')
+        detalleDocumento = request.POST.get('detalleDocumento')
+        otroDocumentoAsociado = OtroDocumentoAsociado.objects.filter(id=id).update(codDocAsociado=codDocAsociado, descDocumento=descDocumento, detalleDocumento=detalleDocumento)
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito con exito")
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class CuerpoDocumentoView(View):
@@ -1243,10 +1259,29 @@ class CuerpoDocumentoCreateView(UserPassesTestMixin,CreateView):
     def get_success_url(self):
         p = self.kwargs
         id = p.get("pk")
-        return reverse_lazy('cuerpoDocumentoDetailView', kwargs={'pk': id})
+        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
     
-    def form_valid(self, form):
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        id=self.kwargs.get("pk")
+        numItem = request.POST.get('numItem')
+        tipoDonacion = request.POST.get('tipoDonacion')
+        cantidad = request.POST.get('cantidad')
+        codigo = request.POST.get('codigo')
+        unidadMedidaId = request.POST.get('unidadMedida')
+        unidadMedida = get_object_or_404(UnidadMedida, id=unidadMedidaId)
+        descripccion = request.POST.get('descripccion')
+        depreciacion = request.POST.get('depreciacion')
+        montoDescu = request.POST.get('montoDescu')
+        valorUni = request.POST.get('valorUni')
+        valor = request.POST.get('valor')
+        user = request.user
+        entidad = user.Usuarios.all()
+        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+        cuerpoDocumento = CuerpoDocumento.objects.create(numItem=numItem, tipoDonacion=tipoDonacion, cantidad=cantidad, codigo=codigo,
+                                                         uniMedida=unidadMedida, descripccion=descripccion, depreciacion=depreciacion,
+                                                         montoDescu=montoDescu, valorUni=valorUni, valor=valor, entidad=entidad, comprobanteDonacion=comprobanteDonacion)
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el cuerpo del documento con exito")
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
@@ -1258,10 +1293,26 @@ class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         p = self.kwargs
         id = p.get("pk")
-        return reverse_lazy('cuerpoDocumentoDetailView', kwargs={'pk': id})
+        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
     
-    def form_valid(self, form):
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        id = self.kwargs['pk']
+        numItem = request.POST.get('numItem')
+        tipoDonacion = request.POST.get('tipoDonacion')
+        cantidad = request.POST.get('cantidad')
+        codigo = request.POST.get('codigo')
+        unidadMedidaId = request.POST.get('unidadMedida')
+        unidadMedida = get_object_or_404(UnidadMedida, id=unidadMedidaId)
+        descripccion = request.POST.get('descripccion')
+        depreciacion = request.POST.get('depreciacion')
+        montoDescu = request.POST.get('montoDescu')
+        valorUni = request.POST.get('valorUni')
+        valor = request.POST.get('valor')
+        cuerpoDocumento = CuerpoDocumento.objects.filter(id=id).update(numItem=numItem, tipoDonacion=tipoDonacion, cantidad=cantidad, codigo=codigo,
+                                                         uniMedida=unidadMedida, descripccion=descripccion, depreciacion=depreciacion,
+                                                         montoDescu=montoDescu, valorUni=valorUni, valor=valor)
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el cuerpo del documento con exito")
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class PagoDonacionView(View):
@@ -1285,12 +1336,19 @@ class PagoDonacionCreateView(UserPassesTestMixin,CreateView):
     model = PagoDonacion
     
     def get_success_url(self):
-        return reverse_lazy('pagoDonacionList')
+        id=self.kwargs.get("pk")
+        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
+        codigo = request.POST.get('codido')
+        montoPago = request.POST.get('montoPago')
+        referencia = request.POST.get('referencia')
+        user = request.user
+        entidad = user.Usuarios.all()
+        pagoDonacion = PagoDonacion.objects.create(codigo=codigo, montoPago=montoPago, referencia=referencia,entidad=entidad)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado un pago a donacion con exito")
-        return redirect('pagoDonacionList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class PagoDonacionUpdateView(UserPassesTestMixin, UpdateView):
@@ -1300,9 +1358,226 @@ class PagoDonacionUpdateView(UserPassesTestMixin, UpdateView):
     model = PagoDonacion
     
     def get_success_url(self):
-        return reverse_lazy('pagoDonacionList')
+        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
 
     def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
+        id = self.kwargs['pk']
+        codigo = request.POST.get('codido')
+        montoPago = request.POST.get('montoPago')
+        referencia = request.POST.get('referencia')
+        pagoDonacion = PagoDonacion.objects.filter(id=id).update(codigo=codigo, montoPago=montoPago, referencia=referencia)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado un pago a donacion con exito")
-        return redirect('pagoDonacionList')
+        return redirect(self.get_success_url())
+
+@login_required(redirect_field_name='/ingresar')
+class ComprobanteDonacionMonthView(MonthArchiveView):
+    """Muestra la lista de sujetos excluidos por mes"""
+
+    login_url='/ingresar/'
+    data_field = "fechaTransmicion"
+    template_name='comprobante_donacion_month.html'
+    allow_empty = True
+    allow_future = True
+
+    def get_context_data(self, **kwargs) :
+        context = super(ComprobanteDonacionMonthView, self).get_context(**kwargs)
+        comprobante = ComprobanteDonacion.objects.all()
+        context['registro'] = comprobante
+        return context
+
+@login_required(redirect_field_name='/ingresar')
+class ComprobanteDonacionDetailView(DetailView):
+    """Muestra los datos de un comprobante de donacion en especifico"""
+
+    login_url = '/ingresar/'
+    template_name = 'comprobante_donacion_by_id_view.html'
+    model = ComprobanteDonacion
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        comprobanteDonacion = ComprobanteDonacion.objects.filter(id=context['object'].id)
+        otroDocumentoAsociado = OtroDocumentoAsociado.objects.filter(id=comprobanteDonacion.id) 
+        cuerpoDocumento = CuerpoDocumento.objects.filter(id=comprobanteDonacion.id)
+        apendice = Apendice.objects.filter(comprobanteDonacion=comprobanteDonacion)
+        context['comprobanteDonacion'] = comprobanteDonacion
+        context['otroDocumentoAsociado'] = otroDocumentoAsociado
+        context['cuerpoDocumento'] = cuerpoDocumento
+        context['apendice'] = apendice
+        context['show'] = True
+        return context   
+
+@login_required(redirect_field_name='/ingresar')
+class ComprobanteDonacionCreateView(UserPassesTestMixin, CreateView):
+    
+    login_url = '/ingresar/'
+    template_name = 'comprobante donacion/comprobante_donacion_create_view.html'
+    model = ComprobanteDonacion
+    
+    def get_success_url(self):
+        current_date = datetime.datetime.now()
+        mes = current_date.month
+        año = current_date.year
+        return reverse_lazy('comprobanteDonacionMonthView', kwargs={'year':año, 'month':mes})
+    
+    def post(self, request, *args, **kwargs):
+        identificadorId = request.POST.get('identificador')
+        identificador = get_object_or_404(Identificador, id=identificadorId)
+        entidadId = request.POST.get('emisor')
+        emisor = get_object_or_404(Entidad, id=entidadId)
+        receptorId = request.POST.get('receptor')
+        receptor = get_object_or_404(Receptor, id=receptorId)
+        codDomicilio = request.POST.get('codDomicilio')
+        valorTotal = request.POST.get('valorTotal')
+        totalLetras = request.POST.get('totalLetras')
+        pagoDonacionId = request.POST.get('pago')
+        pagoDonacion = get_object_or_404(PagoDonacion, pagoDonacionId)
+        user = request.user
+        entidad = user.Usuarios.all()
+        pagoDonacion = PagoDonacion.objects.create(identificador=identificador,emisor=emisor,receptor=receptor,codDomicilio=codDomicilio,valorTotal=valorTotal,totalLetras=totalLetras,
+                                                       pagoDonacion=pagoDonacion,entidad=entidad)
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el comprobante de donacion con exito")
+        return redirect(self.get_success_url())
+        
+
+@login_required(redirect_field_name='/ingresar')
+class ComprobanteDonacionUpdateView(UserPassesTestMixin, UpdateView):
+    
+    login_url = '/ingresar/'
+    model = SujetoExcluido
+    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'    
+    
+    def get_success_url(self):
+        current_date = datetime.datetime.now()
+        mes = current_date.month
+        año = current_date.year
+        return reverse_lazy('comprobanteDonacionMonthView', kwargs={'year':año, 'month':mes})
+    
+    def post(self, request):
+        id = self.kwargs['pk']
+        identificadorId = request.POST.get('identificador')
+        identificador = get_object_or_404(Identificador, id=identificadorId)
+        entidadId = request.POST.get('emisor')
+        emisor = get_object_or_404(Entidad, id=entidadId)
+        receptorId = request.POST.get('receptor')
+        receptor = get_object_or_404(Receptor, id=receptorId)
+        codDomicilio = request.POST.get('codDomicilio')
+        valorTotal = request.POST.get('valorTotal')
+        totalLetras = request.POST.get('totalLetras')
+        pagoDonacionId = request.POST.get('pago')
+        pagoDonacion = get_object_or_404(PagoDonacion, pagoDonacionId)
+        pagoDonacion = PagoDonacion.objects.filter(id=id).update(identificador=identificador,emisor=emisor,receptor=receptor,codDomicilio=codDomicilio,valorTotal=valorTotal,totalLetras=totalLetras,
+                                                       pagoDonacion=pagoDonacion)
+        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito")
+        return redirect(self.get_success_url())
+
+def comprobanteDonacionList(self,id):
+    comprobanteDonacion = ComprobanteDonacion.objects.get(id=id)
+    emisor = User.objects.get(id = comprobanteDonacion.emisor.emisor.id)
+    documentoEmisor = emisor.documentos.all()
+    entidad = emisor.Usuarios.all()
+    receptor = User.objects.get(id=comprobanteDonacion.receptor.receptor.id)
+    documentoReceptor = receptor.documentos.all()
+    otroDocumentoAsociado = OtroDocumentoAsociado.otrosDocumentos.all()
+    cuerpoDocumento = CuerpoDocumento.cuerpoDocumentos.all()
+    apendiceComprobanteDonacion = comprobanteDonacion.apendicesDonacion.all()
+    fechaEmi = comprobanteDonacion.fechaTransmicion.date()
+    horaEmi = comprobanteDonacion.fechaTransmicion.get_formatted_time()
+    comprobanteData = []
+    
+    comprobanteData = {
+        'identificacion': {
+            'version': comprobanteDonacion.identificador.version,
+            'ambiente': comprobanteDonacion.identificador.ambiente,
+            'tipoDte': comprobanteDonacion.identificador.tipoDte,
+            'numeroControl': comprobanteDonacion.identificador.numeroControl,
+            'codigoGeneracion': comprobanteDonacion.identificador.codigoGeneracion,
+            'tipoModelo': comprobanteDonacion.identificador.tipoModelo,
+            'tipoOperacion': comprobanteDonacion.identificador.tipoOperacion,
+            'fechaEmi': fechaEmi,
+            'horaEmi': horaEmi,
+            'tipoMoneda': comprobanteDonacion.identificador.tipoMoneda
+        },
+        'donatorio': {
+            "tipoDocumento":"nit",
+            "numDocumento": comprobanteDonacion.emisor.nit,
+            "nrc": comprobanteDonacion.emisor.nrc,
+            "nombre": comprobanteDonacion.emisor.razonSocial,
+            "codActividad": comprobanteDonacion.emisor.actividadEconomica.codigo,
+            "descActividad": comprobanteDonacion.emisor.actividadEconomica.valor,
+            "direccion": {
+                "departamento": comprobanteDonacion.emisor.direccionEmisor.municipio.departamento.codigo,
+                "municipio": comprobanteDonacion.emisor.direccionEmisor.municipio.codigo,
+                "complemento": comprobanteDonacion.emisor.direccionEmisor.complementoDireccion,
+            },
+            "telefono": comprobanteDonacion.emisor.cellphone,
+            "correo": comprobanteDonacion.emisor.email,
+            "codEstableMH": comprobanteDonacion.emisor.codEstableMH,
+            "codEstable": comprobanteDonacion.emisor.codEstable,
+            "codPuntoVentaMH": comprobanteDonacion.emisor.codPuntoVentaMH,
+            "codPuntoVenta": comprobanteDonacion.emisor.codPuntoVenta,
+            
+        },
+        "donante": {
+            "tipoDocumento": comprobanteDonacion.receptor.tipo,
+            "numDocumento": comprobanteDonacion.receptor.numero,
+            "nrc":comprobanteDonacion.receptor.nrc,
+            "nombre": comprobanteDonacion.receptor.receptor.nombre,
+            "codActividad": comprobanteDonacion.receptor.actividadEconomica.codigo,
+            "descActividad": comprobanteDonacion.receptor.actividadEconomica.valor,
+            "direccion": {
+                "departamento": comprobanteDonacion.receptor.direccionReceptor.municipio.departamento.codigo,
+                "municipio": comprobanteDonacion.receptor.direccionReceptor.municipio.codigo,
+                "complemento": comprobanteDonacion.receptor.direccionReceptor.complementoDireccion
+            },
+            "telefono": comprobanteDonacion.receptor.cellphone,
+            "correo": comprobanteDonacion.receptor.email,
+            "codDomiciliado": comprobanteDonacion.codDomiciliado,
+            "codPais": comprobanteDonacion.codPais,
+        },
+        "otrosDocumentos":[],
+        "cuerpoDocumento":[],
+        "resumen": {
+            "valorTotal" : comprobanteDonacion.valorTotal,
+            "totalLetras" : comprobanteDonacion.totalLetras,
+            "pagos" : [
+                {
+                    "codigo" : comprobanteDonacion.pago.codigo,
+                    "montoPago" : comprobanteDonacion.pago.montoPago,
+                    "referencia" : comprobanteDonacion.pago.referencia,
+                }
+            ],
+        },
+        "apendice": []
+    }
+    for otroDocumento in otroDocumentoAsociado:
+        otrosDocumentosData = {
+            "codDocAsociado" : otroDocumento.codDocAsociado,
+            "descDocumento" : otroDocumento.descDocumento,
+            "detalleDocumento" : otroDocumento.detalleDocumento,
+        }
+        comprobanteData['otrosDocumentos'].append(otrosDocumentosData)
+    
+    for cuerpoDocumento in cuerpoDocumento:
+        cuerpoDocumentoData = {
+            "numItem": cuerpoDocumento.numItem,
+            "tipoDonacion": cuerpoDocumento.tipoDonacion,
+            "cantidad": cuerpoDocumento.cantidad,
+            "codigo": cuerpoDocumento.codigo,
+            "uniMedida": cuerpoDocumento.uniMedida.codigo,
+            "descripccion": cuerpoDocumento.descripccion,
+            "depreciacion": cuerpoDocumento.depreciacion,
+            "montoDescu": cuerpoDocumento.montoDescu,
+            "valorUni": cuerpoDocumento.valorUni,
+            "valor": cuerpoDocumento.valor
+        }
+        comprobanteData['cuerpoDocumento'].append(cuerpoDocumentoData)
+    
+    for apendices in apendiceComprobanteDonacion:
+        apendicesData = {
+            "campo": apendices.campo,
+            "etiquta": apendices.etiquta,
+            "valor": apendices.valor
+        }
+        comprobanteData['apendice'].append(apendicesData)
+    
+    return JsonResponse(comprobanteData, safe=False)

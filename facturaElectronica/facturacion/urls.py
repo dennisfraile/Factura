@@ -57,7 +57,9 @@ urlpatterns = [
     path('factura/receptorUpdate/<int:pk>', ReceptorUpdateView.as_view(), name='receptorUpdate'),
     
     path('facturaSujetoExcluido/sujetoExcluidoMonth/<int:year>/<int:month>', SujetoExcluidoMonthView.as_view(), name='sujetoExcluidoMonth'),
+    path('facturaSujetoExcluido/sujetoExcluidoCreate', SujetoExcluidoCreateView.as_view(), name='sujetoExcluidoCreateView'),
     path('facturaSujetoExcluido/sujetoExcluidoVer/<int:pk>', SujetoExcluidoDetailView.as_view(), name='sujetoExcluidoDetailView'),
+    path('facturaSujetoExcluido/sujetoExcluidoUpdate/<int:pk>', SujetoExcluidoUpdateView.as_view(), name='sujetoExcluidoUpdateView'),
     path('facturaSujetoExcluido/transmitirSujetoExcluido/<int:pk>', Transmitir.as_view(), name='transmitirSujetoExcluido'),
     
     path('comprobanteDonacion/otroDocumentoAsociado', OtroDocumentoAsociadoView.as_view(), name='index_otroDocumentoAsociado'),
@@ -71,5 +73,11 @@ urlpatterns = [
     path('comprobanteDonacion/pagoDonacion', PagoDonacionView.as_view(), name='index_pagoDonacion'),
     path('comprobanteDonacion/pagoDonacionCreate', PagoDonacionCreateView.as_view(), name='pagoDonacionCreate'),
     path('comprobanteDonacion/pagoDonacionUpdate/<int:pk>', PagoDonacionUpdateView.as_view(), name='pagoDonacionUpdate'),  
+    
+    path('facturaComprobanteDonacion/comprobanteDonacionMonth/<int:year>/<int:month>', ComprobanteDonacionMonthView.as_view(), name='comprobanteDonacionMonth'),
+    path('facturaComprobanteDonacion/comprobanteDonacionCreate', ComprobanteDonacionCreateView.as_view(), name='comprobanteDonacionCreateView'),
+    path('facturaComprobanteDonacion/comprobanteDonacionVer/<int:pk>', ComprobanteDonacionDetailView.as_view(), name='comprobanteDonacionDetailView'),
+    path('facturaComprobanteDonacion/comprobanteDonacionUpdate/<int:pk>', ComprobanteDonacionUpdateView.as_view(), name='comprobanteDonacionUpdateView'),
+    path('facturaComprobanteDonacion/transmitirComprobanteDonacion/<int:pk>', Transmitir.as_view(), name='transmitirComprobanteDonacion'),
     
 ]

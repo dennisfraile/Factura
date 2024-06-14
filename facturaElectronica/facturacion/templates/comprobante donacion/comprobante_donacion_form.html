@@ -4,25 +4,49 @@
     <h1>Comprobante Donacion</h1>
     <form method= "post">
         {% csrf_token %}
-        <label for="identificador">Identificador</label>
-        {{ form.identificador }}
+        <div class="form-group row">
+            <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label}}</label>
+            <div class="col-sm-8">
+                {{ form.identificador }}
+            </div>
+            <div class="col-sm-2">
+                <a id="identificador" href="{% url 'identificadorCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
         <br> 
-        <label for="emisor">Emisor</label>
-        {{ form.emisor }}
+        <div class="form-group row">
+            <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
+            <div class="col-sm-8">
+                {{ form.receptor }}
+            </div>
+            <div class="col-sm-2">
+                <a id="receptor" href="{% url 'receptorCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
         <br> 
-        <label for="codDomicilio">Domicilio Fiscal</label>
+        {{ form.codDomicilio.label_tag }}
         {{ form.codDomicilio }}
         <br> 
-        <label for="codPais">Pais</label>
-        {{ form.codPais}}
+        {{ form.pais.label_tag }}
+        {{ form.pais }}
         <br> 
-        <label for="valorTotal">Total de la Donacion</label>
+        {{ form.valorTotal.label_tag }}
         {{ form.valorTotal }}
         <br> 
-        <label for="totalLetras">Total en Letras</label>
+        {{ form.totalLetras.label_tag }}
         {{ form.totalLetras }}
         <br> 
-        <label for="pago">Pago de Donacion</label>
+        {{ form.pago.label_tag }}
         {{ form.pago }}
         <br> 
         <input class="btn btn-success" type="submit" value="Guardar">

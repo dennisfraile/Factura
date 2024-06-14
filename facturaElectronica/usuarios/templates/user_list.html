@@ -15,13 +15,22 @@
     <h3 class="display-5 fw-bold">Lista de usuarios</h3>
     <p class="col-md-8 fs-4">Aquí puedes ver la lista de usuarios</p>
     <div class="table-responsive">
-      <a id="adduser" href="{% url 'add_user_redirect' %}" 
+      <a id="adduser" href="{% url 'create_user' %}" 
         class="btn btn-success float-end" data-bs-toggle="tooltip" data-bs-placement="bottom" 
         title="Nuevo Usuario">
         <span class="material-symbols-outlined">
-          request_page
+          person_add
         </span>
-    </a>
+      </a>
+      {% if user.is_superuser or user.is_entidad_superuser %}
+        <a id="addentidad" href="{% url 'entidadCreate' %}" 
+          class="btn btn-success float-end" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+          title="Nueva Entidad">
+          <span class="material-symbols-outlined">
+            domain_add
+          </span>
+        </a>
+      {% endif %}
       <table class="table">
         <thead>
           <tr>
@@ -30,7 +39,7 @@
             <th scope="col">Telefono</th>
             <th scope="col">Direccion</th>
             <th scope="col">Fecha en que se unio</th>
-            <th scope="col">Rol</th>
+            <th scope="col">Roles</th>
             <th scope="col">Accion</th>
           </tr>
         </thead>
@@ -43,15 +52,29 @@
                 <td>{{ registro.cellphone }}</td>
                 <td>{{ registro.direccion }}</td>
                 <td>{{ registro.date_joined }}</td>
-                <td>{{ registro.group }}</td>
-                <td>
-                  <a id="contables" href="{% url 'verUsuario'  registro.id %}" 
-                      class="btn btn-success btn-sm "  title="Ver Usuario">
-                      <span class="material-symbols-outlined">
-                        edit
-                      </span>
-                    </a>
-                </td>
+                <td>{{ registro.group|join:", " }}</td>
+                {% if user.is_superuser or user.is_entidad_superuser %}
+                  <td>
+                    <a id="veruser" href="{% url 'verUsuario'  registro.id %}" 
+                        class="btn btn-success btn-sm "  title="Ver Usuario">
+                        <span class="material-symbols-outlined">
+                          visibility
+                        </span>
+                      </a>
+                      <a id="veruser" href="{% url 'edit_user'  registro.id %}" 
+                        class="btn btn-success btn-sm "  title="Editar Usuario">
+                        <span class="material-symbols-outlined">
+                          edit
+                        </span>
+                      </a>
+                      <a id="veruser" href="{% url 'delete_user'  registro.id %}" 
+                        class="btn btn-danger btn-sm "  title="Eliminar Usuario">
+                        <span class="material-symbols-outlined">
+                          person_remove
+                        </span>
+                      </a>
+                  </td>
+                {% endif %}
               </tr>
             {% endfor %}
           {% endif %}

@@ -1,0 +1,28 @@
+{% extends "../index.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-5">
+    <div class="table-responsive">
+        <div class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+            <label for="name">Nombre del Usuario</label>
+            <input name="name" type="text" readonly class="form-control" value="{{ user.name }}">
+            <label for="lastname">Apellidos del Usuario</label>
+            <input name="lastname" type="text" readonly class="form-control" value="{{ user.lastname }}">
+            <label for="email">Correo</label>
+            <input name="email" type="text" readonly class="form-control" value="{{ user.email }}">
+            <label for="cellphone">Telefono</label>
+            <input name="cellphone" type="text" readonly class="form-control" value="{{ user.cellphone }}">
+            <label for="organizacion">Organizacion</label>
+            <input name="organizacion" type="text" readonly class="form-control" value="{{ user.organizacion }}">
+            <label for="nrc">NRC</label>
+            <input name="nrc" type="text" readonly class="form-control" value="{{ user.nrc }}">
+            <label for="actividadeconomica">Actividad Economica</label>
+            <input name="actividadeconomica" type="text" readonly class="form-control" value="{{ user.actividadEconomica.valor }}">
+        </div>
+    </div>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+</div>
+
+{% endblock %}

@@ -172,6 +172,7 @@ class Receptor(models.Model):
     tipo = models.CharField(verbose_name="Tipo de Documento", max_length=25, choices=TIPOS_DOCUMENTO)
     homologado = models.CharField(verbose_name="Homologacion", max_length=30, choices=HOMOLOGACION)
     numero = models.CharField(verbose_name="Numero del documento sin guion",max_length=20)
+    nrc = models.CharField(verbose_name="NRC",max_length=20, null=True)
     nombre = models.CharField(verbose_name="Nombre, Denominacion o Razon Social del contribuyente", max_length=250)
     actividadEconomica = models.ForeignKey(ActividadEconomica, on_delete=models.SET_NULL, null=True, blank=True , editable=False)
     direccionReceptor = models.ForeignKey(Direccion, on_delete=models.CASCADE, editable=False)
@@ -276,7 +277,7 @@ class OperacionesSujetoExcluido(models.Model):
     sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False, related_name="operacionesSujetoExcluido")
     
     #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="operaciones")
     class Meta:
         verbose_name_plural = "Operaciones"
 
@@ -288,6 +289,7 @@ class PagoDonacion(models.Model):
     codigo = models.CharField(verbose_name="Codigo de Forma de pago", max_length=2)
     montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=12, decimal_places=2)
     referencia = models.CharField(verbose_name="Referencia de la modalidad de pago", max_length=50)
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="pagos")
 
     class Meta:
         verbose_name_plural = "Pagos de donacion"
@@ -309,7 +311,7 @@ class ComprobanteDonacion(models.Model):
     #Donante
     receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE, editable=False)
     codDomiciliado = models.CharField(verbose_name="Domicilio Fiscal", required=True, choices=DOMICILIO_FISCAL)
-    codPais = models.ForeignKey(Pais, on_delete=models.CASCADE, editable=False)
+    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, editable=False)
 
     #Resumen
     valorTotal = models.DecimalField(verbose_name="Total de la donacion", max_digits=12, decimal_places=2)
@@ -320,7 +322,7 @@ class ComprobanteDonacion(models.Model):
     transmitido = models.BooleanField(default=False)
     
     #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="comprobantes")
     class Meta:
         verbose_name_plural = "Comprobantes de Donaciones"
 
@@ -338,10 +340,10 @@ class OtroDocumentoAsociado(models.Model):
     descDocumento = models.CharField(verbose_name="Identificacion del documento asociado",max_length=100)
     detalleDocumento = models.CharField(verbose_name="Descripccion de documento asociado", max_length=300)
 
-    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, ondelete=models.CASCADE, editable=False)
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, ondelete=models.CASCADE, editable=False, related_name="otrosDocumentos")
     
     #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="documentos")
     class Meta:
         verbose_name_plural = "Otros documentos asociados"
 
@@ -367,10 +369,10 @@ class CuerpoDocumento(models.Model):
     valorUni = models.DecimalField(verbose_name="Valor Unitario", max_digits=12, decimal_places=2 , required=True)
     valor = models.DecimalField(verbose_name="Valor Donado", max_digits=12, decimal_places=2)
 
-    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, ondelete=models.CASCADE, editable=False)
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, ondelete=models.CASCADE, editable=False, related_name="cuerpoDocumentos")
 
     #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="cuerpos")
     class Meta:
         verbose_name_plural = "Cuerpos del documento"
 
@@ -385,7 +387,7 @@ class Apendice(models.Model):
     
     #Facturas Asociadas
     sujetoExcluido = models.ForeignKey(SujetoExcluido, null=True, on_delete=models.CASCADE, editable=False, related_name="apendices")
-    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, null=True, on_delete=models.CASCADE, editable=False, related_name="apendices")
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, null=True, on_delete=models.CASCADE, editable=False, related_name="apendicesDonacion")
 
     #Entidad a la que pertenece
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)

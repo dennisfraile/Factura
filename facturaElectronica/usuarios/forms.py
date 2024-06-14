@@ -1,16 +1,34 @@
 from django import forms
 from .models import *
 from django.contrib.auth.models import *
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+
+User = get_user_model()
 
 class ActividadEconomicaForm(forms.Form):
     class Meta: 
         model = ActividadEconomica
         fields = '__all__'
 
-class UserForm(forms.ModelForm):
+class SystemAdminRegistrationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        if User.objects.filter(is_system_superuser=True).exists():
+            raise forms.ValidationError("Ya existe un administrador general en el sistema.")
+        return cleaned_data
+
+class CustomUserForm(UserCreationForm):
+    entidad = forms.ModelChoiceField(queryset=Entidad.objects.all(), required=False)
+    groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(), required=False)
+    is_system_superuser = forms.BooleanField(required=False)
 
     class meta:
-        model = User
+        model = CustomUser
         fields = '__all__'
         
 class RolForm(forms.ModelForm):

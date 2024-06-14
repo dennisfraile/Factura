@@ -373,6 +373,16 @@ class PagoDonacionForm(forms.Form):
         }
 
 class ComprobanteDonacionForm(forms.Form):
+    identificador = forms.ModelChoiceField(queryset=Identificador.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Identificador")
+    receptor = forms.ModelChoiceField(queryset=Receptor.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Receptor")
+    pagoDonacion = forms.ModelChoiceField(queryset=PagoDonacion.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Pago Donacion")
+    def __init__(self, *args, **kwargs):
+        entidad = kwargs.pop('entidad',None)
+        super().__init__(*args, **kwargs)
+        if entidad:
+            self.fields['identificador'].queryset = Identificador.objects.filter(entidad=entidad)
+            self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
+            self.fields['pagoDonacion'].queryset = PagoDonacion.objects.filter(identificador=entidad)
     class Meta:
         models = ComprobanteDonacion
         codDomiciliado = forms.ChoiceField(
@@ -385,19 +395,16 @@ class ComprobanteDonacionForm(forms.Form):
         label = {
             'identificador': 'Identificador',
             'emisor': 'Donatorio',
-            'receptor': 'Donante',
             'codDomiciliado': 'Domicilio Fiscal',
             'codPais': 'Codigo de Pais',
             'valorTotal': 'Total de la Donacion',
             'totalLetras': 'Total en Letras',
-            'pago': 'Pago',
         }
         widgets = {
             'identificador': forms.Select(att={'class': 'form-control'}),
             'emisor':forms.Select(att={'class': 'form-control'}),
-            'receptor': forms.Select(att={'class': 'form-control'}),
             'codPais': forms.Select(att={'class': 'form-control'}),
             'valorTotal': forms.DateTimeField(attrs={'class': 'form-control'}),
             'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
-            'pago': forms.Select(att={'class': 'form-control'}),
+            
         }
