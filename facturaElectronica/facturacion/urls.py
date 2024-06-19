@@ -41,11 +41,11 @@ urlpatterns = [
     path('facturaSujetoExcluido/pagoUpdate/<int:pk>', PagoUpdateView.as_view(), name='PagoUpdate'),
     
     path('factura/apendice', ApendiceView.as_view(), name='index_apendice'),
-    path('factura/apendiceCreate', ApendiceCreateView.as_view(), name='apendiceCreate'),
+    path('factura/apendiceCreate/<int:pk>', ApendiceCreateView.as_view(), name='apendiceCreate'),
     path('factura/apendiceUpdate/<int:pk>', ApendiceUpdateView.as_view(), name='apendiceUpdate'),
     
     path('factura/tipoDocumento', TipoDocumentoView.as_view(), name='index_tipoDocumento'),
-    path('factura/tipoDocumentoCreate', TipoDocumentoCreateView.as_view(), name='tipoDocumentoCreate'),
+    path('factura/tipoDocumentoCreate/<int:pk>', TipoDocumentoCreateView.as_view(), name='tipoDocumentoCreate'),
     path('factura/tipoDocumentoUpdate/<int:pk>', TipoDocumentoUpdateView.as_view(), name='tipoDocumentoUpdate'),
     
     path('factura/identificador', IdentificadorView.as_view(), name='index_identificador'),

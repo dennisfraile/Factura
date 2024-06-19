@@ -11,10 +11,14 @@
         {{ form.codigo.label_tag }}
         {{ form.codigo }}
         <div class="form-group row">
-            <label for="{{ form.uniMedida.id_for_label }}" class="col-md-2 control-label">{{ form.uniMedida.label}}</label>
-            <div class="col-sm-8">
-                {{ form.uniMedida }}
-            </div>
+            {% if form.uniMedida.field.queryset.exists %}
+                <label for="{{ form.uniMedida.id_for_label }}" class="col-md-2 control-label">{{ form.uniMedida.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.uniMedida }}
+                </div>
+            {% else %}
+                <p>No hay Unidades de medidas ingresadas en el sistema </p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="unidadmedida" href="{% url 'unidadMedidaCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Unidad de Medida">

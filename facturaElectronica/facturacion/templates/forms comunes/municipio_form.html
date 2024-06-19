@@ -4,7 +4,28 @@
     <h1>Municipio</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.codigo.label_tag }}
+        {{ form.codigo }}
+        {{ form.valor.label_tag }}
+        {{ form.valor }}
+        <div class="form-group row">
+            {% if form.departamento.field.queryset.exists %}
+                <label for="{{ form.departamento.id_for_label }}" class="col-md-2 control-label">{{ form.departamento.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.departamento }}
+                </div>
+            {% else %}
+                <P>No hay ningun departamento ingresado en el sistema.</P>
+            {% endif %} 
+            <div class="col-sm-2">
+                <a id="departamento" href="{% url 'departamentoCreate' %}" 
+                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ingresar Nuevo Departamento">
+                    <span class="material-symbols-outlined">
+                    add
+                    </span>
+                </a>
+            </div>
+        </div>
         <br>
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>

@@ -5,10 +5,14 @@
     <form method= "post">
         {% csrf_token %}
         <div class="form-group row">
-            <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label}}</label>
-            <div class="col-sm-8">
-                {{ form.identificador }}
-            </div>
+            {% if form.identificador.field.queryset.exists %}
+                <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.identificador }}
+                </div>
+            {% else %}
+                <p> No hay identificadres disponibles </p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="identificador" href="{% url 'identificadorCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
@@ -20,10 +24,14 @@
         </div>
         <br> 
         <div class="form-group row">
-            <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
-            <div class="col-sm-8">
-                {{ form.receptor }}
-            </div>
+            {% if form.receptor.field.queryset.exists %}
+                <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.receptor }}
+                </div>
+            {% else %}
+                <p> No hay Receptores para esta factura </p>
+            {% endif %} 
             <div class="col-sm-2">
                 <a id="receptor" href="{% url 'receptorCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
@@ -65,10 +73,14 @@
         {{ form.condicionOperacion }}
         <br> 
         <div class="form-group row">
-            <label for="{{ form.pago.id_for_label }}" class="col-md-2 control-label">{{ form.pago.label}}</label>
-            <div class="col-sm-8">
-                {{ form.pago }}
-            </div>
+            {% if form.pago.field.queryset.exists %}
+                <label for="{{ form.pago.id_for_label }}" class="col-md-2 control-label">{{ form.pago.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.pago }}
+                </div>
+            {% else %}
+                <p> No hay Pagos disponibles para esta factura.</p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="pago" href="{% url 'pagoCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Pago">

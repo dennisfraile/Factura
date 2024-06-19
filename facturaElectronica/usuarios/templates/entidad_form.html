@@ -7,10 +7,14 @@
         {{ form.razonSocial.label_tag }}
         {{ form.razonSocial }}
         <div class="form-group row">
-            <label for="{{ form.direccionEmisor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionEmisor.label}}</label>
-            <div class="col-sm-8">
-                {{ form.direccionEmisor }}
-            </div>
+            {% if form.direccionEmisor.field.queryset.exists %}
+                <label for="{{ form.direccionEmisor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionEmisor.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.direccionEmisor }}
+                </div>
+            {% else %}
+                <p>No hay Direcciones ingresadas en el sistema</p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="tramite" href="{% url 'direccionCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Direccion">
@@ -37,10 +41,14 @@
         {{ form.nrc.label_tag }}
         {{ form.nrc }}
         <div class="form-group row">
-            <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
-            <div class="col-sm-8">
-                {{ form.actividadEconomica }}
-            </div>
+            {% if form.actividadEconomica.field.queryset.exists %}
+                <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.actividadEconomica }}
+                </div>
+            {% else %}
+                <p>No hay Activdad Economica ingresada en el sistema.</p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="tramite" href="{% url 'actividadEconomicaCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Actividad Economica">

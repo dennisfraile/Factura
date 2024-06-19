@@ -9,10 +9,14 @@
         {{ form.ambiente.label_tag }}
         {{ form.ambiente }}
         <div class="form-group row">
-            <label for="{{ form.tipoDte.id_for_label }}" class="col-md-2 control-label">{{ form.tipoDte.label}}</label>
-            <div class="col-sm-8">
-                {{ form.tipoDte }}
-            </div>
+            {% if form.tipoDte.field.queryset.exists %}
+                <label for="{{ form.tipoDte.id_for_label }}" class="col-md-2 control-label">{{ form.tipoDte.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.tipoDte }}
+                </div>
+            {% else %}
+                <P>No hay ningun tipo de documento ingresados en el sistema.</P>
+            {% endif %} 
             <div class="col-sm-2">
                 <a id="tipodocumento" href="{% url 'tipoDocumentoCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Tipo de Documento">

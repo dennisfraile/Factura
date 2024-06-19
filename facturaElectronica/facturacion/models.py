@@ -45,7 +45,7 @@ class Municipio(models.Model):
 class Direccion(models.Model):
 
     complementoDireccion = models.CharField(verbose_name = "Direccion complemento",max_length=100)
-    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE, editable=False)
+    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE, editable=False, null=True)
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="direcciones")
 
     class Meta:

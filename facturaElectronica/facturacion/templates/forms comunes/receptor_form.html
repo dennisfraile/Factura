@@ -13,10 +13,14 @@
         {{ form.nombre.label_tag }}
         {{ form.nombre }}
         <div class="form-group row">
-            <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
-            <div class="col-sm-8">
-                {{ form.actividadEconomica }}
-            </div>
+            {% if form.actividadEconomica.field.queryset.exists %}
+                <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.actividadEconomica }}
+                </div>
+            {% else %}
+                <p>No hay Actividad Economica registarda en el sistema </p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="actividadeconomica" href="{% url 'actividadEconomicaCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Actividad Economica">
@@ -27,10 +31,14 @@
             </div>
         </div>
         <div class="form-group row">
-            <label for="{{ form.direccionReceptor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionReceptor.label}}</label>
-            <div class="col-sm-8">
-                {{ form.direccionReceptor }}
-            </div>
+            {% if form.direccionReceptor.field.queryset.exists %}
+                <label for="{{ form.direccionReceptor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionReceptor.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.direccionReceptor }}
+                </div>
+            {% else %}
+                <p>No hay Direcciones registradas en el sistema </p>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="direccionreceptor" href="{% url 'direccionReceptorCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Direccion para Receptor">

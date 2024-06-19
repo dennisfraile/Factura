@@ -158,7 +158,11 @@ class MunicipioCreateView(UserPassesTestMixin,CreateView):
     model = Municipio
     
     def get_success_url(self):
-        return reverse_lazy('municipioList')
+        id = self.kwargs.get('pk')
+        if id:
+            return redirect('direccionUpdate',id)
+        else:
+            return redirect('direccionCreate')
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -168,7 +172,7 @@ class MunicipioCreateView(UserPassesTestMixin,CreateView):
         departamento = Departamento.objects.get(id=departamentoId)
         municipio= Municipio.objects.create(codigo=codigo, valor=valor, departamento=departamento)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el municipio: "+ codigo + " " + valor + "con exito")
-        return redirect('paisList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
@@ -177,7 +181,11 @@ class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
     form_class = MunicipioForm
     
     def get_success_url(self):
-        return reverse_lazy('municipioList')
+        id = self.kwargs.get('pk')
+        if id:
+            return redirect('direccionUpdate',id)
+        else:
+            return redirect('direccionCreate')
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -187,7 +195,7 @@ class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
         departamento = Departamento.objects.get(id=departamentoId)
         Municipio.objects.update(codigo=codigo, valor=valor, departamento=departamento)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el municipio: "+ codigo + " " + valor + "con exito")
-        return redirect('paisList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class DireccionView(View):
@@ -896,7 +904,13 @@ class ApendiceCreateView(UserPassesTestMixin, CreateView):
     model = Apendice
     
     def get_success_url(self):
-        return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id})
+        id=self.kwargs.get("pk")
+        origin = self.request.POST.get('origin')
+        if origin == 'sujetoExcluido':
+            return redirect('sujetoExcluidoDetailView', pk=id)
+        elif origin == 'comprobanteDonacion':
+            return redirect('comprobanteDonacionDetailView', pk=id)
+            
     
     def post(self, request, *args, **kwargs):
         id=self.kwargs.get("pk")
@@ -908,7 +922,7 @@ class ApendiceCreateView(UserPassesTestMixin, CreateView):
         entidad = user.Usuarios.all()
         apendice = Apendice.objects.create(campo=campo, etiqueta=etiqueta, valor=valor, sujetoExcluido=sujetoExcluido, entidad=entidad)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la panedice: "+ campo + " " + valor + "con exito")
-        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
@@ -918,7 +932,12 @@ class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
     
     def get_success_url(self):
         id=self.kwargs.get("pk")
-        return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id})
+        origin = self.request.POST.get('origin')
+        if origin == 'sujetoExcluido':
+            return redirect('sujetoExcluidoDetailView', pk=id)
+        elif origin == 'comprobanteDonacion':
+            return redirect('comprobanteDonacionDetailView', pk=id)
+        
 
     def post(self, request, *args, **kwargs):
         id=self.kwargs.get("pk")
@@ -927,7 +946,7 @@ class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
         valor = request.POST.get("valor")
         Apendice.objects.update(campo=campo, etiqueta=etiqueta, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el apendice: "+ campo + " " + valor + "con exito")
-        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class TipoDocumentoView(View):
@@ -951,7 +970,12 @@ class TipoDocumentoCreateView(UserPassesTestMixin,CreateView):
     model = TipoDocumento
     
     def get_success_url(self):
-        return reverse_lazy('tipoDocumentoList')
+        id=self.kwargs.get("pk")
+        if id:
+            return redirect('identifacadorUpdate',id)
+        else:
+            return redirect('identificadorCreate')
+        
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -968,7 +992,11 @@ class TipoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
     form_class = TipoDocumentoForm
     
     def get_success_url(self):
-        return reverse_lazy('tipoDocumentoList')
+        id=self.kwargs.get("pk")
+        if id:
+            return redirect('identifacadorUpdate',id)
+        else:
+            return redirect('identificadorCreate')
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")

@@ -7,10 +7,14 @@
         {{ form.codigo.label_tag }}
         {{ form.codigo }}
         <div class="form-group row">
-            <label for="{{ form.formaPago.id_for_label }}" class="col-md-2 control-label">{{ form.formaPago.label}}</label>
-            <div class="col-sm-8">
-                {{ form.formaPago }}
-            </div>
+            {% if fom.formaPago.field.queryset.exists %}
+                <label for="{{ form.formaPago.id_for_label }}" class="col-md-2 control-label">{{ form.formaPago.label}}</label>
+                <div class="col-sm-8">
+                    {{ form.formaPago }}
+                </div>
+            {% else %}
+                <P>No existen formas de pago ingresadas en el sistema.</P>
+            {% endif %}
             <div class="col-sm-2">
                 <a id="formapago" href="{% url 'formaPagoCreate' %}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Forma de Pago">
