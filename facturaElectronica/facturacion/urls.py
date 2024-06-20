@@ -28,7 +28,7 @@ urlpatterns = [
     path('factura/unidadMedidaUpdate/<int:pk>', UnidadMedidaUpdateView.as_view(), name='unidadMedidaUpdate'),
     
     path('facturaSujetoExcluido/operacionSujetoExcluido', OperacionSujetoExcluidoView.as_view(), name='index_operacionSujetoExcluido'),
-    path('facturaSujetoExcluido/operacionSujetoExcluidoCreate/<int:id>', OperacionSujetoExcluidoCreateView.as_view(), name='operacionSujetoExcluidoCreate'),
+    path('facturaSujetoExcluido/operacionSujetoExcluidoCreate', OperacionSujetoExcluidoCreateView.as_view(), name='operacionSujetoExcluidoCreate'),
     path('facturaSujetoExcluido/operacionSujetoExcluidoUpdate/<int:pk>', OperacionSujetoExcluidoUpdateView.as_view(), name='operacionSujetoExcluidoUpdate'),
     path('facturaSujetoExcluido/operacionSujetoExcluidoVer/<int:pk>', OperacionSujetoExcluidoDetailView.as_view(), name='operacionSujetoExcluidoVer'),
     

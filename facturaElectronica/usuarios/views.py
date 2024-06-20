@@ -156,7 +156,7 @@ class EntidadUpdateView(UserPassesTestMixin, UpdateView):
         nrc = request.POST.get("nrc")
         idActividadEconomica = request.POST.get("actividadEconomica")
         actividadEconomica = get_object_or_404(ActividadEconomica, pk=idActividadEconomica)
-        entidad= Entidad.objects.update(razonSocial=razonSocial, direccionEmisor=direccionEmisor, cellphone=cellphone, 
+        entidad= Entidad.objects.filter(pk=pk).update(razonSocial=razonSocial, direccionEmisor=direccionEmisor, cellphone=cellphone, 
                                         codEstableMH=codEstableMH, codEstable=codEstable, codPuntoVentaMH=codPuntoVentaMH, 
                                         codPuntoVenta=codPuntoVenta, email=email, nit=nit, nrc=nrc, actividadEconomica=actividadEconomica)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se han actualizado los parametros de la Entidad "+ 
@@ -218,7 +218,7 @@ class ParametrosAuthHaciendaUpdateView(UserPassesTestMixin, UpdateView):
         nit = request.POST.get("nit")
         pwd = request.POST.get("pwd")
         privateKey = request.POST.get("privateKey")
-        parametrosAuthHacienda= ParametrosAuthHacienda.objects.update(userAgent=userAgent, nit=nit, pwd=pwd, privateKey=privateKey)
+        parametrosAuthHacienda= ParametrosAuthHacienda.objects.filter(pk=pk).update(userAgent=userAgent, nit=nit, pwd=pwd, privateKey=privateKey)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se han actualizado los parametros de auth de"+ 
                              "hacienda para esta entidad: "+ userAgent + " " + nit + "con exito")
         return redirect('paisList')

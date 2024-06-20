@@ -126,15 +126,20 @@ class DepartamentoUpdateView(UserPassesTestMixin, UpdateView):
     form_class = DepartamentoForm
     
     def get_success_url(self):
-        return reverse_lazy('departamentoList')
+        id = self.kwargs.get('pk')
+        if id:
+            return redirect('municipioUpdate',id)
+        else:
+            return redirect('municipioCreate')
+        
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
         codigo = request.POST.get("codigo")
         valor = request.POST.get("valor")
-        Departamento.objects.update(codigo=codigo, valor=valor)
+        Departamento.objects.filter(pk=pk).update(codigo=codigo, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el departamento: "+ codigo + " " + valor + "con exito")
-        return redirect('departamentoList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class MunicipioView(View):
@@ -193,7 +198,7 @@ class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
         valor = request.POST.get("valor")
         departamentoId = request.POST.get("departamento")
         departamento = Departamento.objects.get(id=departamentoId)
-        Municipio.objects.update(codigo=codigo, valor=valor, departamento=departamento)
+        Municipio.objects.filter(pk=pk).update(codigo=codigo, valor=valor, departamento=departamento)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el municipio: "+ codigo + " " + valor + "con exito")
         return redirect(self.get_success_url())
 
@@ -242,7 +247,7 @@ class DireccionCreateView(UserPassesTestMixin,CreateView):
         municipio = Municipio.objects.get(id=municipioId)
         direccion= Direccion.objects.create(complementoDireccion=complementoDireccion, municipio=municipio)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la direccion: "+ complementoDireccion + " "  + "con exito")
-        return redirect('direccionList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class DireccionUpdateView(UserPassesTestMixin, UpdateView):
@@ -272,9 +277,9 @@ class DireccionUpdateView(UserPassesTestMixin, UpdateView):
         complementoDireccion = request.POST.get("complementoDireccion")
         municipioId = request.POST.get("municipio")
         municipio = Municipio.objects.get(id=municipioId)
-        Direccion.objects.update(complementoDireccion=complementoDireccion, municipio=municipio)
+        Direccion.objects.filter(pk=pk).update(complementoDireccion=complementoDireccion, municipio=municipio)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la direccion: "+ complementoDireccion + " " + "con exito")
-        return redirect('direccionList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class UnidadMedidaView(View):
@@ -298,7 +303,21 @@ class UnidadMedidaCreateView(UserPassesTestMixin,CreateView):
     model = UnidadMedida
     
     def get_success_url(self):
-        return reverse_lazy('unidadMedidaList')
+        origin = self.request.POST.get('origin')
+        if origin == 'operacionsujetoexcluido':
+            operacionSujetoExcluido_id = self.request.POST.get('operacionSujetoExcluido')
+            if operacionSujetoExcluido_id:
+                return redirect('operacionSujetoExcluidoUpdate', pk=operacionSujetoExcluido_id)
+            else:
+                return redirect('operacionSujetoExcluidoCreate')
+        elif origin == 'cuerpodocumento':
+            cuerpoDocumento_id = self.request.POST.get('cuerpoDocumento')
+            if cuerpoDocumento_id:
+                return redirect('cuerpoDocumentoUpdate', pk=cuerpoDocumento_id)
+            else:
+                return redirect('cuerpoDocumentoCreate')
+        else:
+            return redirect('panel_facturas')
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -306,7 +325,7 @@ class UnidadMedidaCreateView(UserPassesTestMixin,CreateView):
         valor = request.POST.get("valor")
         unidadMedida= UnidadMedida.objects.create(codigo=codigo, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la unidad de medida: "+ codigo + " " + valor + "con exito")
-        return redirect('unidadMedidaList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class UnidadMedidaUpdateView(UserPassesTestMixin, UpdateView):
@@ -315,15 +334,29 @@ class UnidadMedidaUpdateView(UserPassesTestMixin, UpdateView):
     form_class = UnidadMedidaForm
     
     def get_success_url(self):
-        return reverse_lazy('unidadMedidaList')
+        origin = self.request.POST.get('origin')
+        if origin == 'operacionsujetoexcluido':
+            operacionSujetoExcluido_id = self.request.POST.get('operacionSujetoExcluido')
+            if operacionSujetoExcluido_id:
+                return redirect('operacionSujetoExcluidoUpdate', pk=operacionSujetoExcluido_id)
+            else:
+                return redirect('operacionSujetoExcluidoCreate')
+        elif origin == 'cuerpodocumento':
+            cuerpoDocumento_id = self.request.POST.get('cuerpoDocumento')
+            if cuerpoDocumento_id:
+                return redirect('cuerpoDocumentoUpdate', pk=cuerpoDocumento_id)
+            else:
+                return redirect('cuerpoDocumentoCreate')
+        else:
+            return redirect('panel_facturas')
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
         codigo = request.POST.get("codigo")
         valor = request.POST.get("valor")
-        UnidadMedida.objects.update(codigo=codigo, valor=valor)
+        UnidadMedida.objects.filter(pk=pk).update(codigo=codigo, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la unidad de medida: "+ codigo + " " + valor + "con exito")
-        return redirect('unidadMedidaList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class OperacionSujetoExcluidoView(View):
@@ -383,6 +416,7 @@ class OperacionSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
         return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id})
     
     def post(self, request, *args, **kwargs):
+        pk=self.kwargs.get("pk")
         sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
         numItem = request.POST.get('numItem')
         codigo = request.POST.get('codigo')
@@ -394,7 +428,7 @@ class OperacionSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
         retencion = request.POST.get('retencion')
         description = request.POST.get('description')
         precioUni = request.POST.get('precioUni')
-        operacion = OperacionesSujetoExcluido.objects.update(numItem=numItem, codigo=codigo, uniMedida=unidadMedida, cantidad=cantidad, 
+        operacion = OperacionesSujetoExcluido.objects.filter(pk=pk).update(numItem=numItem, codigo=codigo, uniMedida=unidadMedida, cantidad=cantidad, 
                                                              montoDescu=montoDescu, compra=compra, retencion=retencion, descripccion=description,
                                                              precioUni=precioUni, sujetoExcluido=sujetoExcluido)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la operacion del sujeto excluido con exito")
@@ -468,7 +502,7 @@ class SujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
         entidadId = request.POST.get('emisor')
         emisor = get_object_or_404(Entidad, id=entidadId)
         receptorId = request.POST.get('receptor')
-        receptor = get_object_or_404(Receptor, id=receptor)
+        receptor = get_object_or_404(Receptor, id=receptorId)
         totalCompra = request.POST.get('totalCompra')
         descu = request.POST.get('descu')
         totalDescu = request.POST.get('totalDescu')
@@ -506,6 +540,7 @@ class SujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
         return reverse_lazy('sujetoExcluidoMonthView', kwargs={'year':año, 'month':mes})
     
     def post(self, request):
+        id=self.kwargs.get("pk")
         identificadorId = request.POST.get('identificador')
         identificador = get_object_or_404(Identificador, id=identificadorId)
         entidadId = request.POST.get('emisor')
@@ -527,7 +562,7 @@ class SujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
         observaciones = request.POST.get('observaciones')
         user = request.user
         entidad = user.Usuarios.all()
-        sujetoExcluido = SujetoExcluido.objects.create(identificador=identificador,emisor=emisor,receptor=receptor,totalCompra=totalCompra,descu=descu,
+        sujetoExcluido = SujetoExcluido.objects.filter(pk=id).update(identificador=identificador,emisor=emisor,receptor=receptor,totalCompra=totalCompra,descu=descu,
                                                        totalDescu=totalDescu,subtotal=subtotal,retencionIVAMH=retencionIVAMH,ivarete1=ivarete1,reterenta=reterenta,
                                                        totalPagar=totalPagar,totalLetras=totalLetras,condicionOperacion=condicionOperacion,pago=pago,observaciones=observaciones)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el sujeto excluido con exito")
@@ -789,7 +824,7 @@ class FormaPagoCreateView(UserPassesTestMixin,CreateView):
         valor = request.POST.get("valor")
         formaPago= FormaPago.objects.create(codigo=codigo, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la forma de pago: "+ codigo + " " + valor + "con exito")
-        return redirect('formaPagoList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class FormaPagoUpdateView(UserPassesTestMixin, UpdateView):
@@ -812,9 +847,9 @@ class FormaPagoUpdateView(UserPassesTestMixin, UpdateView):
         pk=self.kwargs.get("pk")
         codigo = request.POST.get("codigo")
         valor = request.POST.get("valor")
-        FormaPago.objects.update(codigo=codigo, valor=valor)
+        FormaPago.objects.filter(pk=id).update(codigo=codigo, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la forma de pago: "+ codigo + " " + valor + "con exito")
-        return redirect('formaPagoList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class PagoView(View):
@@ -838,7 +873,11 @@ class PagoCreateView(UserPassesTestMixin,CreateView):
     model = Pago
     
     def get_success_url(self):
-        return reverse_lazy('pagoList')
+        id=self.kwargs.get("pk")
+        if id:
+            return redirect('sujetoExcluidoUpdate',id)
+        else:
+            return redirect('sujetoExcluidoCreate')
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -853,7 +892,7 @@ class PagoCreateView(UserPassesTestMixin,CreateView):
         entidad = user.Usuarios.all()
         pago= Pais.objects.create(codigo=codigo, formaPago=formaPago, montoPago=montoPago, referencia=referencia, plazo=plazo, periodo=periodo, entidad=entidad)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el pago: "+ codigo + " " + montoPago + "con exito")
-        return redirect('pagoList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class PagoUpdateView(UserPassesTestMixin, UpdateView):
@@ -862,7 +901,11 @@ class PagoUpdateView(UserPassesTestMixin, UpdateView):
     form_class = PagoForm
     
     def get_success_url(self):
-        return reverse_lazy('paisList')
+        id=self.kwargs.get("pk")
+        if id:
+            return redirect('sujetoExcluidoUpdate',id)
+        else:
+            return redirect('sujetoExcluidoCreate')
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -873,9 +916,9 @@ class PagoUpdateView(UserPassesTestMixin, UpdateView):
         referencia = request.POST.get("referencia")
         plazo = request.POST.get("plazo")
         periodo = request.POST.get("periodo")
-        Pago.objects.update(codigo=codigo, formaPago=formaPago, montoPago=montoPago, referencia=referencia, plazo=plazo, periodo=periodo)
+        Pago.objects.filter(pk=pk).update(codigo=codigo, formaPago=formaPago, montoPago=montoPago, referencia=referencia, plazo=plazo, periodo=periodo)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el pago: "+ codigo + " " + "con exito")
-        return redirect('pagoList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class ApendiceView(DetailView):
@@ -944,7 +987,7 @@ class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
         campo = request.POST.get("campo")
         etiqueta = request.POST.get("etiqueta")
         valor = request.POST.get("valor")
-        Apendice.objects.update(campo=campo, etiqueta=etiqueta, valor=valor)
+        Apendice.objects.filter(pk=id).update(campo=campo, etiqueta=etiqueta, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el apendice: "+ campo + " " + valor + "con exito")
         return redirect(self.get_success_url())
 
@@ -1002,7 +1045,7 @@ class TipoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
         pk=self.kwargs.get("pk")
         codigo = request.POST.get("codigo")
         valor = request.POST.get("valor")
-        TipoDocumento.objects.update(codigo=codigo, valor=valor)
+        TipoDocumento.objects.filter(pk=id).update(codigo=codigo, valor=valor)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el tipo de documento: "+ codigo + " " + valor + "con exito")
         return redirect('tipoDocumentoList')
 
@@ -1042,7 +1085,7 @@ class IdentificadorCreateView(UserPassesTestMixin,CreateView):
             else:
                 return redirect('comprobanteDonacionCreate')
         else:
-            return redirect('identificadorList')
+            return redirect('panel_facturas')
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -1062,7 +1105,7 @@ class IdentificadorCreateView(UserPassesTestMixin,CreateView):
                                                     tipoModelo=tipoModelo, tipoOperacion=tipoOperacion, tipoContingencia=tipoContingencia, motivoContin=motivoContin,
                                                     fechaEmision=fechaEmi, tipoMoneda=tipoMoneda, entidad=entidad)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el identificador: "+ version  + " "  + "con exito")
-        return redirect('identificadorList')
+        return redirect(self.get_success_url())
 
 @login_required(redirect_field_name='/ingresar')
 class IdentificadorUpdateView(UserPassesTestMixin, UpdateView):
@@ -1085,7 +1128,7 @@ class IdentificadorUpdateView(UserPassesTestMixin, UpdateView):
             else:
                 return redirect('comprobanteDonacionCreate')
         else:
-            return redirect('identificadorList')
+            return redirect('panel_facturas')
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -1101,7 +1144,7 @@ class IdentificadorUpdateView(UserPassesTestMixin, UpdateView):
         motivoContin = request.POST.get("motivoContin")
         fechaEmi = request.POST.get("fechaEmi")
         tipoMoneda = request.POST.get("tipoMoneda")
-        Identificador.objects.update(version=version, ambiente=ambiente, tipoDte=tipoDte, numeroControl=numeroControl,codigoGeneracion=codigoGeneracion, 
+        Identificador.objects.filter(pk=pk).update(version=version, ambiente=ambiente, tipoDte=tipoDte, numeroControl=numeroControl,codigoGeneracion=codigoGeneracion, 
                                                     tipoModelo=tipoModelo, tipoOperacion=tipoOperacion, tipoContingencia=tipoContingencia, motivoContin=motivoContin,
                                                     fechaEmision=fechaEmi, tipoMoneda=tipoMoneda)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el identificador: "+ version + " " + numeroControl + " " + codigoGeneracion + " "  + "con exito")
@@ -1143,7 +1186,7 @@ class ReceptorCreateView(UserPassesTestMixin,CreateView):
             else:
                 return redirect('comprobanteDonacionCreate')
         else:
-            return redirect('identificadorList')
+            return redirect('panel_facturas')
     
     def post(self, request, *args, **kwargs):
         pk=self.kwargs.get("pk")
@@ -1186,7 +1229,7 @@ class ReceptorUpdateView(UserPassesTestMixin, UpdateView):
             else:
                 return redirect('comprobanteDonacionCreate')
         else:
-            return redirect('identificadorList')
+            return redirect('panel_facturas')
 
     def post(self, request, *args, **kwargs):
         id=self.kwargs.get("pk")
