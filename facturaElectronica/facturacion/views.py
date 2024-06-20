@@ -683,8 +683,12 @@ def sujetoExcluidoList(self,id):
 class Transmitir(View):
     
     def obtenerFactura(self,*args, **kwargs):
+        origin = self.request.POST.get('origin')
         id = self.kwargs.get('id')
-        factura = sujetoExcluidoList(id)
+        if origin == 'sujetoExclido':
+            factura = sujetoExcluidoList(id)
+        else:
+            factura = comprobanteDonacionList(id)
         return factura
     @csrf_exempt
     def transmitir(self, codigoGeneracion,*args, **kwargs):
@@ -712,10 +716,15 @@ class Transmitir(View):
         
         pdf = buffer.getvalue()
         buffer.close()
-        
-        sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-        idIdentificador = sujetoExcluido.identificador.id
-        identificador = get_object_or_404(Identificador, pk=idIdentificador)
+        origin = self.request.POST.get('origin')
+        if origin == 'sujetoExcluido':
+            sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
+            idIdentificador = sujetoExcluido.identificador.id
+            identificador = get_object_or_404(Identificador, pk=idIdentificador)
+        else:
+            comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+            idIdentificador = comprobanteDonacion.identificador.id
+            identificador = get_object_or_404(Identificador, pk=idIdentificador)
         user = get_object_or_404(User, pk=self.user.pk)
         entidadId = user.entidad.id
         entidad = Entidad.objects.filter(id=entidadId)
@@ -732,8 +741,11 @@ class Transmitir(View):
             url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
             
             try:
-                acesso = requests.post(url_auth, params=parametros_auth).json()  
-                responseHacienda = ResponseHacienda(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido)
+                acesso = requests.post(url_auth, params=parametros_auth).json()
+                if origin == 'sujetoExcluido':  
+                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido)
+                else:
+                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, comprobanteDonacion=comprobanteDonacion)
                 responseHacienda.save()
                 
                 if acesso['status'] == "OK":
@@ -751,29 +763,48 @@ class Transmitir(View):
                         'version': identificador.version,
                         'tipoDte': identificador.tipoDte.codigo,
                         'documento': encoded,
-                        'codigoGeneracion': codigoGeneracion,
+                        'codigoGeneracion': identificador.codigoGeneracion,
                     }
                     try:
                         transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
-                        responseHacienda = ResponseHacienda(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido)
-                        responseHacienda.save()
-                        if(transmitir['codigoMsg']=="001"):
-                            sujetoExcluido.objects.update(transmitido=True)
-                            # Envía un correo electrónico con la factura Electrnica
-                            subject = 'Factura Sujeto Excluido'
-                            body = f'Hola {sujetoExcluido.receptor.nombre},\n\nse le a emitido una factura de sujeto excluido'
-                            from_email = sujetoExcluido.emisor.email  
-                            to_email = sujetoExcluido.receptor.email
-                            email =  EmailMessage(subject, body, from_email, to_email)
-                            jsonContent = json.dumps(jsonData, indent=4)
-                            email.attach('data.json', jsonContent, 'application/json')
-                            email.attach('data.pdf', pdf, 'application/pdf')
-                            email.send()
+                        if origin == 'sujetoExcluido':
+                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido)
+                            responseHacienda.save()
+                            if(transmitir['codigoMsg']=="001"):
+                                sujetoExcluido.objects.update(transmitido=True)
+                                # Envía un correo electrónico con la factura Electrnica
+                                subject = 'Factura Sujeto Excluido'
+                                body = f'Hola {sujetoExcluido.receptor.nombre},\n\nse le a emitido una factura de sujeto excluido'
+                                from_email = sujetoExcluido.emisor.email  
+                                to_email = sujetoExcluido.receptor.email
+                                email =  EmailMessage(subject, body, from_email, to_email)
+                                jsonContent = json.dumps(jsonData, indent=4)
+                                email.attach('data.json', jsonContent, 'application/json')
+                                email.attach('data.pdf', pdf, 'application/pdf')
+                                email.send()
+                        else:
+                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, comprobanteDonacion=comprobanteDonacion)
+                            responseHacienda.save()
+                            if(transmitir['codigoMsg']=="001"):
+                                comprobanteDonacion.objects.update(transmitido=True)
+                                # Envía un correo electrónico con la factura Electrnica
+                                subject = 'Comprobante de Donacion'
+                                body = f'Hola {comprobanteDonacion.receptor.nombre},\n\nse le a emitido un Comprobante de Donacion'
+                                from_email = comprobanteDonacion.emisor.email  
+                                to_email = comprobanteDonacion.receptor.email
+                                email =  EmailMessage(subject, body, from_email, to_email)
+                                jsonContent = json.dumps(jsonData, indent=4)
+                                email.attach('data.json', jsonContent, 'application/json')
+                                email.attach('data.pdf', pdf, 'application/pdf')
+                                email.send()
                     except:
                         messages.danger(self.request, 'Ocurrio un problema en la transmision de la factura' + transmitir['status'])
                     stastus_code = acesso['status']
                     messages.success(self.request, 'Se logueo con exito en hacienda', stastus_code)
-                    return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+                    if origin == 'sujetoExcluido':
+                        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+                    else:
+                         return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
                 
                 else:
                     stastus_code = acesso.status_code
@@ -782,10 +813,16 @@ class Transmitir(View):
                 
             except requests.exceptions.RequestException as e:
                 messages.success(self.request, 'Ocurrio un error al hacer la solicitud a la api de hacienda ' + str(e))
-            return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+            if origin == 'sujetoExcluido':
+                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+            else:
+                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
         else:
             messages.success(self.request, 'Error esta vista solo admite solicitudes POST, error 405')
-            return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+            if origin == 'sujetoExcluido':
+                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+            else:
+                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
 @login_required(redirect_field_name='/ingresar')
 class FormaPagoView(View):
     
