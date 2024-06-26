@@ -25,7 +25,7 @@ class ActividadEconomica(models.Model):
 class Entidad(models.Model):
     
     razonSocial = models.CharField(verbose_name="Razon Social", max_length=100)
-    direccionEmisor = models.ForeignKey(Direccion, on_delete=models.CASCADE, editable=False)
+    direccionEmisor = models.ForeignKey(Direccion, on_delete=models.CASCADE)
     cellphone = models.CharField(verbose_name="Telefono movil del usuario", 
                                               help_text="Colocar el número sin identificador de país, sin espacios y sin guion." , 
                                               max_length=30)
@@ -34,9 +34,9 @@ class Entidad(models.Model):
     codPuntoVentaMH = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el MH", max_length=4, null=True)
     codPuntoVenta = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el Contribuyente", max_length=15, null=True)
     email = models.EmailField(verbose_name="Correo electronico de la entidad", unique=True)
-    nit = models.CharField(verbose_name="Numero de NIT sin guiones",max_length=30)
+    nit = models.CharField(verbose_name="Numero de NIT sin guiones",max_length=30, unique=True)
     nrc = models.CharField(verbose_name="NRC", max_length=100, null=True)
-    actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE, editable=False)
+    actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE)
     class Meta:
         verbose_name_plural = "Entidades"
 
@@ -65,7 +65,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                               max_length=20)
     organizacion = models.CharField(verbose_name="Organizaciones a las que esta asociado", max_length=100)
     nrc = models.CharField(verbose_name="NRC", max_length=100)
-    actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE, editable=False)
+    actividadEconomica = models.ForeignKey(ActividadEconomica, ondelete=models.CASCADE)
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, null=True, related_name="usuarios")
     is_entidad_superuser = models.BooleanField(default=False)
     is_system_superuser = models.BooleanField(default=False)
@@ -117,7 +117,7 @@ def generate_temporary_password():
         password = ''.join(random.choice(characters) for i in range(length))
         return password
 
-@receiver(post_save, sender=CustomerUser)
+@receiver(post_save, sender=CustomUser)
 def send_welcome_email(sender, instance, created, **kwargs):
     if created and not instance.is_staff:
         # Asigna una contraseña temporal al usuario

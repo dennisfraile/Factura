@@ -27,6 +27,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
 from django.core.mail import EmailMessage
+from io import BytesIO
+from email.mime.application import MIMEApplication
 # Create your views here.
 
 @login_required(redirect_field_name='/ingresar')
@@ -566,263 +568,8 @@ class SujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
                                                        totalDescu=totalDescu,subtotal=subtotal,retencionIVAMH=retencionIVAMH,ivarete1=ivarete1,reterenta=reterenta,
                                                        totalPagar=totalPagar,totalLetras=totalLetras,condicionOperacion=condicionOperacion,pago=pago,observaciones=observaciones)
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el sujeto excluido con exito")
-        return redirect(self.get_success_url())
+        return redirect(self.get_success_url())    
 
-def sujetoExcluidoList(self,id):
-    sujetoExcluido = SujetoExcluido.objects.get(id=id)
-    emisor = User.objects.get(id = sujetoExcluido.emisor.emisor.id)
-    documentoEmisor = emisor.documentos.all()
-    entidad = emisor.Usuarios.all()
-    receptor = User.objects.get(id=sujetoExcluido.receptor.receptor.id)
-    documentoReceptor = receptor.documentos.all()
-    operacionesSujetoExcluido = sujetoExcluido.operacionesSujetoExcluido.all()
-    apendiceSujetoExcluido = sujetoExcluido.apendices.all()
-    fechaEmi = sujetoExcluido.fechaTransmicion.date()
-    horaEmi = sujetoExcluido.get_formatted_time()
-    sujetoData = []
-    
-    sujetoData = {
-        'identificacion': {
-            'version': sujetoExcluido.identificador.version,
-            'ambiente': sujetoExcluido.identificador.ambiente,
-            'tipoDte': sujetoExcluido.identificador.tipoDte,
-            'numeroControl': sujetoExcluido.identificador.numeroControl,
-            'codigoGeneracion': sujetoExcluido.identificador.codigoGeneracion,
-            'tipoModelo': sujetoExcluido.identificador.tipoModelo,
-            'tipoOperacion': sujetoExcluido.identificador.tipoOperacion,
-            'tipoContingencia': sujetoExcluido.identificador.tipoContingencia,
-            'motivoContin': sujetoExcluido.identificador.motivoContin,
-            'fechaEmi': fechaEmi,
-            'horaEmi': horaEmi,
-            'tipoMoneda': sujetoExcluido.identificador.tipoMoneda
-        },
-        'Emisor': {
-            "nit": sujetoExcluido.emisor.nit,
-            "nrc": sujetoExcluido.emisor.nrc,
-            "nombre": sujetoExcluido.emisor.razonSocial,
-            "codActividad": sujetoExcluido.emisor.actividadEconomica.codigo,
-            "descActividad": sujetoExcluido.emisor.actividadEconomica.valor,
-            "direccion": {
-                "departamento": sujetoExcluido.emisor.direccionEmisor.municipio.departamento.codigo,
-                "municipio": sujetoExcluido.emisor.direccionEmisor.municipio.codigo,
-                "complemento": sujetoExcluido.emisor.direccionEmisor.complementoDireccion,
-            },
-            "telefono": sujetoExcluido.emisor.cellphone,
-            "codEstableMH": sujetoExcluido.emisor.codEstableMH,
-            "codEstable": sujetoExcluido.emisor.codEstable,
-            "codPuntoVentaMH": sujetoExcluido.emisor.codPuntoVentaMH,
-            "codPuntoVenta": sujetoExcluido.emisor.codPuntoVenta,
-            "correo": sujetoExcluido.emisor.email
-        },
-        "sujetoExcluido": {
-            "tipoDocumento": sujetoExcluido.receptor.tipo,
-            "numDocumento": sujetoExcluido.receptor.numero,
-            "nombre": sujetoExcluido.receptor.receptor.nombre,
-            "codActividad": sujetoExcluido.receptor.actividadEconomica.codigo,
-            "descActividad": sujetoExcluido.receptor.actividadEconomica.valor,
-            "direccion": {
-                "departamento": sujetoExcluido.receptor.direccionReceptor.municipio.departamento.codigo,
-                "municipio": sujetoExcluido.receptor.direccionReceptor.municipio.codigo,
-                "complemento": sujetoExcluido.receptor.direccionReceptor.complementoDireccion
-            },
-            "telefono": sujetoExcluido.receptor.cellphone,
-            "correo": sujetoExcluido.receptor.email
-        },
-        "cuerpoDocumento":[],
-        "resumen": {
-            "totalCompra" : sujetoExcluido.totalCompra,
-            "descu" : sujetoExcluido.descu,
-            "totalDescu" : sujetoExcluido.totalDescu,
-            "subTotal" : sujetoExcluido.subTotal,
-            "retencionIVAMH": sujetoExcluido.retencionIVAMH,
-            "ivaRete1" : sujetoExcluido.ivaRete1,
-            "reteRenta" : sujetoExcluido.reteRenta,
-            "totalPagar" : sujetoExcluido.totalPagar,
-            "totalLetras" : sujetoExcluido.totalLetras,
-            "condicionOperacion" : sujetoExcluido.condicionOperacion,
-            "pagos" : [
-                {
-                    "codigo" : sujetoExcluido.pago.codigo,
-                    "formaPago":sujetoExcluido.pago.formaPago,
-                    "montoPago" : sujetoExcluido.pago.montoPago,
-                    "referencia" : sujetoExcluido.pago.referencia,
-                    "plazo" : sujetoExcluido.pago.plazo,
-                    "periodo" : sujetoExcluido.pago.periodo
-                }
-            ],
-            "observaciones": sujetoExcluido.observaciones,
-        },
-        "apendice": []
-    }
-    for operacion in operacionesSujetoExcluido:
-        operacionesData = {
-            "numItem" : operacion.numItem,
-            "tipoItem" : operacion.tipoItem,
-            "codigo" : operacion.codigo,
-            "uniMedida": operacion.uniMedida.codigo,
-            "cantidad" : operacion.cantidad,
-            "montoDescu": operacion.montoDescu,
-            "compra": operacion.compra,
-            "retencion": operacion.retencion,
-            "descripcion" : operacion.descripcion,
-            "precioUni": operacion.precioUni
-        }
-        sujetoData['cuerpoDocumento'].append(operacionesData)
-    
-    for apendices in apendiceSujetoExcluido:
-        apendicesData = {
-            "campo": apendices.campo,
-            "etiquta": apendices.etiquta,
-            "valor": apendices.valor
-        }
-        sujetoData['apendice'].append(apendicesData)
-    
-    return JsonResponse(sujetoData, safe=False)
-    
-@login_required(redirect_field_name='/ingresar')
-class Transmitir(View):
-    
-    def obtenerFactura(self,*args, **kwargs):
-        origin = self.request.POST.get('origin')
-        id = self.kwargs.get('id')
-        if origin == 'sujetoExclido':
-            factura = sujetoExcluidoList(id)
-        else:
-            factura = comprobanteDonacionList(id)
-        return factura
-    @csrf_exempt
-    def transmitir(self, codigoGeneracion,*args, **kwargs):
-        id = self.kwargs.get('id')
-        
-        #Generando el pdf a partir del json 
-        jsonData = self.obtenerFactura()
-        buffer = io.BytesIO()
-        # Crear una respuesta de tipo PDF
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="SujetoExcluido.pdf"'
-        # Crear el objeto PDF
-        pdf = canvas.Canvas(response, pagesize=letter)
-        width, height = letter
-        # Extraer datos del JSON y escribirlos en el PDF
-        text = "Data from JSON:\n"
-        for key, value in jsonData.items():
-            text += f"{key}: {value}\n"
-
-        pdf.drawString(100, height - 100, text)
-
-        # Finalizar el PDF
-        pdf.showPage()
-        pdf.save()
-        
-        pdf = buffer.getvalue()
-        buffer.close()
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoExcluido':
-            sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-            idIdentificador = sujetoExcluido.identificador.id
-            identificador = get_object_or_404(Identificador, pk=idIdentificador)
-        else:
-            comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
-            idIdentificador = comprobanteDonacion.identificador.id
-            identificador = get_object_or_404(Identificador, pk=idIdentificador)
-        user = get_object_or_404(User, pk=self.user.pk)
-        entidadId = user.entidad.id
-        entidad = Entidad.objects.filter(id=entidadId)
-        authHacienda = ParametrosAuthHacienda.objects.filter(entidad=entidad.id)
-        privateKey = authHacienda.privateKey
-        url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
-        parametros_auth = {
-            'content_Type' : 'application/x-www-form-urlencoded',
-            'user_agent ': authHacienda.userAgent,
-            'user' : authHacienda.user,
-            'pwd' : authHacienda.pwd,
-            }
-        if requests.method == 'POST':
-            url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
-            
-            try:
-                acesso = requests.post(url_auth, params=parametros_auth).json()
-                if origin == 'sujetoExcluido':  
-                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido)
-                else:
-                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, comprobanteDonacion=comprobanteDonacion)
-                responseHacienda.save()
-                
-                if acesso['status'] == "OK":
-                    token = acesso['body']['token']
-                    private = open('clave_privada.pem', 'r')
-                    factura = self.obtenerFactura()
-                    encoded = jwt.encode(factura, privateKey, algorithm="HS256")
-                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
-                    parametros_recepcion = {
-                        'Authorization': token,
-                        'User-Agent': authHacienda.userAgent,
-                        'content-Type': 'application/JSON',
-                        'ambiente': identificador.ambiente,
-                        'idEnvio': identificador.id,
-                        'version': identificador.version,
-                        'tipoDte': identificador.tipoDte.codigo,
-                        'documento': encoded,
-                        'codigoGeneracion': identificador.codigoGeneracion,
-                    }
-                    try:
-                        transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
-                        if origin == 'sujetoExcluido':
-                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido)
-                            responseHacienda.save()
-                            if(transmitir['codigoMsg']=="001"):
-                                sujetoExcluido.objects.update(transmitido=True)
-                                # Envía un correo electrónico con la factura Electrnica
-                                subject = 'Factura Sujeto Excluido'
-                                body = f'Hola {sujetoExcluido.receptor.nombre},\n\nse le a emitido una factura de sujeto excluido'
-                                from_email = sujetoExcluido.emisor.email  
-                                to_email = sujetoExcluido.receptor.email
-                                email =  EmailMessage(subject, body, from_email, to_email)
-                                jsonContent = json.dumps(jsonData, indent=4)
-                                email.attach('data.json', jsonContent, 'application/json')
-                                email.attach('data.pdf', pdf, 'application/pdf')
-                                email.send()
-                        else:
-                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, comprobanteDonacion=comprobanteDonacion)
-                            responseHacienda.save()
-                            if(transmitir['codigoMsg']=="001"):
-                                comprobanteDonacion.objects.update(transmitido=True)
-                                # Envía un correo electrónico con la factura Electrnica
-                                subject = 'Comprobante de Donacion'
-                                body = f'Hola {comprobanteDonacion.receptor.nombre},\n\nse le a emitido un Comprobante de Donacion'
-                                from_email = comprobanteDonacion.emisor.email  
-                                to_email = comprobanteDonacion.receptor.email
-                                email =  EmailMessage(subject, body, from_email, to_email)
-                                jsonContent = json.dumps(jsonData, indent=4)
-                                email.attach('data.json', jsonContent, 'application/json')
-                                email.attach('data.pdf', pdf, 'application/pdf')
-                                email.send()
-                    except:
-                        messages.danger(self.request, 'Ocurrio un problema en la transmision de la factura' + transmitir['status'])
-                    stastus_code = acesso['status']
-                    messages.success(self.request, 'Se logueo con exito en hacienda', stastus_code)
-                    if origin == 'sujetoExcluido':
-                        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
-                    else:
-                         return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
-                
-                else:
-                    stastus_code = acesso.status_code
-                    messages.success(self.request, 'Ocurrio un error con las credenciales' + acesso['status'])
-                    return redirect('authHacienda', pk=authHacienda.pk)
-                
-            except requests.exceptions.RequestException as e:
-                messages.success(self.request, 'Ocurrio un error al hacer la solicitud a la api de hacienda ' + str(e))
-            if origin == 'sujetoExcluido':
-                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
-            else:
-                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
-        else:
-            messages.success(self.request, 'Error esta vista solo admite solicitudes POST, error 405')
-            if origin == 'sujetoExcluido':
-                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
-            else:
-                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
 @login_required(redirect_field_name='/ingresar')
 class FormaPagoView(View):
     
@@ -1578,6 +1325,119 @@ class ComprobanteDonacionUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito")
         return redirect(self.get_success_url())
 
+#Creando los Json correspondiente a cada factura
+
+def sujetoExcluidoList(self,id):
+    sujetoExcluido = SujetoExcluido.objects.get(id=id)
+    emisor = User.objects.get(id = sujetoExcluido.emisor.emisor.id)
+    documentoEmisor = emisor.documentos.all()
+    entidad = emisor.Usuarios.all()
+    receptor = User.objects.get(id=sujetoExcluido.receptor.receptor.id)
+    documentoReceptor = receptor.documentos.all()
+    operacionesSujetoExcluido = sujetoExcluido.operacionesSujetoExcluido.all()
+    apendiceSujetoExcluido = sujetoExcluido.apendices.all()
+    fechaEmi = sujetoExcluido.fechaTransmicion.date()
+    horaEmi = sujetoExcluido.get_formatted_time()
+    sujetoData = []
+    
+    sujetoData = {
+        'identificacion': {
+            'version': sujetoExcluido.identificador.version,
+            'ambiente': sujetoExcluido.identificador.ambiente,
+            'tipoDte': sujetoExcluido.identificador.tipoDte,
+            'numeroControl': sujetoExcluido.identificador.numeroControl,
+            'codigoGeneracion': sujetoExcluido.identificador.codigoGeneracion,
+            'tipoModelo': sujetoExcluido.identificador.tipoModelo,
+            'tipoOperacion': sujetoExcluido.identificador.tipoOperacion,
+            'tipoContingencia': sujetoExcluido.identificador.tipoContingencia,
+            'motivoContin': sujetoExcluido.identificador.motivoContin,
+            'fechaEmi': fechaEmi,
+            'horaEmi': horaEmi,
+            'tipoMoneda': sujetoExcluido.identificador.tipoMoneda
+        },
+        'Emisor': {
+            "nit": sujetoExcluido.emisor.nit,
+            "nrc": sujetoExcluido.emisor.nrc,
+            "nombre": sujetoExcluido.emisor.razonSocial,
+            "codActividad": sujetoExcluido.emisor.actividadEconomica.codigo,
+            "descActividad": sujetoExcluido.emisor.actividadEconomica.valor,
+            "direccion": {
+                "departamento": sujetoExcluido.emisor.direccionEmisor.municipio.departamento.codigo,
+                "municipio": sujetoExcluido.emisor.direccionEmisor.municipio.codigo,
+                "complemento": sujetoExcluido.emisor.direccionEmisor.complementoDireccion,
+            },
+            "telefono": sujetoExcluido.emisor.cellphone,
+            "codEstableMH": sujetoExcluido.emisor.codEstableMH,
+            "codEstable": sujetoExcluido.emisor.codEstable,
+            "codPuntoVentaMH": sujetoExcluido.emisor.codPuntoVentaMH,
+            "codPuntoVenta": sujetoExcluido.emisor.codPuntoVenta,
+            "correo": sujetoExcluido.emisor.email
+        },
+        "sujetoExcluido": {
+            "tipoDocumento": sujetoExcluido.receptor.tipo,
+            "numDocumento": sujetoExcluido.receptor.numero,
+            "nombre": sujetoExcluido.receptor.receptor.nombre,
+            "codActividad": sujetoExcluido.receptor.actividadEconomica.codigo,
+            "descActividad": sujetoExcluido.receptor.actividadEconomica.valor,
+            "direccion": {
+                "departamento": sujetoExcluido.receptor.direccionReceptor.municipio.departamento.codigo,
+                "municipio": sujetoExcluido.receptor.direccionReceptor.municipio.codigo,
+                "complemento": sujetoExcluido.receptor.direccionReceptor.complementoDireccion
+            },
+            "telefono": sujetoExcluido.receptor.cellphone,
+            "correo": sujetoExcluido.receptor.email
+        },
+        "cuerpoDocumento":[],
+        "resumen": {
+            "totalCompra" : sujetoExcluido.totalCompra,
+            "descu" : sujetoExcluido.descu,
+            "totalDescu" : sujetoExcluido.totalDescu,
+            "subTotal" : sujetoExcluido.subTotal,
+            "retencionIVAMH": sujetoExcluido.retencionIVAMH,
+            "ivaRete1" : sujetoExcluido.ivaRete1,
+            "reteRenta" : sujetoExcluido.reteRenta,
+            "totalPagar" : sujetoExcluido.totalPagar,
+            "totalLetras" : sujetoExcluido.totalLetras,
+            "condicionOperacion" : sujetoExcluido.condicionOperacion,
+            "pagos" : [
+                {
+                    "codigo" : sujetoExcluido.pago.codigo,
+                    "formaPago":sujetoExcluido.pago.formaPago,
+                    "montoPago" : sujetoExcluido.pago.montoPago,
+                    "referencia" : sujetoExcluido.pago.referencia,
+                    "plazo" : sujetoExcluido.pago.plazo,
+                    "periodo" : sujetoExcluido.pago.periodo
+                }
+            ],
+            "observaciones": sujetoExcluido.observaciones,
+        },
+        "apendice": []
+    }
+    for operacion in operacionesSujetoExcluido:
+        operacionesData = {
+            "numItem" : operacion.numItem,
+            "tipoItem" : operacion.tipoItem,
+            "codigo" : operacion.codigo,
+            "uniMedida": operacion.uniMedida.codigo,
+            "cantidad" : operacion.cantidad,
+            "montoDescu": operacion.montoDescu,
+            "compra": operacion.compra,
+            "retencion": operacion.retencion,
+            "descripcion" : operacion.descripcion,
+            "precioUni": operacion.precioUni
+        }
+        sujetoData['cuerpoDocumento'].append(operacionesData)
+    
+    for apendices in apendiceSujetoExcluido:
+        apendicesData = {
+            "campo": apendices.campo,
+            "etiqueta": apendices.etiqueta,
+            "valor": apendices.valor
+        }
+        sujetoData['apendice'].append(apendicesData)
+    
+    return JsonResponse(sujetoData, safe=False)
+
 def comprobanteDonacionList(self,id):
     comprobanteDonacion = ComprobanteDonacion.objects.get(id=id)
     emisor = User.objects.get(id = comprobanteDonacion.emisor.emisor.id)
@@ -1665,18 +1525,18 @@ def comprobanteDonacionList(self,id):
         }
         comprobanteData['otrosDocumentos'].append(otrosDocumentosData)
     
-    for cuerpoDocumento in cuerpoDocumento:
+    for cuerpoDoc in cuerpoDocumento:
         cuerpoDocumentoData = {
-            "numItem": cuerpoDocumento.numItem,
-            "tipoDonacion": cuerpoDocumento.tipoDonacion,
-            "cantidad": cuerpoDocumento.cantidad,
-            "codigo": cuerpoDocumento.codigo,
-            "uniMedida": cuerpoDocumento.uniMedida.codigo,
-            "descripccion": cuerpoDocumento.descripccion,
-            "depreciacion": cuerpoDocumento.depreciacion,
-            "montoDescu": cuerpoDocumento.montoDescu,
-            "valorUni": cuerpoDocumento.valorUni,
-            "valor": cuerpoDocumento.valor
+            "numItem": cuerpoDoc.numItem,
+            "tipoDonacion": cuerpoDoc.tipoDonacion,
+            "cantidad": cuerpoDoc.cantidad,
+            "codigo": cuerpoDoc.codigo,
+            "uniMedida": cuerpoDoc.uniMedida.codigo,
+            "descripccion": cuerpoDoc.descripccion,
+            "depreciacion": cuerpoDoc.depreciacion,
+            "montoDescu": cuerpoDoc.montoDescu,
+            "valorUni": cuerpoDoc.valorUni,
+            "valor": cuerpoDoc.valor
         }
         comprobanteData['cuerpoDocumento'].append(cuerpoDocumentoData)
     
@@ -1689,3 +1549,399 @@ def comprobanteDonacionList(self,id):
         comprobanteData['apendice'].append(apendicesData)
     
     return JsonResponse(comprobanteData, safe=False)
+
+#Creando los PDF's para cada Factura
+
+def cargarDatosFactura(factura):
+    with open(factura, 'r') as archivo:
+        datos = json.load(archivo)
+    return datos
+
+def crearFacturaSujetoExcluido(datos):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    ancho, alto =letter
+    
+    # Encabezado de la factura
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(30, alto - 50, "Factura de Sujeto Excluido")
+    
+    # Identificador
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Identificador")
+    identificador = datos["identiificacion"]
+    info_identificador1 = f'Version: {identificador["version"]}   Tipo: {identificador["tipoDte"]}   Numero de Control: {identificador["numeroControl"]}'
+    info_identificador2 = f'Codigo de Generacion: {identificador["codigoGeneracion"]}   Fecha: {identificador["fechaEmi"]}   Hora: {identificador["horaEmi"]}'
+    info_identificador3 = f'Modelo de Facturacion: {identificador["tipoModelo"]}  Tipo de Transmicion: {identificador["tipoOpreacion"]}  Tipo de Contingencion: {identificador["tipoContingencia"]}'
+    info_identificador4 = f'Tipo de Contingencion: {identificador["tipoContingencia"]}  Motivo de Contingencia: {identificador["motivoContin"]}  Tipo de moneda: {identificador["tipoMoneda"]}'
+    c.setFont("Helvetica-Bold",12)
+    c.drawString(30, alto - 80, info_identificador2)
+    c.drawString(30, alto - 80, info_identificador1)  
+    c.drawString(30, alto - 80, info_identificador3)
+    c.drawString(30, alto - 80, info_identificador4)
+    
+    # Información del Emisor
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Datos del Emisor de la Factura")
+    emisor = datos["Emisor"]
+    info_emisor = f'NIT: {emisor["nit"]}  NRC: {emisor["nrc"]}  Razon Social: {emisor["razonSocial"]}  Actividad Economica: {emisor["descActividad"]}  Email: {emisor["email"]}'
+    info_emisor2 = f'Codigo del establecimiento por MH: {emisor["codEstableMH"]}  Codigo del establecimiento por el contribuyente: {emisor["codEstable"]}'
+    info_emisor3 = f'Codigo del punto de venta por MH: {emisor["codPuntoVentaMH"]}  Codigo del punto de venta por el contribuyente: {emisor["codPuntoVenta"]}'
+    direccion = datos["direccion"]
+    direccion_emisor = f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}  Telefono: {info_emisor["telefono"]}'
+    c.setFont("Helvetica-Bold",12)
+    c.drawString(30, alto - 80, info_emisor)
+    c.drawString(30, alto - 80, direccion_emisor)
+    c.drawString(30, alto - 80, info_emisor2)
+    c.drawString(30, alto - 80, info_emisor3)
+    
+    # Informacion del Sujeto Excluido 
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Datos del Sujeto Excluido")
+    sujetoExcluido = datos["sujetoExcluido"]
+    info_sujeto = f'Nombre: {sujetoExcluido["nombre"]}  Documento: {sujetoExcluido["numDocumento"]}  NRC: {sujetoExcluido["nrc"]}'
+    info_sujeto2 = f' Actividad Economica: {sujetoExcluido["descActividad"]}, Email: {sujetoExcluido["email"]}  Telefono: {sujetoExcluido["telefono"]}'
+    direccionS = datos["direccion"]
+    direccion_sujeto = f'Direccion: {direccionS["complemento"]}, {direccionS["municipio"]}, {direccionS["departamento"]} '
+    c.setFont("Helvetica-Bold",12)
+    c.drawString(30, alto - 80, info_sujeto)
+    c.drawString(30, alto - 80, info_sujeto2)
+    c.drawString(30, alto - 80, direccion_sujeto)
+    
+    #Operaciones
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Operaciones")
+    c.drawString(30, alto - 140, "Numero de Item")
+    c.drawString(450, alto - 140, "Tipo de Item")
+    c.drawString(250, alto - 140, "Codigo")
+    c.drawString(450, alto - 140, "Unidad de Medida")
+    c.drawString(350, alto - 140, "Cantidad")
+    c.drawString(450, alto - 140, "Monto")
+    c.drawString(450, alto - 140, "Compra")
+    c.drawString(450, alto - 140, "Retencion")
+    c.drawString(450, alto - 140, "Precio Unitario")
+    c.drawString(450, alto - 140, "Descripccion")
+    
+    y = alto - 170
+    
+    #Lista de productos/servicios
+    for operaciones in datos["cuerpoDocumento"]:
+        numItem = operaciones["numItem"]
+        tipoItem = operaciones["tipoItem"]
+        codigo = operaciones["codigo"]
+        uniMedida = operaciones["uniMedida"]
+        cantidad = operaciones["cantidad"]
+        montoDescu = operaciones["montoDescu"]
+        compra = operaciones["compra"]
+        retencion = operaciones["retencion"]
+        precioUni = operaciones["precioUni"]
+        descripccion = operaciones["descripccion"]
+        
+        c.drawString(100, y, numItem)
+        c.drawString(100, y, tipoItem)
+        c.drawString(100, y, codigo)
+        c.drawString(150, y, uniMedida)
+        c.drawString(150, y, cantidad)
+        c.drawString(200, y, f"${montoDescu:.2f}")
+        c.drawString(200, y, f"${compra:.2f}")
+        c.drawString(200, y, f"${retencion:.2f}")
+        c.drawString(200, y, f"${precioUni:.2f}")
+        c.drawString(300, y, descripccion)
+        
+        y -= 20
+        
+    #Apendice
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Campo")
+    c.drawString(30, alto - 140, "Descripccion")
+    c.drawString(450, alto - 140, "Valor")
+    
+    z = alto - 170
+    
+    #Lista de Apendices
+    for apendice in datos["apendice"]:
+        campo = apendice["campo"]
+        etiqueta = apendice["etiqueta"]
+        valor = apendice["valor"]
+        
+        c.drawString(100, y, campo)
+        c.drawString(100, y, etiqueta)
+        c.drawString(100, y, valor)
+        
+        z -= 20
+    
+    #Guardar el PDF
+    c.save()
+    buffer.seek(0)
+    
+    return buffer.getvalue()
+
+def crearComprobanteDonacion(datos):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    ancho, alto =letter
+    
+    # Encabezado de la factura
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(30, alto - 50, "Comprobante de Donacion")
+    
+    # Identificador
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Identificador")
+    identificador = datos["identiificacion"]
+    info_identificador1 = f'Version: {identificador["version"]}   Tipo: {identificador["tipoDte"]}   Numero de Control: {identificador["numeroControl"]}'
+    info_identificador2 = f'Codigo de Generacion: {identificador["codigoGeneracion"]}   Fecha: {identificador["fechaEmi"]}   Hora: {identificador["horaEmi"]}'
+    info_identificador3 = f'Modelo de Facturacion: {identificador["tipoModelo"]}  Tipo de Transmicion: {identificador["tipoOpreacion"]}  Tipo de Contingencion: {identificador["tipoContingencia"]}'
+    info_identificador4 = f'Tipo de Contingencion: {identificador["tipoContingencia"]}  Motivo de Contingencia: {identificador["motivoContin"]}  Tipo de moneda: {identificador["tipoMoneda"]}'
+    c.setFont("Helvetica-Bold",12)
+    c.drawString(30, alto - 80, info_identificador2)
+    c.drawString(30, alto - 80, info_identificador1)  
+    c.drawString(30, alto - 80, info_identificador3)
+    c.drawString(30, alto - 80, info_identificador4)
+    
+    # Información del Donatorio
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Datos del Donatorio del Comprobante de Donacion")
+    emisor = datos["Emisor"]
+    info_emisor = f'NIT: {emisor["nit"]}  NRC: {emisor["nrc"]}  Razon Social: {emisor["razonSocial"]}  Actividad Economica: {emisor["descActividad"]}  Email: {emisor["email"]}'
+    info_emisor2 = f'Codigo del establecimiento por MH: {emisor["codEstableMH"]}  Codigo del establecimiento por el contribuyente: {emisor["codEstable"]}'
+    info_emisor3 = f'Codigo del punto de venta por MH: {emisor["codPuntoVentaMH"]}  Codigo del punto de venta por el contribuyente: {emisor["codPuntoVenta"]}'
+    direccion = datos["direccion"]
+    direccion_emisor = f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}  Telefono: {info_emisor["telefono"]}'
+    c.setFont("Helvetica-Bold",12)
+    c.drawString(30, alto - 80, info_emisor)
+    c.drawString(30, alto - 80, direccion_emisor)
+    c.drawString(30, alto - 80, info_emisor2)
+    c.drawString(30, alto - 80, info_emisor3)
+    
+    # Informacion del Donante 
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Datos del Donante")
+    sujetoExcluido = datos["sujetoExcluido"]
+    info_sujeto = f'Nombre: {sujetoExcluido["nombre"]}  Documento: {sujetoExcluido["numDocumento"]}  NRC: {sujetoExcluido["nrc"]}'
+    info_sujeto2 = f' Actividad Economica: {sujetoExcluido["descActividad"]}, Email: {sujetoExcluido["email"]}  Telefono: {sujetoExcluido["telefono"]}'
+    direccionS = datos["direccion"]
+    direccion_sujeto = f'Direccion: {direccionS["complemento"]}, {direccionS["municipio"]}, {direccionS["departamento"]} '
+    c.setFont("Helvetica-Bold",12)
+    c.drawString(30, alto - 80, info_sujeto)
+    c.drawString(30, alto - 80, info_sujeto2)
+    c.drawString(30, alto - 80, direccion_sujeto)
+    
+    #Otros documentos Asociados
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Documento Asociado")
+    c.drawString(30, alto - 140, "Identificador del Documento Asociado")
+    c.drawString(450, alto - 140, "Descripccion del Documento Asociado")
+    
+    y = alto - 170
+    
+    #Lista de otros Documentos Asociados
+    for otroDocumento in datos["otrosDocumentos"]:
+        codDocAsociado = otroDocumento["codDocAsociado"]
+        descDocumento = otroDocumento["descDocumento"]
+        detalleDocumento = otroDocumento["detalleDocumento"]
+        
+        c.drawString(100, y, codDocAsociado)
+        c.drawString(100, y, descDocumento)
+        c.drawString(100, y, detalleDocumento)
+        
+        y -= 20
+     
+    #Cuerpo del Documento
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Operaciones")
+    c.drawString(30, alto - 140, "Numero de Item")
+    c.drawString(450, alto - 140, "Tipo de Donacion")
+    c.drawString(250, alto - 140, "Codigo")
+    c.drawString(450, alto - 140, "Unidad de Medida")
+    c.drawString(350, alto - 140, "Cantidad")
+    c.drawString(450, alto - 140, "Monto")
+    c.drawString(450, alto - 140, "Valor Unitario")
+    c.drawString(450, alto - 140, "Valor")
+    c.drawString(450, alto - 140, "Depreciacion")
+    c.drawString(450, alto - 140, "Descripccion")
+    
+    x = alto - 170
+    
+    #Lista de Donaciones
+    for operaciones in datos["cuerpoDocumento"]:
+        numItem = operaciones["numItem"]
+        tipoItem = operaciones["tipoDonacion"]
+        codigo = operaciones["codigo"]
+        uniMedida = operaciones["uniMedida"]
+        cantidad = operaciones["cantidad"]
+        montoDescu = operaciones["montoDescu"]
+        valorUni = operaciones["valorUni"]
+        valor = operaciones["valor"]
+        depreciacion = operaciones["depreciacion"]
+        descripccion = operaciones["descripccion"]
+        
+        c.drawString(100, x, numItem)
+        c.drawString(100, x, tipoItem)
+        c.drawString(100, x, codigo)
+        c.drawString(150, x, uniMedida)
+        c.drawString(150, x, cantidad)
+        c.drawString(200, x, f"${montoDescu:.2f}")
+        c.drawString(200, x, f"${valorUni:.2f}")
+        c.drawString(200, x, f"${valor:.2f}")
+        c.drawString(200, x, depreciacion)
+        c.drawString(300, x, descripccion)
+        
+        x -= 20
+       
+    #Apendice
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(30, alto - 50, "Campo")
+    c.drawString(30, alto - 140, "Descripccion")
+    c.drawString(450, alto - 140, "Valor")
+    
+    z = alto - 170
+    
+    #Lista de Apendices
+    for apendice in datos["apendice"]:
+        campo = apendice["campo"]
+        etiqueta = apendice["etiqueta"]
+        valor = apendice["valor"]
+        
+        c.drawString(100, z, campo)
+        c.drawString(100, z, etiqueta)
+        c.drawString(100, z, valor)
+        
+        z -= 20
+    
+    #Guardar El PDF
+    c.save()
+    buffer.seek(0)
+    
+    return buffer.getvalue()
+    
+@login_required(redirect_field_name='/ingresar')
+class Transmitir(View):
+    
+    def obtenerFactura(self,*args, **kwargs):
+        origin = self.request.POST.get('origin')
+        id = self.kwargs.get('id')
+        if origin == 'sujetoExclido':
+            factura = sujetoExcluidoList(id)
+        else:
+            factura = comprobanteDonacionList(id)
+        return factura
+    @csrf_exempt
+    def transmitir(self,*args, **kwargs):
+        id = self.kwargs.get('id')
+        
+        #Generando el pdf a partir del json 
+        jsonData = self.obtenerFactura()
+        datosFactura = cargarDatosFactura(jsonData)
+        
+        origin = self.request.POST.get('origin')
+        if origin == 'sujetoExcluido':
+            sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
+            idIdentificador = sujetoExcluido.identificador.id
+            identificador = get_object_or_404(Identificador, pk=idIdentificador)
+        else:
+            comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+            idIdentificador = comprobanteDonacion.identificador.id
+            identificador = get_object_or_404(Identificador, pk=idIdentificador)
+        user = get_object_or_404(User, pk=self.user.pk)
+        entidadId = user.entidad.id
+        entidad = Entidad.objects.filter(id=entidadId)
+        authHacienda = ParametrosAuthHacienda.objects.filter(entidad=entidad.id)
+        privateKey = authHacienda.privateKey
+        url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
+        parametros_auth = {
+            'content_Type' : 'application/x-www-form-urlencoded',
+            'user_agent ': authHacienda.userAgent,
+            'user' : authHacienda.user,
+            'pwd' : authHacienda.pwd,
+            }
+        if requests.method == 'POST':
+            url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
+            
+            try:
+                acesso = requests.post(url_auth, params=parametros_auth).json()
+                if origin == 'sujetoExcluido':  
+                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido)
+                else:
+                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, comprobanteDonacion=comprobanteDonacion)
+                responseHacienda.save()
+                
+                if acesso['status'] == "OK":
+                    token = acesso['body']['token']
+                    private = open('clave_privada.pem', 'r')
+                    factura = self.obtenerFactura()
+                    encoded = jwt.encode(factura, privateKey, algorithm="HS256")
+                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
+                    parametros_recepcion = {
+                        'Authorization': token,
+                        'User-Agent': authHacienda.userAgent,
+                        'content-Type': 'application/JSON',
+                        'ambiente': identificador.ambiente,
+                        'idEnvio': identificador.id,
+                        'version': identificador.version,
+                        'tipoDte': identificador.tipoDte.codigo,
+                        'documento': encoded,
+                        'codigoGeneracion': identificador.codigoGeneracion,
+                    }
+                    try:
+                        transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
+                        if origin == 'sujetoExcluido':
+                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido)
+                            responseHacienda.save()
+                            if(transmitir['codigoMsg']=="001"):
+                                sujetoExcluido.objects.update(transmitido=True)
+                                # Envía un correo electrónico con la factura Electrnica
+                                subject = 'Factura Sujeto Excluido'
+                                body = f'Hola {sujetoExcluido.receptor.nombre},\n\nse le a emitido una factura de sujeto excluido'
+                                from_email = sujetoExcluido.emisor.email  
+                                to_email = sujetoExcluido.receptor.email
+                                email =  EmailMessage(subject, body, from_email, to_email)
+                                jsonContent = json.dumps(jsonData, indent=4)
+                                pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
+                                pdf_sujeto_excluido = MIMEApplication(pdf_bytes, _subtype='pdf')
+                                email.attach('data.json', jsonContent, 'application/json')
+                                email.attach('data.pdf', pdf_sujeto_excluido, 'application/pdf')
+                                email.send()
+                        else:
+                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, comprobanteDonacion=comprobanteDonacion)
+                            responseHacienda.save()
+                            if(transmitir['codigoMsg']=="001"):
+                                comprobanteDonacion.objects.update(transmitido=True)
+                                # Envía un correo electrónico con la factura Electrnica
+                                subject = 'Comprobante de Donacion'
+                                body = f'Hola {comprobanteDonacion.receptor.nombre},\n\nse le a emitido un Comprobante de Donacion'
+                                from_email = comprobanteDonacion.emisor.email  
+                                to_email = comprobanteDonacion.receptor.email
+                                email =  EmailMessage(subject, body, from_email, to_email)
+                                jsonContent = json.dumps(jsonData, indent=4)
+                                pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
+                                pdf_comprobante_donacion = MIMEApplication(pdf_bytes, _subtype='pdf')
+                                email.attach('data.json', jsonContent, 'application/json')
+                                email.attach('data.pdf', pdf_comprobante_donacion, 'application/pdf')
+                                email.send()
+                    except:
+                        messages.danger(self.request, 'Ocurrio un problema en la transmision de la factura' + transmitir['status'])
+                    stastus_code = acesso['status']
+                    messages.success(self.request, 'Se logueo con exito en hacienda', stastus_code)
+                    if origin == 'sujetoExcluido':
+                        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+                    else:
+                         return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
+                
+                else:
+                    stastus_code = acesso.status_code
+                    messages.success(self.request, 'Ocurrio un error con las credenciales' + acesso['status'])
+                    return redirect('authHacienda', pk=authHacienda.pk)
+                
+            except requests.exceptions.RequestException as e:
+                messages.success(self.request, 'Ocurrio un error al hacer la solicitud a la api de hacienda ' + str(e))
+            if origin == 'sujetoExcluido':
+                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+            else:
+                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
+        else:
+            messages.success(self.request, 'Error esta vista solo admite solicitudes POST, error 405')
+            if origin == 'sujetoExcluido':
+                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+            else:
+                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
