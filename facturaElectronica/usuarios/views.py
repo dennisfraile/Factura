@@ -4,7 +4,7 @@ from .forms import *
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView, View, TemplateView
-from django.views.generic.edit import CreateView, UpdateView, ListView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -14,6 +14,8 @@ from django.views.generic import ListView
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 
 def is_system_superuser(user):
     return user.is_system_superuser
@@ -21,10 +23,10 @@ def is_system_superuser(user):
 def user_has_permission(user, permission):
     return user.is_system_superuser or user.is_entidad_superuser or user.has_permission(permission)
 
-
+class IndexView(LoginRequiredMixin,TemplateView):
+    template_name = 'index.html'
 # Create your views here.
-@login_required(redirect_field_name='/ingresar')
-class ActividadEconomicaDetailView(DetailView):
+class ActividadEconomicaDetailView(LoginRequiredMixin,DetailView):
     
     login_url = '/ingresar/'
     template_name = 'actividad_economica_view.html'
@@ -37,70 +39,91 @@ class ActividadEconomicaDetailView(DetailView):
         context['actividadEconomica'] = actividadEconomica
         return context
 
-@login_required(redirect_field_name='/ingresar')
-class ActividadEconomicaCreateView(UserPassesTestMixin, CreateView):
+class ActividadEconomicaCreateView(LoginRequiredMixin, CreateView):
     login_url = '/ingresa/'
     template_name = 'actividad_economica_form.html'
     model = ActividadEconomica
     form_class = ActividadEconomicaForm
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'entidad':
-            receptor_id = self.request.POST.get('receptor_id')
-            if receptor_id:
-                return redirect('receptorUpdate', pk=receptor_id)
-            else:
-                return redirect('receptorCreate')
-        elif origin == 'receptor':
-            entidad_id = self.request.POST.get('entidad_id')
-            if entidad_id:
-                return redirect('entidadUpdate', pk=entidad_id)
-            else:
-                return redirect('entidadCreate')
-        else:
-            return redirect('panel_facturas')
-
-@login_required(redirect_field_name='/ingresar')    
-class ActividadEconomicaUpdateView(UserPassesTestMixin, UpdateView):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        actividadEconomica = form.save(commit=False)        
+        actividadEconomica.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+class ActividadEconomicaUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresa/'
-    template_name = 'auth_hacienda_form.html'
+    template_name = 'actividad_economica_form.html'
     model = ActividadEconomica
     form_class = ActividadEconomicaForm
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'entidad':
-            receptor_id = self.request.POST.get('receptor_id')
-            if receptor_id:
-                return redirect('receptorUpdate', pk=receptor_id)
-            else:
-                return redirect('receptorCreate')
-        elif origin == 'receptor':
-            entidad_id = self.request.POST.get('entidad_id')
-            if entidad_id:
-                return redirect('entidadUpdate', pk=entidad_id)
-            else:
-                return redirect('entidadCreate')
-        else:
-            return redirect('panel_facturas')
- 
-@login_required(redirect_field_name='/ingresar')   
-class EntidadDetailView(DetailView):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        actividadEconomica = form.save(commit=False)        
+        actividadEconomica.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+class EntidadDetailView(LoginRequiredMixin,DetailView):
     
     login_url = '/ingresar/'
-    template_name = 'entidad_view.html'
+    template_name = 'info_entidad.html'
     model: Entidad
+    context_object_name = 'entidad'
     
-    def get_context_data(self, **kwargs) :
-        id=self.kwargs['pk']
-        context = super(Entidad, self).get_context(**kwargs)
-        Entidad = Entidad.objects.filter(id=id)
-        context['entidad'] = Entidad
+    def get_object(self):       
+        entidad = self.request.user.entidad
+        print(entidad)
+        
+        if entidad is None:
+            return "El ususario no esta asociado a ninguna Entidad"
+        else:
+            entidad = get_object_or_404(Entidad, pk=entidad.pk)
+            return entidad
+
+class EntidadCreateView(LoginRequiredMixin, CreateView):
+    model = Entidad
+    form_class = EntidadForm
+    template_name = 'entidad_form.html'
+    success_url = reverse_lazy('verEntidad')
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['direccionEmisor'] = self.request.GET.get('direccionEmisor')
+        initial['actividadEconomica'] = self.request.GET.get('actividadEconomica')
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['direccionEmisor_id'] = self.request.GET.get('direccionEmisor')
+        context['actividadEconomica_id'] = self.request.GET.get('actividadEconomica')
         return context
+    
+    def form_valid(self, form):
+        
+        entidad = form.save(commit=False)        
+        entidad.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
 
-@login_required(redirect_field_name='/ingresar')
-class EntidadCreateView(UserPassesTestMixin, CreateView):
+class EntidadUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresa/'
     template_name = 'entidad_form.html'
     model = Entidad
@@ -108,130 +131,89 @@ class EntidadCreateView(UserPassesTestMixin, CreateView):
     
     def get_success_url(self):
         id=self.kwargs['pk']
-        return reverse_lazy('paisList')
+        return reverse_lazy('verEntidad')
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        razonSocial = request.POST.get("razonSocial")
-        direccionEmisor = request.POST.get("direccionEmisor")
-        cellphone = request.POST.get("cellphone")
-        codEstableMH = request.POST.get("codEstableMH")
-        codEstable = request.POST.get("codEstable")
-        codPuntoVentaMH = request.POST.get("codPuntoVentaMH")
-        codPuntoVenta = request.POST.get("codPuntoVenta")
-        email = request.POST.get("email")
-        nit = request.POST.get("nit")
-        nrc = request.POST.get("nrc")
-        idActividadEconomica = request.POST.get("actividadEconomica")
-        actividadEconomica = get_object_or_404(ActividadEconomica, pk=idActividadEconomica)
-        entidad= Entidad.objects.create(razonSocial=razonSocial, direccionEmisor=direccionEmisor, cellphone=cellphone, 
-                                        codEstableMH=codEstableMH, codEstable=codEstable, codPuntoVentaMH=codPuntoVentaMH, 
-                                        codPuntoVenta=codPuntoVenta, email=email, nit=nit, nrc=nrc, actividadEconomica=actividadEconomica)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se ha agregado una nueva Entidad "+ 
-                             razonSocial + " " + nit + "con exito")
-        return redirect('paisList')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        entidad = self.get_object()
+        context['direccionEmisor_id'] = entidad.direccionEmisor.id if entidad.direccionEmisor else None
+        context['actividadEconomica_id'] = entidad.actividadEconomica.id if entidad.actividadEconomica else None
+        return context
+    
+    def form_valid(self, form):
+        
+        entidad = form.save(commit=False)        
+        entidad.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
-@login_required(redirect_field_name='/ingresar')
-class EntidadUpdateView(UserPassesTestMixin, UpdateView):
-    login_url = '/ingresa/'
-    template_name = 'entidad_form.html'
-    model = Entidad
-    form_class = EntidadForm
-    
-    def get_success_url(self):
-        id=self.kwargs['pk']
-        return reverse_lazy('paisList')
-    
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        razonSocial = request.POST.get("razonSocial")
-        direccionEmisor = request.POST.get("direccionEmisor")
-        cellphone = request.POST.get("cellphone")
-        codEstableMH = request.POST.get("codEstableMH")
-        codEstable = request.POST.get("codEstable")
-        codPuntoVentaMH = request.POST.get("codPuntoVentaMH")
-        codPuntoVenta = request.POST.get("codPuntoVenta")
-        email = request.POST.get("email")
-        nit = request.POST.get("nit")
-        nrc = request.POST.get("nrc")
-        idActividadEconomica = request.POST.get("actividadEconomica")
-        actividadEconomica = get_object_or_404(ActividadEconomica, pk=idActividadEconomica)
-        entidad= Entidad.objects.filter(pk=pk).update(razonSocial=razonSocial, direccionEmisor=direccionEmisor, cellphone=cellphone, 
-                                        codEstableMH=codEstableMH, codEstable=codEstable, codPuntoVentaMH=codPuntoVentaMH, 
-                                        codPuntoVenta=codPuntoVenta, email=email, nit=nit, nrc=nrc, actividadEconomica=actividadEconomica)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se han actualizado los parametros de la Entidad "+ 
-                             razonSocial + " " + nit + "con exito")
-        return redirect('paisList')
-
-@login_required(redirect_field_name='/ingresar')
-class ParametrosHaciendaDetailView(DetailView):
+class ParametrosHaciendaDetailView(LoginRequiredMixin,DetailView):
     
     login_url = '/ingresar/'
-    template_name = 'parametros_auth_hacienda_view.html'
+    template_name = 'auth_hacienda_view.html'
     model: ParametrosAuthHacienda
+    context_object_name = "parametro"
     
-    def get_context_data(self, **kwargs) :
-        id=self.kwargs['pk']
-        context = super(ParametrosAuthHacienda, self).get_context(**kwargs)
-        parametroAuthHacienda = ParametrosAuthHacienda.objects.filter(id=id)
-        context['parametro'] = parametroAuthHacienda
-        return context
+    def get_object(self) :
+        entidad = self.request.user.entidad
+        if entidad is None:
+            return  "No se han ingresado parametros para la conexion con hacienda"
+            
+        else:
+            
+            return get_object_or_404(ParametrosAuthHacienda, entidad=entidad)                
 
-@login_required(redirect_field_name='/ingresar')
-class ParametrosAuthHaciendaCreateView(UserPassesTestMixin, CreateView):
-    login_url = '/ingresa/'
+class ParametrosAuthHaciendaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'auth_hacienda_form.html'
     model = ParametrosAuthHacienda
     form_class = ParametrosAuthHaciendaForm
     
     def get_success_url(self):
-        id=self.kwargs['pk']
-        return reverse_lazy('paisList')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        user = request.user
-        userAgent = request.POST.get("userAgent")
-        nit = request.POST.get("nit")
-        pwd = request.POST.get("pwd")
-        privateKey = request.POST.get("privateKey")
-        entidad = user.Usuarios.all()
-        parametrosAuthHacienda= ParametrosAuthHacienda.objects.create(userAgent=userAgent, nit=nit, pwd=pwd, privateKey=privateKey, entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se han agregado los parametros de auth de"+ 
-                             "hacienda para esta entidad: "+ userAgent + " " + nit + "con exito")
-        return redirect('paisList')
+    def form_valid(self, form):
+        
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
-@login_required(redirect_field_name='/ingresar')
-class ParametrosAuthHaciendaUpdateView(UserPassesTestMixin, UpdateView):
-    login_url = '/ingresa/'
+class ParametrosAuthHaciendaUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'auth_hacienda_form.html'
     model = ParametrosAuthHacienda
     form_class = ParametrosAuthHaciendaForm
     
     def get_success_url(self):
-        id=self.kwargs['pk']
-        return reverse_lazy('paisList')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        userAgent = request.POST.get("userAgent")
-        nit = request.POST.get("nit")
-        pwd = request.POST.get("pwd")
-        privateKey = request.POST.get("privateKey")
-        parametrosAuthHacienda= ParametrosAuthHacienda.objects.filter(pk=pk).update(userAgent=userAgent, nit=nit, pwd=pwd, privateKey=privateKey)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se han actualizado los parametros de auth de"+ 
-                             "hacienda para esta entidad: "+ userAgent + " " + nit + "con exito")
-        return redirect('paisList')
+    def form_valid(self, form):
+        
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
-    form_class = CustomUserForm
+    form_class = CustomAuthenticationForm
     success_url = reverse_lazy('panel_facturas')
 
-    def get_success_url(self):
-        return self.success_url
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Aquí puedes agregar datos adicionales al contexto si es necesario
+        return context
     
-class UserListView (ListView):
+class UserListView (LoginRequiredMixin,ListView):
     model = User
     template_name = 'user_list.html'
     context_object_name = 'users'
@@ -261,6 +243,9 @@ class SystemAdminRegistrationView(CreateView):
         user.is_system_superuser = True
         user.save()
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
 class EntityAdminRegistrationView(CreateView):
     model = CustomUser
@@ -282,6 +267,11 @@ class UserCreateView(CreateView):
     template_name = 'create_user.html'
     success_url = reverse_lazy('index_user')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['usuario'] = self.request.user
+        return kwargs
+    
     def form_valid(self, form):
         user = form.save(commit=False)
         if self.request.user.is_system_superuser:
@@ -293,7 +283,7 @@ class UserCreateView(CreateView):
 @method_decorator(user_passes_test(lambda u: u.is_superuser or u.has_permission('edit_user')), name='dispatch')
 class UserUpdateView(UpdateView):
     model = CustomUser
-    fields = ['username', 'email', 'groups', 'is_system_superuser']
+    fields = ['name', 'lastname', 'email', 'groups', 'is_system_superuser','is_entidad_superuser', 'entidad','password']
     template_name = 'edit_user.html'
     success_url = reverse_lazy('index_user')
 
@@ -324,8 +314,7 @@ class UserListView(ListView):
             return CustomUser.objects.all()
         return CustomUser.objects.filter(entidad=self.request.user.entidad)
 
-@login_required(redirect_field_name='/ingresar')
-class UserDetailView(UserPassesTestMixin, DetailView):
+class UserDetailView(LoginRequiredMixin, DetailView):
     login_url = '/ingresar/'
     template_name = 'ver_user.html'
     model = CustomUser

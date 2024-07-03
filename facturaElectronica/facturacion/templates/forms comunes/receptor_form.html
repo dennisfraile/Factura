@@ -4,14 +4,30 @@
     <h1>Receptor</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.tipo.label_tag }}
-        {{ form.tipo }}
-        {{ form.homologado.label_tag }}
-        {{ form.homologado }}
-        {{ form.numero.label_tag }}
-        {{ form.numero }}
-        {{ form.nombre.label_tag }}
-        {{ form.nombre }}
+        <div class="form-group row">
+            <label for="{{ form.tipo.id_for_label }}" class="col-md-2 control-label">{{ form.tipo.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipo }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.homologado.id_for_label }}" class="col-md-2 control-label">{{ form.homologado.label }}</label>
+            <div class="col-sm-8">
+                {{ form.homologado }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.numero.id_for_label }}" class="col-md-2 control-label">{{ form.numero.label }}</label>
+            <div class="col-sm-8">
+                {{ form.numero }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.nombre.id_for_label }}" class="col-md-2 control-label">{{ form.nombre.label }}</label>
+            <div class="col-sm-8">
+                {{ form.nombre }}
+            </div>
+        </div>
         <div class="form-group row">
             {% if form.actividadEconomica.field.queryset.exists %}
                 <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
@@ -22,12 +38,20 @@
                 <p>No hay Actividad Economica registarda en el sistema </p>
             {% endif %}
             <div class="col-sm-2">
-                <a id="actividadeconomica" href="{% url 'actividadEconomicaCreate' %}" 
+                <a id="actividadeconomica" href="{% url 'actividadEconomicaCreate' %}?next={{ request.path }}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Actividad Economica">
                     <span class="material-symbols-outlined">
                     add
                     </span>
                 </a>
+                {% if actividadEconomica_id %}
+                    <a id="actividadeconomica" href="{% url 'actividadEconomicaUpdate' actividadEconomica_id %}?next={{ request.path }}" 
+                        class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Actividad Economica">
+                        <span class="material-symbols-outlined">
+                        edit
+                        </span>
+                    </a>       
+                {% endif %}
             </div>
         </div>
         <div class="form-group row">
@@ -40,18 +64,34 @@
                 <p>No hay Direcciones registradas en el sistema </p>
             {% endif %}
             <div class="col-sm-2">
-                <a id="direccionreceptor" href="{% url 'direccionReceptorCreate' %}" 
+                <a id="direccionreceptor" href="{% url 'direccionCreate' %}?next={{ request.path }}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Direccion para Receptor">
                     <span class="material-symbols-outlined">
                     add
                     </span>
                 </a>
+                {% if direccionReceptor_id %}
+                    <a id="direccionreceptor" href="{% url 'direccionUpdate' direccionReceptor_id %}?next={{ request.path }}" 
+                        class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Direccion para Receptor">
+                        <span class="material-symbols-outlined">
+                        edit
+                        </span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        {{ form.cellphone.label_tag }}
-        {{ form.cellphone }}
-        {{ form.email.label_tag }}
-        {{ form.email }}
+        <div class="form-group row">
+            <label for="{{ form.cellphone.id_for_label }}" class="col-md-2 control-label">{{ form.cellphone.label }}</label>
+            <div class="col-sm-8">
+                {{ form.cellphone }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.email.id_for_label }}" class="col-md-2 control-label">{{ form.email.label }}</label>
+            <div class="col-sm-8">
+                {{ form.email }}
+            </div>
+        </div>
         <br>
         <input type="hidden" name="origin" value="receptor">
         <input class="btn btn-success" type="submit" value="Guardar">

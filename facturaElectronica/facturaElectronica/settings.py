@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-LOGIN_REDIRECT_URL = 'panel_facturas'
+LOGIN_REDIRECT_URL = 'panel_administrativo'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Application definition
@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'facturaElectronica.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'factura',
+        'NAME': 'factura3',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
@@ -113,7 +113,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = "usuarios.CustomerUser"
+AUTH_USER_MODEL = "usuarios.CustomUser"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -143,7 +143,7 @@ TIME_ZONE = 'America/El_Salvador'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 USE_L10N = False
 

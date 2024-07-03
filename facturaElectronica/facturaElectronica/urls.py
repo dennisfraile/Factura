@@ -20,8 +20,9 @@ from usuarios.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('usuarios/', include('usuarios.urls')),
     path('facturas/', include('facturacion.urls')),
+    path('usuarios/', include('usuarios.urls')),
+    
     
     
 ]

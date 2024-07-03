@@ -1,0 +1,36 @@
+{% extends "../base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Responses de Sujeto Excluido:  {{ response.sujetoExcluido.id }}</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Datos JSON</th>
+                <th>Sujeto Excluido</th>
+                <th>Comprobante Donación</th>
+                <th>Status Code</th>
+                <th>Error Message</th>
+                <th>Fecha y Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td>{{ response.nombre }}</td>
+                <td>{{ response.datosJson }}</td>
+                <td>{{ response.sujetoExcluido }}</td>
+                <td>{{ response.comprobanteDonacion }}</td>
+                <td>{{ response.status_code }}</td>
+                <td>{{ response.error_message }}</td>
+                <td>{{ response.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+</div>
+
+{% endblock %}

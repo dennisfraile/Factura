@@ -4,10 +4,36 @@
     <h1>Paramatros Auth Hacienda</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.userAgent }}
-        {{ form.nit }}
-        {{ form.pwd }}
-        {{ form.privateKey }}
+        <div class="form-group row">
+            <label for="{{ form.userAgent.id_for_label }}" class="col-md-2 control-label">{{ form.userAgent.label }}</label>
+            <div class="col-sm-8">
+                {{ form.userAgent }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.nit.id_for_label }}" class="col-md-2 control-label">{{ form.nit.label }}</label>
+            <div class="col-sm-8">
+                {{ form.nit }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.pwd.id_for_label }}" class="col-md-2 control-label">{{ form.pwd.label }}</label>
+            <div class="col-sm-8">
+                {{ form.pwd }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.privateKey.id_for_label }}" class="col-md-2 control-label">{{ form.privateKey.label }}</label>
+            <div class="col-sm-8">
+                {{ form.privateKey }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.publicKey.id_for_label }}" class="col-md-2 control-label">{{ form.publicKey.label }}</label>
+            <div class="col-sm-8">
+                {{ form.publicKey }}
+            </div>
+        </div>
         <br>
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>

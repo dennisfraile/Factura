@@ -29,6 +29,7 @@ import io
 from django.core.mail import EmailMessage
 from io import BytesIO
 from email.mime.application import MIMEApplication
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
 @login_required(redirect_field_name='/ingresar')
@@ -36,12 +37,12 @@ def get_opercionSujetoExcluido(request):
     operacionesSujetoExccluido = OperacionesSujetoExcluido.objects.all()
     return JsonResponse(list(operacionesSujetoExccluido), safe = False)
 
-@login_required(redirect_field_name='/ingresar')
-class IndexView(TemplateView):
-    template_name = 'views/index.html'
-
-@login_required(redirect_field_name='/ingresar')    
-class PaisView(View):
+class IndexView(LoginRequiredMixin,TemplateView):
+    template_name = 'index_factura.html'
+    
+   
+    
+class PaisView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'pais_view.html'
@@ -52,45 +53,34 @@ class PaisView(View):
         pais = Pais.objects.all()
         context['registro'] = pais
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class PaisCreateView(UserPassesTestMixin,CreateView):
+    
+class PaisCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'pais_form.html'
+    template_name = 'forms comunes/pais_form.html'
     form_class = PaisForm
     model = Pais
     
     def get_success_url(self):
-        return reverse_lazy('paisList')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        pais= Pais.objects.create(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el pais: "+ codigo + " " + valor + "con exito")
-        return redirect('paisList')
 
-@login_required(redirect_field_name='/ingresar')
-class PaisUpdateView(UserPassesTestMixin, UpdateView):
+class PaisUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'pais_form.html'
+    template_name = 'forms comunes/pais_form.html'
     form_class = PaisForm
     
     def get_success_url(self):
-        return reverse_lazy('paisList')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        Pais.objects.update(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el pais: "+ codigo + " " + valor + "con exito")
-        return redirect('paisList')
 
-@login_required(redirect_field_name='/ingresar')
-class DepartamentoView(View):
+class DepartamentoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'departamento_view.html'
@@ -101,50 +91,35 @@ class DepartamentoView(View):
         departamento = Departamento.objects.all()
         context['registro'] = departamento
         return context
-
-@login_required(redirect_field_name='/ingresar')   
-class DepartamentoCreateView(UserPassesTestMixin,CreateView):
+   
+class DepartamentoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'departamento_form.html'
+    template_name = 'forms comunes/departamento_form.html'
     form_class = DepartamentoForm
     model = Departamento
     
     def get_success_url(self):
-        return reverse_lazy('departamentoList')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        departamento= Departamento.objects.create(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el departamento: "+ codigo + " " + valor + "con exito")
-        return redirect('departamentoList')
 
-@login_required(redirect_field_name='/ingresar')
-class DepartamentoUpdateView(UserPassesTestMixin, UpdateView):
+class DepartamentoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'departamento_form.html'
+    template_name = 'forms comunes/departamento_form.html'
     form_class = DepartamentoForm
     
     def get_success_url(self):
-        id = self.kwargs.get('pk')
-        if id:
-            return redirect('municipioUpdate',id)
-        else:
-            return redirect('municipioCreate')
-        
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()    
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        Departamento.objects.filter(pk=pk).update(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el departamento: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
+    
 
-@login_required(redirect_field_name='/ingresar')
-class MunicipioView(View):
+class MunicipioView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'municipio_view.html'
@@ -155,57 +130,51 @@ class MunicipioView(View):
         municipio = Municipio.objects.all()
         context['registro'] = municipio
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class MunicipioCreateView(UserPassesTestMixin,CreateView):
+    
+class MunicipioCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'municipio_form.html'
+    template_name = 'forms comunes/municipio_form.html'
     form_class = MunicipioForm
     model = Municipio
     
     def get_success_url(self):
-        id = self.kwargs.get('pk')
-        if id:
-            return redirect('direccionUpdate',id)
-        else:
-            return redirect('direccionCreate')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        departamentoId = request.POST.get("departamento")
-        departamento = Departamento.objects.get(id=departamentoId)
-        municipio= Municipio.objects.create(codigo=codigo, valor=valor, departamento=departamento)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el municipio: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['departamento'] = self.request.GET.get('departamento')
+        return initial
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['departamento_id'] = self.request.GET.get('departamento')
+        return context
+    
+    
 
-@login_required(redirect_field_name='/ingresar')
-class MunicipioUpdateView(UserPassesTestMixin, UpdateView):
+class MunicipioUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'municipio_form.html'
+    template_name = 'forms comunes/municipio_form.html'
     form_class = MunicipioForm
     
     def get_success_url(self):
-        id = self.kwargs.get('pk')
-        if id:
-            return redirect('direccionUpdate',id)
-        else:
-            return redirect('direccionCreate')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['departamento_id'] = self.get_object().departamento.id if self.get_object().departamento else None
+        return context
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        departamentoId = request.POST.get("departamento")
-        departamento = Departamento.objects.get(id=departamentoId)
-        Municipio.objects.filter(pk=pk).update(codigo=codigo, valor=valor, departamento=departamento)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el municipio: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class DireccionView(View):
+
+class DireccionView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'direccion_view.html'
@@ -216,75 +185,72 @@ class DireccionView(View):
         direccion = Direccion.objects.all()
         context['registro'] = direccion
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class DireccionCreateView(UserPassesTestMixin,CreateView):
+    
+class DireccionCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'direccion_form.html'
+    template_name = 'forms comunes/direccion_form.html'
     form_class = DireccionForm
     model = Direccion
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'entidad':
-            receptor_id = self.request.POST.get('receptor_id')
-            if receptor_id:
-                return redirect('receptorUpdate', pk=receptor_id)
-            else:
-                return redirect('receptorCreate')
-        elif origin == 'receptor':
-            entidad_id = self.request.POST.get('entidad_id')
-            if entidad_id:
-                return redirect('entidadUpdate', pk=entidad_id)
-            else:
-                return redirect('entidadCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()    
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        complementoDireccion = request.POST.get("complementoDireccion")
-        municipioId = request.POST.get("municipio")
-        municipio = Municipio.objects.get(id=municipioId)
-        direccion= Direccion.objects.create(complementoDireccion=complementoDireccion, municipio=municipio)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la direccion: "+ complementoDireccion + " "  + "con exito")
-        return redirect(self.get_success_url())
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['municipio'] = self.request.GET.get('municipio')
+        return initial
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['municipio_id'] = self.request.GET.get('municipio')
+        return context
+    
+    def form_valid(self, form):
+        direccion = form.save(commit=False) 
+        entidad = get_object_or_404(Entidad, razonSocial=self.request.user.entidad)
+        direccion.entidad = entidad       
+        direccion.save()
+        messages.add_message(request=self.request, level=messages.SUCCESS, message= "Se a creado la direccion: con exito")
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    
 
-@login_required(redirect_field_name='/ingresar')
-class DireccionUpdateView(UserPassesTestMixin, UpdateView):
+class DireccionUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'direccion_form.html'
+    template_name = 'forms comunes/direccion_form.html'
     form_class = DireccionForm
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'entidad':
-            receptor_id = self.request.POST.get('receptor_id')
-            if receptor_id:
-                return redirect('receptorUpdate', pk=receptor_id)
-            else:
-                return redirect('receptorCreate')
-        elif origin == 'receptor':
-            entidad_id = self.request.POST.get('entidad_id')
-            if entidad_id:
-                return redirect('entidadUpdate', pk=entidad_id)
-            else:
-                return redirect('entidadCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        complementoDireccion = request.POST.get("complementoDireccion")
-        municipioId = request.POST.get("municipio")
-        municipio = Municipio.objects.get(id=municipioId)
-        Direccion.objects.filter(pk=pk).update(complementoDireccion=complementoDireccion, municipio=municipio)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la direccion: "+ complementoDireccion + " " + "con exito")
-        return redirect(self.get_success_url())
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['municipio_id'] = self.get_object().municipio.id if self.get_object().municipio else None
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class UnidadMedidaView(View):
+    def form_valid(self, form):
+        direccion = form.save(commit=False) 
+        direccion.entidad = self.request.user.entidad       
+        direccion.save()
+        messages.add_message(request=self.request, level=messages.SUCCESS, message= "Se a creado la direccion: con exito")
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class UnidadMedidaView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'unidad_medida_view.html'
@@ -295,73 +261,34 @@ class UnidadMedidaView(View):
         unidadMedida = UnidadMedida.objects.all()
         context['registro'] = unidadMedida
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class UnidadMedidaCreateView(UserPassesTestMixin,CreateView):
+   
+class UnidadMedidaCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'unidad_medida_form.html'
+    template_name = 'forms comunes/unidad_medida_form.html'
     form_class = UnidadMedidaForm
     model = UnidadMedida
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'operacionsujetoexcluido':
-            operacionSujetoExcluido_id = self.request.POST.get('operacionSujetoExcluido')
-            if operacionSujetoExcluido_id:
-                return redirect('operacionSujetoExcluidoUpdate', pk=operacionSujetoExcluido_id)
-            else:
-                return redirect('operacionSujetoExcluidoCreate')
-        elif origin == 'cuerpodocumento':
-            cuerpoDocumento_id = self.request.POST.get('cuerpoDocumento')
-            if cuerpoDocumento_id:
-                return redirect('cuerpoDocumentoUpdate', pk=cuerpoDocumento_id)
-            else:
-                return redirect('cuerpoDocumentoCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        unidadMedida= UnidadMedida.objects.create(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la unidad de medida: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class UnidadMedidaUpdateView(UserPassesTestMixin, UpdateView):
+class UnidadMedidaUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'unidad_medida_form.html'
+    template_name = 'forms comunes/unidad_medida_form.html'
     form_class = UnidadMedidaForm
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'operacionsujetoexcluido':
-            operacionSujetoExcluido_id = self.request.POST.get('operacionSujetoExcluido')
-            if operacionSujetoExcluido_id:
-                return redirect('operacionSujetoExcluidoUpdate', pk=operacionSujetoExcluido_id)
-            else:
-                return redirect('operacionSujetoExcluidoCreate')
-        elif origin == 'cuerpodocumento':
-            cuerpoDocumento_id = self.request.POST.get('cuerpoDocumento')
-            if cuerpoDocumento_id:
-                return redirect('cuerpoDocumentoUpdate', pk=cuerpoDocumento_id)
-            else:
-                return redirect('cuerpoDocumentoCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        UnidadMedida.objects.filter(pk=pk).update(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la unidad de medida: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class OperacionSujetoExcluidoView(View):
+class OperacionSujetoExcluidoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar'
     template_name = 'operacion_sujeto_exluido_view.html'
@@ -373,74 +300,84 @@ class OperacionSujetoExcluidoView(View):
         context['registro'] = operacionesSujetoExcluido
         return context
 
-@login_required(redirect_field_name='/ingresar')
-class OperacionSujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
+class OperacionSujetoExcluidoCreateView(LoginRequiredMixin, CreateView):
     
     login_url = '/ingresar'
-    template_name = 'operacion_sujeto_excluido_form.html'
+    template_name = 'sujeto excluido/operacion_sujeto_excluido_form.html'
     form_class = OperacionesSujetoExcluidoForm
     model = OperacionesSujetoExcluido
     
     def get_success_url(self):
-        return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['usuario'] = self.request.user
+        return kwargs
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['unidadMedida'] = self.request.GET.get('unidadMedida')
+        return initial
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unidadMedida_id'] = self.request.GET.get('unidadMedida')
+        return context
+    
+    def form_valid(self, form):
+        operacion = form.save(commit=False) 
         id=self.kwargs.get("id")
         sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-        user = request.user
-        entidad = user.Usuarios.all()
-        numItem = request.POST.get('numItem')
-        codigo = request.POST.get('codigo')
-        idUnidadMedida = request.POST.get('unidadMedida')
-        unidadMedida = get_object_or_404(UnidadMedida, pk=idUnidadMedida)
-        cantidad = request.POST.get('canitdad')
-        montoDescu = request.POST.get('montoDescu')
-        compra = request.POST.get('compra')
-        retencion = request.POST.get('retencion')
-        description = request.POST.get('description')
-        precioUni = request.POST.get('precioUni')
-        operacion = OperacionesSujetoExcluido.objects.create(numItem=numItem, codigo=codigo, uniMedida=unidadMedida, cantidad=cantidad, 
-                                                             montoDescu=montoDescu, compra=compra, retencion=retencion, descripccion=description,
-                                                             precioUni=precioUni, sujetoExcluido=sujetoExcluido, entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la operacion del sujeto excluido con exito")
-        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+        operacion.entidad = self.request.user.entidad
+        operacion.sujetoExcluido = sujetoExcluido       
+        operacion.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
 
-@login_required(redirect_field_name='/ingresar')
-class OperacionSujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
+class OperacionSujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
     
     login_url = '/ingresar'
-    template_name = 'operacion_sujeto_excluido_form.html'
+    template_name = 'sujeto excluido/operacion_sujeto_excluido_form.html'
     form_class = OperacionesSujetoExcluidoForm
     model = OperacionesSujetoExcluido
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        return reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-        numItem = request.POST.get('numItem')
-        codigo = request.POST.get('codigo')
-        idUnidadMedida = request.POST.get('unidadMedida')
-        unidadMedida = get_object_or_404(UnidadMedida, pk=idUnidadMedida)
-        cantidad = request.POST.get('canitdad')
-        montoDescu = request.POST.get('montoDescu')
-        compra = request.POST.get('compra')
-        retencion = request.POST.get('retencion')
-        description = request.POST.get('description')
-        precioUni = request.POST.get('precioUni')
-        operacion = OperacionesSujetoExcluido.objects.filter(pk=pk).update(numItem=numItem, codigo=codigo, uniMedida=unidadMedida, cantidad=cantidad, 
-                                                             montoDescu=montoDescu, compra=compra, retencion=retencion, descripccion=description,
-                                                             precioUni=precioUni, sujetoExcluido=sujetoExcluido)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la operacion del sujeto excluido con exito")
-        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+    def form_valid(self, form):
+        operacion = form.save(commit=False) 
+        operacion.entidad = self.request.user.entidad      
+        operacion.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unidadMedida_id'] = self.get_object().unidadMedida.id if self.get_object().unidadMedida else None
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class OperacionSujetoExcluidoDetailView(UserPassesTestMixin, DetailView):
+class OperacionSujetoExcluidoDetailView(LoginRequiredMixin, DetailView):
     login_url = '/ingresar/'
-    template_name = 'operacion_sujeto_excluido_by_id.html'
+    template_name = 'sujeto excluido/operacion_sujeto_excluido_by_id.html'
     model = OperacionesSujetoExcluido
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -449,129 +386,114 @@ class OperacionSujetoExcluidoDetailView(UserPassesTestMixin, DetailView):
         context['show'] = True
         return context
 
-@login_required(redirect_field_name='/ingresar')
-class SujetoExcluidoMonthView(MonthArchiveView):
+class SujetoExcluidoMonthView(LoginRequiredMixin,MonthArchiveView):
     """Muestra la lista de sujetos excluidos por mes"""
 
     login_url='/ingresar/'
-    """queryset = SujetoExcluido.objects.all()"""
-    data_field = "fechaTransmicion"
-    template_name='sujeto_excluido_month.html'
+    queryset = SujetoExcluido.objects.all()
+    date_field = "fecha"
+    template_name='sujeto excluido/sujeto_excluido_month.html'
     allow_empty = True
     allow_future = True
 
     def get_context_data(self, **kwargs) :
-        context = super(SujetoExcluido, self).get_context(**kwargs)
+        context = super().get_context_data(**kwargs)
         sujeto = SujetoExcluido.objects.all()
         context['registro'] = sujeto
         return context
 
-@login_required(redirect_field_name='/ingresar')
-class SujetoExcluidoDetailView(DetailView):
+class SujetoExcluidoDetailView(LoginRequiredMixin,DetailView):
     """Muestra los datos de un sujeto excluido en especifico"""
 
     login_url = '/ingresar/'
-    template_name = 'sujeto_excluido_by_id_view.html'
+    template_name = 'sujeto excluido/sujeto_excluido_by_id_view.html'
     model = SujetoExcluido
+    context_object_name = 'sujetoExcluido'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sujetoExcluido = SujetoExcluido.objects.filter(id=context['object'].id)
-        operacionesSujetoExcluido = OperacionesSujetoExcluido.objects.filter(id=sujetoExcluido.id) 
-        apendice = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
-        context['sujetoExcluido'] = sujetoExcluido
-        context['operacionesSujetoExcluido'] = operacionesSujetoExcluido
-        context['apendice'] = apendice
-        context['show'] = True
-        return context   
-
-@login_required(redirect_field_name='/ingresar')
-class SujetoExcluidoCreateView(UserPassesTestMixin, CreateView):
-    
-    login_url = '/ingresar/'
-    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'
-    model = SujetoExcluido
-    
-    def get_success_url(self):
-        current_date = datetime.datetime.now()
-        mes = current_date.month
-        año = current_date.year
-        return reverse_lazy('sujetoExcluidoMonthView', kwargs={'year':año, 'month':mes})
-    
-    def post(self, request, *args, **kwargs):
-        identificadorId = request.POST.get('identificador')
-        identificador = get_object_or_404(Identificador, id=identificadorId)
-        entidadId = request.POST.get('emisor')
-        emisor = get_object_or_404(Entidad, id=entidadId)
-        receptorId = request.POST.get('receptor')
-        receptor = get_object_or_404(Receptor, id=receptorId)
-        totalCompra = request.POST.get('totalCompra')
-        descu = request.POST.get('descu')
-        totalDescu = request.POST.get('totalDescu')
-        subtotal = request.POST.get('subtotal')
-        retencionIVAMH = request.POST.get('retencionIVAMH')
-        ivarete1 = request.POST.get('ivarete1')
-        reterenta = request.POST.get('reterenta')
-        totalPagar = request.POST.get('totalPagar')
-        totalLetras = request.POST.get('totalLetras')
-        condicionOperacion = request.POST.get('condicionOperacion')
-        pagoId = request.POST.get('pago')
-        pago = get_object_or_404(Pago, id=pagoId)
-        observaciones = request.POST.get('observaciones')
-        user = request.user
-        entidad = user.Usuarios.all()
-        sujetoExcluido = SujetoExcluido.objects.create(identificador=identificador,emisor=emisor,receptor=receptor,totalCompra=totalCompra,descu=descu,
-                                                       totalDescu=totalDescu,subtotal=subtotal,retencionIVAMH=retencionIVAMH,ivarete1=ivarete1,reterenta=reterenta,
-                                                       totalPagar=totalPagar,totalLetras=totalLetras,condicionOperacion=condicionOperacion,pago=pago,observaciones=observaciones,
-                                                       entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el sujeto excluido con exito")
-        return redirect(self.get_success_url())
         
+        sujetoExcluido = self.object  # Obtenemos el objeto SujetoExcluido actual
+        
+        try:
+            # Intentamos obtener OperacionesSujetoExcluido y Apendice si existen
+            operaciones_sujeto_excluido = OperacionesSujetoExcluido.objects.filter(sujetoExcluido=sujetoExcluido)
+            apendice = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
+            
+            context['operacionesSujetoExcluido'] = operaciones_sujeto_excluido
+            context['apendices'] = apendice
+            context['show'] = True
+            
+        except OperacionesSujetoExcluido.DoesNotExist:
+            # Si no hay OperacionesSujetoExcluido, asignamos None al contexto
+            context['operacionesSujetoExcluido'] = None
+        
+        except Apendice.DoesNotExist:
+            # Si no hay Apendice, asignamos None al contexto
+            context['apendices'] = None
+        
+        return context 
 
-@login_required(redirect_field_name='/ingresar')
-class SujetoExcluidoUpdateView(UserPassesTestMixin, UpdateView):
+class SujetoExcluidoCreateView(LoginRequiredMixin, CreateView):
+    login_url = '/ingresar/'
+    template_name = 'sujeto excluido/sujeto_excluido_form.html'
+    model = SujetoExcluido
+    form_class = SujetoExcluidoForm
+
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['identificador'] = self.request.GET.get('identificador')
+        initial['receptor'] = self.request.GET.get('receptor')
+        initial['pago'] = self.request.GET.get('pago')
+        return initial
+    
+
+    def form_valid(self, form):
+        form.instance.emisor = self.request.user.entidad
+        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['identificador_id'] = self.request.GET.get('identificador_id')
+        context['receptor_id'] = self.request.GET.get('receptor_id')
+        context['pago_id'] = self.request.GET.get('pago_id')
+        return context        
+
+class SujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar/'
     model = SujetoExcluido
-    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'    
+    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'
+    form_class = SujetoExcluidoForm
     
     def get_success_url(self):
-        current_date = datetime.datetime.now()
-        mes = current_date.month
-        año = current_date.year
-        return reverse_lazy('sujetoExcluidoMonthView', kwargs={'year':año, 'month':mes})
-    
-    def post(self, request):
-        id=self.kwargs.get("pk")
-        identificadorId = request.POST.get('identificador')
-        identificador = get_object_or_404(Identificador, id=identificadorId)
-        entidadId = request.POST.get('emisor')
-        emisor = get_object_or_404(Entidad, id=entidadId)
-        receptorId = request.POST.get('receptor')
-        receptor = get_object_or_404(Receptor, id=receptor)
-        totalCompra = request.POST.get('totalCompra')
-        descu = request.POST.get('descu')
-        totalDescu = request.POST.get('totalDescu')
-        subtotal = request.POST.get('subtotal')
-        retencionIVAMH = request.POST.get('retencionIVAMH')
-        ivarete1 = request.POST.get('ivarete1')
-        reterenta = request.POST.get('reterenta')
-        totalPagar = request.POST.get('totalPagar')
-        totalLetras = request.POST.get('totalLetras')
-        condicionOperacion = request.POST.get('condicionOperacion')
-        pagoId = request.POST.get('pago')
-        pago = get_object_or_404(Pago, id=pagoId)
-        observaciones = request.POST.get('observaciones')
-        user = request.user
-        entidad = user.Usuarios.all()
-        sujetoExcluido = SujetoExcluido.objects.filter(pk=id).update(identificador=identificador,emisor=emisor,receptor=receptor,totalCompra=totalCompra,descu=descu,
-                                                       totalDescu=totalDescu,subtotal=subtotal,retencionIVAMH=retencionIVAMH,ivarete1=ivarete1,reterenta=reterenta,
-                                                       totalPagar=totalPagar,totalLetras=totalLetras,condicionOperacion=condicionOperacion,pago=pago,observaciones=observaciones)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el sujeto excluido con exito")
-        return redirect(self.get_success_url())    
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-@login_required(redirect_field_name='/ingresar')
-class FormaPagoView(View):
+    def form_valid(self, form):
+        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['identificador_id'] = self.object.identificador.id if self.object.identificador else None
+        context['receptor_id'] = self.object.receptor.id if self.object.receptor else None
+        context['pago_id'] = self.object.pago.id if self.object.pago else None
+        return context
+
+class FormaPagoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'forma_pago_view.html'
@@ -582,61 +504,34 @@ class FormaPagoView(View):
         formaPago = FormaPago.objects.all()
         context['registro'] = formaPago
         return context
-
-@login_required(redirect_field_name='/ingresar')   
-class FormaPagoCreateView(UserPassesTestMixin,CreateView):
+   
+class FormaPagoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'forma_pago_form.html'
+    template_name = 'sujeto excluido/forma_pago_form.html'
     form_class = FormaPagoForm
     model = FormaPago
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'pago':
-            formapago_id = self.request.POST.get('formapago_id')
-            if formapago_id:
-                return redirect('pagoUpdate', pk=formapago_id)
-            else:
-                return redirect('pagoCreate')
-        else:
-            return redirect('panel_facturas')
-    
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        formaPago= FormaPago.objects.create(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la forma de pago: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-@login_required(redirect_field_name='/ingresar')
-class FormaPagoUpdateView(UserPassesTestMixin, UpdateView):
+class FormaPagoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'forma_pago_form.html'
+    template_name = 'sujeto excluido/forma_pago_form.html'
     form_class = FormaPagoForm
+    model = FormaPago
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'pago':
-            formapago_id = self.request.POST.get('formapago_id')
-            if formapago_id:
-                return redirect('pagoUpdate', pk=formapago_id)
-            else:
-                return redirect('pagoCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        FormaPago.objects.filter(pk=id).update(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado la forma de pago: "+ codigo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class PagoView(View):
+class PagoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'pago_view.html'
@@ -647,65 +542,61 @@ class PagoView(View):
         pago = Pago.objects.all()
         context['registro'] = pago
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class PagoCreateView(UserPassesTestMixin,CreateView):
+    
+class PagoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'pago_form.html'
+    template_name = 'sujeto excluido/pago_form.html'
     form_class = PagoForm
     model = Pago
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        if id:
-            return redirect('sujetoExcluidoUpdate',id)
-        else:
-            return redirect('sujetoExcluidoCreate')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        formaPagoId = request.POST.get("formaPago")
-        formaPago = FormaPago.objects.get(id=formaPagoId)
-        montoPago = request.POS.get("montoPago")
-        referencia = request.POST.get("referencia")
-        plazo = request.POST.get("plazo")
-        periodo = request.POST.get("periodo")
-        user = request.user
-        entidad = user.Usuarios.all()
-        pago= Pais.objects.create(codigo=codigo, formaPago=formaPago, montoPago=montoPago, referencia=referencia, plazo=plazo, periodo=periodo, entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el pago: "+ codigo + " " + montoPago + "con exito")
-        return redirect(self.get_success_url())
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['formaPago'] = self.request.GET.get('formaPago')
+        return initial
+    
+    def form_valid(self, form):
+        # Asignar la entidad actual al formulario antes de guardarlo
+        form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formaPago_id'] = self.request.GET.get('formaPago_id')
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class PagoUpdateView(UserPassesTestMixin, UpdateView):
+class PagoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'pago_form.html'
+    template_name = 'sujeto excluido/pago_form.html'
     form_class = PagoForm
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        if id:
-            return redirect('sujetoExcluidoUpdate',id)
-        else:
-            return redirect('sujetoExcluidoCreate')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        formaPagoId = request.POST.get("formaPago")
-        formaPago = FormaPago.objects.get(id=formaPagoId)
-        montoPago = request.POS.get("montoPago")
-        referencia = request.POST.get("referencia")
-        plazo = request.POST.get("plazo")
-        periodo = request.POST.get("periodo")
-        Pago.objects.filter(pk=pk).update(codigo=codigo, formaPago=formaPago, montoPago=montoPago, referencia=referencia, plazo=plazo, periodo=periodo)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el pago: "+ codigo + " " + "con exito")
-        return redirect(self.get_success_url())
+    def form_valid(self, form):
+        # Asignar la entidad actual al formulario antes de guardarlo
+        form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formaPago_id'] = self.object.formaPago.id if self.object.formaPago else None
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class ApendiceView(DetailView):
+class ApendiceView(LoginRequiredMixin,DetailView):
     """Muestra los datos de las apendices registradas en el sistema"""
     
     login_url = '/ingresar/'
@@ -723,60 +614,62 @@ class ApendiceView(DetailView):
         context['show'] = True
         return context
 
-@login_required(redirect_field_name='/ingresar')
-class ApendiceCreateView(UserPassesTestMixin, CreateView):
+class ApendiceCreateView(LoginRequiredMixin, CreateView):
     login_url = '/ingresar'
-    template_name = 'apendice_form.html'
+    template_name = 'forms comunes/apendice_form.html'
     form_class = ApendiceForm
     model = Apendice
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoExcluido':
-            return redirect('sujetoExcluidoDetailView', pk=id)
-        elif origin == 'comprobanteDonacion':
-            return redirect('comprobanteDonacionDetailView', pk=id)
-            
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        id=self.kwargs.get("pk")
-        campo = request.POST.get("campo")
-        etiqueta = request.POST.get("etiqueta")
-        valor = request.POST.get("valor")
-        sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-        user = request.user
-        entidad = user.Usuarios.all()
-        apendice = Apendice.objects.create(campo=campo, etiqueta=etiqueta, valor=valor, sujetoExcluido=sujetoExcluido, entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado la panedice: "+ campo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['sujetoExcluido'] = self.request.GET.get('sujetoExcluido')
+        initial['comprobanteDonacion'] = self.request.GET.get('comprobanteDonacion')
+        return initial
+    
+    def form_valid(self, form):
+        # Asignar la entidad actual al formulario antes de guardarlo
+        form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sujetoExcluido_id'] = self.request.GET.get('sujetoExcluido_id')
+        context['comprobanteDonacion_id'] = self.request.GET.get('comprobanteDonacion_id')
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class ApendiceUpdateView(UserPassesTestMixin, UpdateView):
+class ApendiceUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'apendice_form.html'
+    template_name = 'formas comunes/apendice_form.html'
     form_class = ApendiceForm
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoExcluido':
-            return redirect('sujetoExcluidoDetailView', pk=id)
-        elif origin == 'comprobanteDonacion':
-            return redirect('comprobanteDonacionDetailView', pk=id)
-        
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
+    
+    def form_valid(self, form):
+        # Asignar la entidad actual al formulario antes de guardarlo
+        form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sujetoExcluido_id'] = self.object.sujetoExcluido.id if self.object.sujetoExcluido else None
+        context['comprobanteDonacion_id'] = self.object.comprobanteDonacion.id if self.object.comprobanteDonacion else None
+        return context
 
-    def post(self, request, *args, **kwargs):
-        id=self.kwargs.get("pk")
-        campo = request.POST.get("campo")
-        etiqueta = request.POST.get("etiqueta")
-        valor = request.POST.get("valor")
-        Apendice.objects.filter(pk=id).update(campo=campo, etiqueta=etiqueta, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el apendice: "+ campo + " " + valor + "con exito")
-        return redirect(self.get_success_url())
-
-@login_required(redirect_field_name='/ingresar')
-class TipoDocumentoView(View):
+class TipoDocumentoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'tipo_documento_view.html'
@@ -787,54 +680,32 @@ class TipoDocumentoView(View):
         tipoDocumento= TipoDocumento.objects.all()
         context['registro'] = tipoDocumento
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class TipoDocumentoCreateView(UserPassesTestMixin,CreateView):
+    
+class TipoDocumentoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'tipo_documento_form.html'
+    template_name = 'forms comunes/tipo_documento_form.html'
     form_class = TipoDocumentoForm
     model = TipoDocumento
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        if id:
-            return redirect('identifacadorUpdate',id)
-        else:
-            return redirect('identificadorCreate')
-        
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        tipoDocumento= TipoDocumento.objects.create(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el tipo de documento : "+ codigo + " " + valor + "con exito")
-        return redirect('tipoDocumentoList')
-
-@login_required(redirect_field_name='/ingresar')
-class TipoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
+class TipoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'tipo_documento_form.html'
+    template_name = 'forms comunes/tipo_documento_form.html'
     form_class = TipoDocumentoForm
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        if id:
-            return redirect('identifacadorUpdate',id)
-        else:
-            return redirect('identificadorCreate')
-
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get("codigo")
-        valor = request.POST.get("valor")
-        TipoDocumento.objects.filter(pk=id).update(codigo=codigo, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el tipo de documento: "+ codigo + " " + valor + "con exito")
-        return redirect('tipoDocumentoList')
-
-@login_required(redirect_field_name='/ingresar')
-class IdentificadorView(View):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
+    
+class IdentificadorView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'identificador_view.html'
@@ -845,97 +716,50 @@ class IdentificadorView(View):
         identificador = Identificador.objects.all()
         context['registro'] = identificador
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class IdentificadorCreateView(UserPassesTestMixin,CreateView):
+   
+class IdentificadorCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'identificador_form.html'
-    form_class = IdentificadorForm
+    template_name = 'forms comunes/identificador_form.html'
     model = Identificador
+    form_class = IdentificadorForm
+    
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoexcluido':
-            sujetoExcluido_id = self.request.POST.get('sujetoExcluido_id')
-            if sujetoExcluido_id:
-                return redirect('sujetoExcluidoUpdate', pk=sujetoExcluido_id)
-            else:
-                return redirect('sujetoExcluidoCreate')
-        elif origin == 'comprobantedonacion':
-            comprobanteDonacion_id = self.request.POST.get('comprobanteDonacion_id')
-            if comprobanteDonacion_id:
-                return redirect('comprobanteDonacionUpdate', pk=comprobanteDonacion_id)
-            else:
-                return redirect('comprobanteDonacionCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        version = request.POST.get("version")
-        ambiente = request.POST.get("ambiente")
-        tipoDteId = request.POST.get("tipoDte")
-        tipoDte = TipoDocumento.objects.get(id=tipoDteId)
-        tipoModelo = request.POST.get("tipoModelo")
-        tipoOperacion = request.POST.get("tipoOperacion")
-        tipoContingencia = request.POST.get("tipoContingencia")
-        motivoContin = request.POST.get("motivoContin")
-        fechaEmi = request.POST.get("fechaEmi")
-        tipoMoneda = request.POST.get("tipoMoneda")
-        user = request.user
-        entidad = user.Usuarios.all()
-        identificador= Identificador.objects.create(version=version, ambiente=ambiente, tipoDte=tipoDte,  
-                                                    tipoModelo=tipoModelo, tipoOperacion=tipoOperacion, tipoContingencia=tipoContingencia, motivoContin=motivoContin,
-                                                    fechaEmision=fechaEmi, tipoMoneda=tipoMoneda, entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el identificador: "+ version  + " "  + "con exito")
-        return redirect(self.get_success_url())
+    def form_valid(self, form):
+        # Asignar la entidad actual al formulario antes de guardarlo
+        form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
 
-@login_required(redirect_field_name='/ingresar')
-class IdentificadorUpdateView(UserPassesTestMixin, UpdateView):
+class IdentificadorUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'identificador_form.html'
+    template_name = 'forms comunes/identificador_form.html'
+    model = Identificador
     form_class = IdentificadorForm
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoexcluido':
-            sujetoExcluido_id = self.request.POST.get('sujetoExcluido_id')
-            if sujetoExcluido_id:
-                return redirect('sujetoExcluidoUpdate', pk=sujetoExcluido_id)
-            else:
-                return redirect('sujetoExcluidoCreate')
-        elif origin == 'comprobantedonacion':
-            comprobanteDonacion_id = self.request.POST.get('comprobanteDonacion_id')
-            if comprobanteDonacion_id:
-                return redirect('comprobanteDonacionUpdate', pk=comprobanteDonacion_id)
-            else:
-                return redirect('comprobanteDonacionCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        version = request.POST.get("version")
-        ambiente = request.POST.get("ambiente")
-        tipoDteId = request.POST.get("tipoDte")
-        tipoDte = TipoDocumento.objects.get(id=tipoDteId)
-        numeroControl = request.POST.get("numeroControl")
-        codigoGeneracion = request.POST.get("codigoGeneracion")
-        tipoModelo = request.POST.get("tipoModelo")
-        tipoOperacion = request.POST.get("tipoOperacion")
-        tipoContingencia = request.POST.get("tipoContingencia")
-        motivoContin = request.POST.get("motivoContin")
-        fechaEmi = request.POST.get("fechaEmi")
-        tipoMoneda = request.POST.get("tipoMoneda")
-        Identificador.objects.filter(pk=pk).update(version=version, ambiente=ambiente, tipoDte=tipoDte, numeroControl=numeroControl,codigoGeneracion=codigoGeneracion, 
-                                                    tipoModelo=tipoModelo, tipoOperacion=tipoOperacion, tipoContingencia=tipoContingencia, motivoContin=motivoContin,
-                                                    fechaEmision=fechaEmi, tipoMoneda=tipoMoneda)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el identificador: "+ version + " " + numeroControl + " " + codigoGeneracion + " "  + "con exito")
-        return redirect(self.get_success_url())
-
-@login_required(redirect_field_name='/ingresar')
-class ReceptorView(View):
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.object.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+class ReceptorView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'receptor_view.html'
@@ -946,94 +770,68 @@ class ReceptorView(View):
         receptor = receptor.objects.all()
         context['registro'] = receptor
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class ReceptorCreateView(UserPassesTestMixin,CreateView):
+    
+class ReceptorCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'receptor_form.html'
+    template_name = 'forms comunes/receptor_form.html'
     form_class = ReceptorForm
     model = Receptor
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoexcluido':
-            sujetoExcluido_id = self.request.POST.get('sujetoExcluido_id')
-            if sujetoExcluido_id:
-                return redirect('sujetoExcluidoUpdate', pk=sujetoExcluido_id)
-            else:
-                return redirect('sujetoExcluidoCreate')
-        elif origin == 'comprobantedonacion':
-            comprobanteDonacion_id = self.request.POST.get('comprobanteDonacion_id')
-            if comprobanteDonacion_id:
-                return redirect('comprobanteDonacionUpdate', pk=comprobanteDonacion_id)
-            else:
-                return redirect('comprobanteDonacionCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        tipo = request.POST.get('tipo')
-        homologado = request.POST.get('homologado')
-        numero = request.POST.get('numero')
-        nombre = request.POST.get('nombre')
-        actividadEconomicaId = request.POST.get('actividadEconomica')
-        actividadEconomica = get_object_or_404(ActividadEconomica,id=actividadEconomicaId)
-        direccionReceptorId = request.POST.get('direccionReceptor')
-        direccionReceptor = get_object_or_404(Direccion,id=direccionReceptorId)
-        cellphone = request.POST.get('cellphone')
-        email = request.POST.get('email')
-        user = request.user
-        entidad = user.Usuarios.all()
-        receptor = Receptor.objects.create(tipo=tipo, homologado=homologado, numero=numero,nombre=nombre,actividadEconomica=actividadEconomica,
-                                           direccionReceptor=direccionReceptor, cellphone=cellphone, email=email, entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el receptor:"+ nombre +" con exito")
-        return redirect(self.get_success_url())
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['actividadEconomica'] = self.request.GET.get('actividadEconomica')
+        initial['direccionReceptor'] = self.request.GET.get('direccionReceptor')
+        return initial
+    
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['actividadEconomica_id'] = self.request.GET.get('actividadEconomica_id')
+        context['direccionReceptor_id'] = self.request.GET.get('direccionReceptor_id')
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class ReceptorUpdateView(UserPassesTestMixin, UpdateView):
+
+class ReceptorUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'receptor_form.html'
+    template_name = 'forms comunes/receptor_form.html'
     form_class = ReceptorForm
     model = Receptor
     
     def get_success_url(self):
-        origin = self.request.POST.get('origin')
-        if origin == 'sujetoexcluido':
-            sujetoExcluido_id = self.request.POST.get('sujetoExcluido_id')
-            if sujetoExcluido_id:
-                return redirect('sujetoExcluidoUpdate', pk=sujetoExcluido_id)
-            else:
-                return redirect('sujetoExcluidoCreate')
-        elif origin == 'comprobantedonacion':
-            comprobanteDonacion_id = self.request.POST.get('comprobanteDonacion_id')
-            if comprobanteDonacion_id:
-                return redirect('comprobanteDonacionUpdate', pk=comprobanteDonacion_id)
-            else:
-                return redirect('comprobanteDonacionCreate')
-        else:
-            return redirect('panel_facturas')
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
 
-    def post(self, request, *args, **kwargs):
-        id=self.kwargs.get("pk")
-        tipo = request.POST.get('tipo')
-        homologado = request.POST.get('homologado')
-        numero = request.POST.get('numero')
-        nombre = request.POST.get('nombre')
-        actividadEconomicaId = request.POST.get('actividadEconomica')
-        actividadEconomica = get_object_or_404(ActividadEconomica,id=actividadEconomicaId)
-        direccionReceptorId = request.POST.get('direccionReceptor')
-        direccionReceptor = get_object_or_404(Direccion,id=direccionReceptorId)
-        cellphone = request.POST.get('cellphone')
-        email = request.POST.get('email')
-        receptor = Receptor.objects.filter(id=id).update(tipo=tipo, homologado=homologado, numero=numero,nombre=nombre,actividadEconomica=actividadEconomica,
-                                           direccionReceptor=direccionReceptor, cellphone=cellphone, email=email)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el receptor:"+ nombre +" con exito")
-        return redirect(self.get_success_url())
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['actividadEconomica_id'] = self.object.actividadEconomica.id if self.object.actividadEconomica else None
+        context['direccionReceptor_id'] = self.object.direccionReceptor.id if self.object.direccionReceptor else None
+        return context
 
-@login_required(redirect_field_name='/ingresar')
-class OtroDocumentoAsociadoView(View):
+class OtroDocumentoAsociadoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'otro_documento_asociado_view.html'
@@ -1044,9 +842,8 @@ class OtroDocumentoAsociadoView(View):
         otroDocumentoAsociado = OtroDocumentoAsociado.objects.all()
         context['otroDocumentoAsociado'] = otroDocumentoAsociado
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class OtroDocumentoAsociadoCreateView(UserPassesTestMixin,CreateView):
+    
+class OtroDocumentoAsociadoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
     template_name = 'otro_documento_asociado_form.html'
@@ -1071,8 +868,7 @@ class OtroDocumentoAsociadoCreateView(UserPassesTestMixin,CreateView):
         return redirect(self.get_success_url())
     
 
-@login_required(redirect_field_name='/ingresar')
-class OtroDocumentoAsociadoUpdateView(UserPassesTestMixin, UpdateView):
+class OtroDocumentoAsociadoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'otro_documento_asociado_form.html'
     form_class = OtroDocumentoAsociadoForm
@@ -1091,8 +887,7 @@ class OtroDocumentoAsociadoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito con exito")
         return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class CuerpoDocumentoView(View):
+class CuerpoDocumentoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'cuerpo_documento_view.html'
@@ -1103,9 +898,8 @@ class CuerpoDocumentoView(View):
         cuerpoDocumento = CuerpoDocumento.objects.all()
         context['cuerpoDocumento'] = cuerpoDocumento
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class CuerpoDocumentoCreateView(UserPassesTestMixin,CreateView):
+   
+class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
     template_name = 'cuerpo_documento_form.html'
@@ -1138,8 +932,7 @@ class CuerpoDocumentoCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el cuerpo del documento con exito")
         return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
+class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'cuerpo_documento_form.html'
     form_class = CuerpoDocumentoForm
@@ -1169,8 +962,7 @@ class CuerpoDocumentoUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el cuerpo del documento con exito")
         return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class PagoDonacionView(View):
+class PagoDonacionView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
     template_name = 'pago_donacion_view.html'
@@ -1181,9 +973,8 @@ class PagoDonacionView(View):
         pagoDonacion = PagoDonacion.objects.all()
         context['pagoDonacion'] = PagoDonacion
         return context
-
-@login_required(redirect_field_name='/ingresar')    
-class PagoDonacionCreateView(UserPassesTestMixin,CreateView):
+    
+class PagoDonacionCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
     template_name = 'pago_donacion_form.html'
@@ -1205,8 +996,7 @@ class PagoDonacionCreateView(UserPassesTestMixin,CreateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado un pago a donacion con exito")
         return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class PagoDonacionUpdateView(UserPassesTestMixin, UpdateView):
+class PagoDonacionUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'pago_donacion_form.html'
     form_class = PagoDonacionForm
@@ -1224,8 +1014,7 @@ class PagoDonacionUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado un pago a donacion con exito")
         return redirect(self.get_success_url())
 
-@login_required(redirect_field_name='/ingresar')
-class ComprobanteDonacionMonthView(MonthArchiveView):
+class ComprobanteDonacionMonthView(LoginRequiredMixin,MonthArchiveView):
     """Muestra la lista de sujetos excluidos por mes"""
 
     login_url='/ingresar/'
@@ -1240,8 +1029,7 @@ class ComprobanteDonacionMonthView(MonthArchiveView):
         context['registro'] = comprobante
         return context
 
-@login_required(redirect_field_name='/ingresar')
-class ComprobanteDonacionDetailView(DetailView):
+class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
     """Muestra los datos de un comprobante de donacion en especifico"""
 
     login_url = '/ingresar/'
@@ -1261,8 +1049,7 @@ class ComprobanteDonacionDetailView(DetailView):
         context['show'] = True
         return context   
 
-@login_required(redirect_field_name='/ingresar')
-class ComprobanteDonacionCreateView(UserPassesTestMixin, CreateView):
+class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
     
     login_url = '/ingresar/'
     template_name = 'comprobante donacion/comprobante_donacion_create_view.html'
@@ -1294,8 +1081,7 @@ class ComprobanteDonacionCreateView(UserPassesTestMixin, CreateView):
         return redirect(self.get_success_url())
         
 
-@login_required(redirect_field_name='/ingresar')
-class ComprobanteDonacionUpdateView(UserPassesTestMixin, UpdateView):
+class ComprobanteDonacionUpdateView(LoginRequiredMixin, UpdateView):
     
     login_url = '/ingresar/'
     model = SujetoExcluido
@@ -1325,8 +1111,33 @@ class ComprobanteDonacionUpdateView(UserPassesTestMixin, UpdateView):
         messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito")
         return redirect(self.get_success_url())
 
+class ResponseHaciendaBySujetoExcluidoListView(ListView):
+    model = ResponseHacienda
+    template_name = 'response_hacienda_by_sujeto_excluido_list.html'
+    context_object_name = 'responses'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        sujeto_excluido_id = self.kwargs['pk']
+        if sujeto_excluido_id:
+            queryset = queryset.filter(sujetoExcluido_id=sujeto_excluido_id)
+        return queryset.order_by('-created_at')
+
+class ResponseHaciendaByComprobanteDonacionListView(ListView):
+    model = ResponseHacienda
+    template_name = 'response_hacienda_by_comprobante_donacion_list.html'
+    context_object_name = 'responses'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        comprobante_donacion_id= self.kwargs['pk']
+        if comprobante_donacion_id:
+            queryset = queryset.filter(comprobanteDonacion_id=comprobante_donacion_id)
+        return queryset.order_by('-created_at')
+
 #Creando los Json correspondiente a cada factura
 
+@login_required(redirect_field_name='/ingresar')
 def sujetoExcluidoList(self,id):
     sujetoExcluido = SujetoExcluido.objects.get(id=id)
     emisor = User.objects.get(id = sujetoExcluido.emisor.emisor.id)
@@ -1438,6 +1249,8 @@ def sujetoExcluidoList(self,id):
     
     return JsonResponse(sujetoData, safe=False)
 
+
+@login_required(redirect_field_name='/ingresar')
 def comprobanteDonacionList(self,id):
     comprobanteDonacion = ComprobanteDonacion.objects.get(id=id)
     emisor = User.objects.get(id = comprobanteDonacion.emisor.emisor.id)
@@ -1552,11 +1365,14 @@ def comprobanteDonacionList(self,id):
 
 #Creando los PDF's para cada Factura
 
+@login_required(redirect_field_name='/ingresar')
 def cargarDatosFactura(factura):
     with open(factura, 'r') as archivo:
         datos = json.load(archivo)
     return datos
 
+
+@login_required(redirect_field_name='/ingresar')
 def crearFacturaSujetoExcluido(datos):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
@@ -1676,6 +1492,8 @@ def crearFacturaSujetoExcluido(datos):
     
     return buffer.getvalue()
 
+
+@login_required(redirect_field_name='/ingresar')
 def crearComprobanteDonacion(datos):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
@@ -1815,8 +1633,7 @@ def crearComprobanteDonacion(datos):
     
     return buffer.getvalue()
     
-@login_required(redirect_field_name='/ingresar')
-class Transmitir(View):
+class Transmitir(LoginRequiredMixin,View):
     
     def obtenerFactura(self,*args, **kwargs):
         origin = self.request.POST.get('origin')
@@ -1861,9 +1678,9 @@ class Transmitir(View):
             try:
                 acesso = requests.post(url_auth, params=parametros_auth).json()
                 if origin == 'sujetoExcluido':  
-                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido)
+                    responseHacienda = ResponseHacienda(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido, stastus_code=acesso['status'])
                 else:
-                    responseHacienda = ResponseHacienda.objects.create(nombre="Auth de Hacienda", datosJason=acesso, comprobanteDonacion=comprobanteDonacion)
+                    responseHacienda = ResponseHacienda(nombre="Auth de Hacienda", datosJason=acesso, comprobanteDonacion=comprobanteDonacion, stastus_code=acesso['status'])
                 responseHacienda.save()
                 
                 if acesso['status'] == "OK":
@@ -1886,7 +1703,7 @@ class Transmitir(View):
                     try:
                         transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
                         if origin == 'sujetoExcluido':
-                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido)
+                            responseHacienda = ResponseHacienda(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido, stastus_code=transmitir['status'])
                             responseHacienda.save()
                             if(transmitir['codigoMsg']=="001"):
                                 sujetoExcluido.objects.update(transmitido=True)
@@ -1903,7 +1720,7 @@ class Transmitir(View):
                                 email.attach('data.pdf', pdf_sujeto_excluido, 'application/pdf')
                                 email.send()
                         else:
-                            responseHacienda = ResponseHacienda.objects.create(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, comprobanteDonacion=comprobanteDonacion)
+                            responseHacienda = ResponseHacienda.objects(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, comprobanteDonacion=comprobanteDonacion,stastus_code=transmitir['status'])
                             responseHacienda.save()
                             if(transmitir['codigoMsg']=="001"):
                                 comprobanteDonacion.objects.update(transmitido=True)
@@ -1921,15 +1738,13 @@ class Transmitir(View):
                                 email.send()
                     except:
                         messages.danger(self.request, 'Ocurrio un problema en la transmision de la factura' + transmitir['status'])
-                    stastus_code = acesso['status']
-                    messages.success(self.request, 'Se logueo con exito en hacienda', stastus_code)
+                    messages.success(self.request, 'Se logueo con exito en hacienda' + acesso['status'])
                     if origin == 'sujetoExcluido':
                         return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
                     else:
                          return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
                 
                 else:
-                    stastus_code = acesso.status_code
                     messages.success(self.request, 'Ocurrio un error con las credenciales' + acesso['status'])
                     return redirect('authHacienda', pk=authHacienda.pk)
                 

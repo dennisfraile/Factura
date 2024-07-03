@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Entidad</h1>
-    <form method= "post">
+    <h1>Crear Entidad</h1>
+    <form method="post">
         {% csrf_token %}
-        {{ form.razonSocial.label_tag }}
-        {{ form.razonSocial }}
         <div class="form-group row">
-            {% if form.direccionEmisor.field.queryset.exists %}
-                <label for="{{ form.direccionEmisor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionEmisor.label}}</label>
+            <label for="{{ form.razonSocial.id_for_label }}" class="col-md-2 control-label">{{ form.razonSocial.label }}</label>
+            <div class="col-sm-8">
+                {{ form.razonSocial }}
+            </div>
+        </div>
+        <div class="form-group row">
+            {% if form.fields.direccionEmisor.queryset.exists %}
+                <label for="{{ form.direccionEmisor.id_for_label }}" class="col-md-2 control-label">{{ form.direccionEmisor.label }}</label>
                 <div class="col-sm-8">
                     {{ form.direccionEmisor }}
                 </div>
@@ -16,49 +20,91 @@
                 <p>No hay Direcciones ingresadas en el sistema</p>
             {% endif %}
             <div class="col-sm-2">
-                <a id="tramite" href="{% url 'direccionCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Direccion">
+                <a id="direccion" href="{% url 'direccionCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Direccion">
                     <span class="material-symbols-outlined">
                     add
                     </span>
                 </a>
+                {% if direccionEmisor_id %}
+                    <a id="direccion" href="{% url 'direccionUpdate' direccionEmisor_id %}?next={{ request.path }}" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Direccion">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        {{ form.cellphone.label_tag }}
-        {{ form.cellphone }}
-        {{ form.codEstableMH.label_tag }}
-        {{ form.codEstableMH }}
-        {{ form.codEstable.label_tag }}
-        {{ form.codPuntoEstable }}
-        {{ form.codPuntoVentaMH.label_tag }}
-        {{ form.codPuntoVentaMH }}
-        {{ form.codPuntoVenta.label_tag }}
-        {{ form.codPuntoVenta }}
-        {{ form.email.label_tag }}
-        {{ form.email }}
-        {{ form.nit.label_tag }}
-        {{ form.nit }}
-        {{ form.nrc.label_tag }}
-        {{ form.nrc }}
         <div class="form-group row">
-            {% if form.actividadEconomica.field.queryset.exists %}
-                <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label}}</label>
+            <label for="{{ form.cellphone.id_for_label }}" class="col-md-2 control-label">{{ form.cellphone.label }}</label>
+            <div class="col-sm-8">
+                {{ form.cellphone }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.codEstableMH.id_for_label }}" class="col-md-2 control-label">{{ form.codEstableMH.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codEstableMH }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.codEstable.id_for_label }}" class="col-md-2 control-label">{{ form.codEstable.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codEstable }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.codPuntoVentaMH.id_for_label }}" class="col-md-2 control-label">{{ form.codPuntoVentaMH.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codPuntoVentaMH }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.codPuntoVenta.id_for_label }}" class="col-md-2 control-label">{{ form.codPuntoVenta.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codPuntoVenta }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.email.id_for_label }}" class="col-md-2 control-label">{{ form.email.label }}</label>
+            <div class="col-sm-8">
+                {{ form.email }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.nit.id_for_label }}" class="col-md-2 control-label">{{ form.nit.label }}</label>
+            <div class="col-sm-8">
+                {{ form.nit }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.nrc.id_for_label }}" class="col-md-2 control-label">{{ form.nrc.label }}</label>
+            <div class="col-sm-8">
+                {{ form.nrc }}
+            </div>
+        </div>
+        <div class="form-group row">
+            {% if form.fields.actividadEconomica.queryset.exists %}
+                <label for="{{ form.actividadEconomica.id_for_label }}" class="col-md-2 control-label">{{ form.actividadEconomica.label }}</label>
                 <div class="col-sm-8">
                     {{ form.actividadEconomica }}
                 </div>
             {% else %}
-                <p>No hay Activdad Economica ingresada en el sistema.</p>
+                <p>No hay Actividad Económica ingresada en el sistema.</p>
             {% endif %}
             <div class="col-sm-2">
-                <a id="tramite" href="{% url 'actividadEconomicaCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Actividad Economica">
+                <a id="actividadEconomica" href="{% url 'actividadEconomicaCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Actividad Económica">
                     <span class="material-symbols-outlined">
                     add
                     </span>
                 </a>
+                {% if actividadEconomica_id %}
+                    <a id="actividadEconomica" href="{% url 'actividadEconomicaUpdate' actividadEconomica_id %}?next={{ request.path }}" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Actividad Economica">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        <br>
+        
         <input type="hidden" name="origin" value="entidad">
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>

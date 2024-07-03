@@ -4,10 +4,14 @@
     <h1>Pago</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.codigo.label_tag }}
-        {{ form.codigo }}
         <div class="form-group row">
-            {% if fom.formaPago.field.queryset.exists %}
+            <label for="{{ form.codigo.id_for_label }}" class="col-md-2 control-label">{{ form.codigo.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codigo }}
+            </div>
+        </div>
+        <div class="form-group row">
+            {% if form.formaPago.field.queryset.exists %}
                 <label for="{{ form.formaPago.id_for_label }}" class="col-md-2 control-label">{{ form.formaPago.label}}</label>
                 <div class="col-sm-8">
                     {{ form.formaPago }}
@@ -16,7 +20,7 @@
                 <P>No existen formas de pago ingresadas en el sistema.</P>
             {% endif %}
             <div class="col-sm-2">
-                <a id="formapago" href="{% url 'formaPagoCreate' %}" 
+                <a id="formapago" href="{% url 'formaPagoCreate' %}?next={{ request.path }}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Forma de Pago">
                     <span class="material-symbols-outlined">
                     add
@@ -24,14 +28,30 @@
                 </a>
             </div>
         </div>
-        {{ form.montoPago.label_tag }}
-        {{ form.montoPago }}
-        {{ form.referencia.label_tag }}
-        {{ form.referencia }}
-        {{ form.plazo.label_tag }}
-        {{ form.plazo }}
-        {{ form.periodo.label_tag }}
-        {{ form.periodo }}
+        <div class="form-group row">
+            <label for="{{ form.montoPago.id_for_label }}" class="col-md-2 control-label">{{ form.montoPago.label }}</label>
+            <div class="col-sm-8">
+                {{ form.montoPago }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.referencia.id_for_label }}" class="col-md-2 control-label">{{ form.referencia.label }}</label>
+            <div class="col-sm-8">
+                {{ form.referencia }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.plazo.id_for_label }}" class="col-md-2 control-label">{{ form.plazo.label }}</label>
+            <div class="col-sm-8">
+                {{ form.plazo }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.periodo.id_for_label }}" class="col-md-2 control-label">{{ form.periodo.label }}</label>
+            <div class="col-sm-8">
+                {{ form.periodo }}
+            </div>
+        </div>
         <br>
         <input type="hidden" name="origin" value="pago">
         <input class="btn btn-success" type="submit" value="Guardar">

@@ -2,45 +2,70 @@
 
 {% block content %}
     <h1>Identificador</h1>
-    <form method= "post">
+    <form method="post">
         {% csrf_token %}
-        {{ form.version.label_tag }}
-        {{ form.version }}
-        {{ form.ambiente.label_tag }}
-        {{ form.ambiente }}
         <div class="form-group row">
-            {% if form.tipoDte.field.queryset.exists %}
-                <label for="{{ form.tipoDte.id_for_label }}" class="col-md-2 control-label">{{ form.tipoDte.label}}</label>
-                <div class="col-sm-8">
-                    {{ form.tipoDte }}
-                </div>
-            {% else %}
-                <P>No hay ningun tipo de documento ingresados en el sistema.</P>
-            {% endif %} 
-            <div class="col-sm-2">
-                <a id="tipodocumento" href="{% url 'tipoDocumentoCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Tipo de Documento">
-                    <span class="material-symbols-outlined">
-                    add
-                    </span>
-                </a>
+            <label for="{{ form.version.id_for_label }}" class="col-md-2 control-label">{{ form.version.label }}</label>
+            <div class="col-sm-8">
+                {{ form.version }}
             </div>
         </div>
-        {{ form.tipoModelo.label_tag }}
-        {{ form.tipoModelo }}
-        {{ form.tipoOperacion.label_tag }}
-        {{ form.tipoOperacion }}
-        {{ form.tipoContingencia.label_tag }}
-        {{ form.tipoContingencia }}
-        {{ form.motivoContin.label_tag }}
-        {{ form.motivoContin }}
-        {{ form.fechaEmi.label_tag }}
-        {{ form.fechaEmi }}
-        {{ form.tipoMoneda.label_tag }}
-        {{ form.tipoMoneda }}
+        <div class="form-group row">
+            <label for="{{ form.ambiente.id_for_label }}" class="col-md-2 control-label">{{ form.ambiente.label }}</label>
+            <div class="col-sm-8">
+                {{ form.ambiente }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.tipoDte.id_for_label }}" class="col-md-2 control-label">{{ form.tipoDte.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipoDte }}
+            </div>
+            <div class="col-sm-2">
+                <a id="tipodocumento" href="{% url 'tipoDocumentoCreate' %}?next={{ request.path }}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Tipo de Documento">
+                    <span class="material-symbols-outlined">add</span>
+                </a>
+                {% if tipodocumento_id %}
+                    <a id="tipodocumento" href="{% url 'tipoDocumentoUpdate' tipoDocumento_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Tipo de Documento">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.tipoModelo.id_for_label }}" class="col-md-2 control-label">{{ form.tipoModelo.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipoModelo }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.tipoOperacion.id_for_label }}" class="col-md-2 control-label">{{ form.tipoOperacion.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipoOperacion }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.tipoContingencia.id_for_label }}" class="col-md-2 control-label">{{ form.tipoContingencia.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipoContingencia }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.motivoContin.id_for_label }}" class="col-md-2 control-label">{{ form.motivoContin.label }}</label>
+            <div class="col-sm-8">
+                {{ form.motivoContin }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.tipoMoneda.id_for_label }}" class="col-md-2 control-label">{{ form.tipoMoneda.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipoMoneda }}
+            </div>
+        </div>
         <br>
         <input type="hidden" name="origin" value="identificador">
         <input class="btn btn-success" type="submit" value="Guardar">
-        <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
+        <a href="{% url 'panel_facturas' %}" class="btn btn-danger">Cancelar</a>
     </form>
 {% endblock %}

@@ -2,52 +2,64 @@
 
 {% block content %}
   <div class="container-fluid py-1">
-    <h3 class="display-5 fw-bold">Panel de usuarios</h3>
-    <p class="col-md-8 fs-4">Aquí puedes ver los enlaces a la administracion de usuarios.</p>
-
+    <h3 class="display-5 fw-bold">Gestion Administrativa</h3>
+    <p class="col-md-8 fs-4">Aquí puedes ver los enlaces administracion del sistema .</p>
+    
     <div class="row">
-      <div class="col-lg-4 d-flex align-items-stretch">
-        <!--CARD HERE-->
-        <div class="card">
-          <div class="card-header">
-            Entidad
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Entidad</h5>
-            <p class="card-text">Aquí puedes ver la info sobrte la Entidad.</p>
-            <!-- <a href="{% url 'entidad' %}" class="btn btn-primary">Acceder</a>-->
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 d-flex align-items-stretch">
-        <!--CARD HERE-->
-        <div class="card">
-          <div class="card-header">
-            Usuarios
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Usuarios</h5>
-            <p class="card-text">Aquí puedes ver los usuarios que posee la Entidad.</p>
-            <a href="{% url 'index_user %}" class="btn btn-primary">Acceder</a>
+      {% if user.is_staff %}
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="card">
+            <div class="card-header">
+              Entidad
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Entidad</h5>
+              <p class="card-text">Aquí puedes ver la info sobrte la Entidad.</p>
+              <a href="{% url 'verEntidad' %}" class="btn btn-primary">Acceder</a>
+            </div>
           </div>
         </div>
-      </div>
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="card">
+            <div class="card-header">
+              Parametros Hacienda
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Parametros de Hacienda</h5>
+              <p class="card-text">Aquí puedes ver las credenciales de hacienda.</p>
+              <a href="{% url 'verParametrosHacienda' %}" class="btn btn-primary">Acceder</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 d-flex align-items-stretch">
+          <!--CARD HERE-->
+          <div class="card">
+            <div class="card-header">
+              Usuarios
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Usuarios</h5>
+              <p class="card-text">Aquí puedes ver los usuarios que posee la Entidad.</p>
+              <a href="{% url 'index_user' %}" class="btn btn-primary">Acceder</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
       <div class="col-lg-4 d-flex align-items-stretch">
         <!--CARD HERE-->
         <div class="card">
           <div class="card-header">
-            Roles
+            Panel de Facturas
           </div>
           <div class="card-body">
-            <h5 class="card-title">Roles</h5>
-            <p class="card-text">Aquí puedes ver los roles disponibles
-              para los usuarios.</p>
-            <!--<a href="{% url 'estadoList'  %}" class="btn btn-primary">Ver Roles</a>-->
-          </div>
+            <h5 class="card-title">Facturas</h5>
+            <p class="card-text">Aquí puedes dirigirte al Panel de Facturas</p>
+            <a href="{% url 'panel_facturas' %}" class="btn btn-primary">Acceder</a>
         </div>
       </div>
     </div>
     <br>
-    <a href="{% url 'panel_principal' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al panel principal</a>
   </div>
 {% endblock %}

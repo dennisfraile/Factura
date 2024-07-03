@@ -2,97 +2,155 @@
 
 {% block content %}
     <h1>Sujeto Excluido</h1>
-    <form method= "post">
+    <form method="post">
         {% csrf_token %}
+        
         <div class="form-group row">
-            {% if form.identificador.field.queryset.exists %}
-                <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label}}</label>
-                <div class="col-sm-8">
+            <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label }}</label>
+            <div class="col-sm-8">
+                {% if form.identificador.field.queryset.exists %}
                     {{ form.identificador }}
-                </div>
-            {% else %}
-                <p> No hay identificadres disponibles </p>
-            {% endif %}
+                {% else %}
+                    <p>No hay identificadores disponibles</p>
+                {% endif %}
+            </div>
             <div class="col-sm-2">
-                <a id="identificador" href="{% url 'identificadorCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
-                    <span class="material-symbols-outlined">
-                    add
-                    </span>
+                <a id="identificador" href="{% url 'identificadorCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
+                    <span class="material-symbols-outlined">add</span>
                 </a>
+                {% if identificador_id %}
+                    <a id="identificador" href="{% url 'identificadorUpdate' identificador_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Identificador">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        <br> 
+        
         <div class="form-group row">
-            {% if form.receptor.field.queryset.exists %}
-                <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
-                <div class="col-sm-8">
+            <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label }}</label>
+            <div class="col-sm-8">
+                {% if form.receptor.field.queryset.exists %}
                     {{ form.receptor }}
-                </div>
-            {% else %}
-                <p> No hay Receptores para esta factura </p>
-            {% endif %} 
+                {% else %}
+                    <p>No hay Receptores para esta factura</p>
+                {% endif %}
+            </div>
             <div class="col-sm-2">
-                <a id="receptor" href="{% url 'receptorCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
-                    <span class="material-symbols-outlined">
-                    add
-                    </span>
+                <a id="receptor" href="{% url 'receptorCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
+                    <span class="material-symbols-outlined">add</span>
                 </a>
+                {% if receptor_id %}
+                    <a id="receptor" href="{% url 'receptorUpdate' receptor_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Receptor">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        <br> 
-        {{ form.totalCompra.label_tag }}
-        {{ form.totalCompra }}
-        <br> 
-        {{ form.descu.label_tag }}
-        {{ form.descu}}
-        <br> 
-        {{ form.totalDescu.label_tag }}
-        {{ form.totalDescu }}
-        <br> 
-        {{ form.subtotal.label_tag }}
-        {{ form.subtotal }}
-        <br> 
-        {{ form.retencionIVAMH.label_tag }}
-        {{ form.retencionIVAMH }}
-        <br> 
-        {{ form.ivaRete1.label_tag }}
-        {{ form.ivaRete1 }}
-        <br> 
-        {{ form.reteRenta.label_tag }}
-        {{ form.reteRenta }}
-        <br> 
-        {{ form.totalPagar.label_tag }}
-        {{ form.totalPagar }}
-        <br> 
-        {{ form.totalLetras.label_tag }}
-        {{ form.totalLetras }}
-        <br> 
-        {{ form.condicionOperacion.label_tag }}
-        {{ form.condicionOperacion }}
-        <br> 
+        
         <div class="form-group row">
-            {% if form.pago.field.queryset.exists %}
-                <label for="{{ form.pago.id_for_label }}" class="col-md-2 control-label">{{ form.pago.label}}</label>
-                <div class="col-sm-8">
-                    {{ form.pago }}
-                </div>
-            {% else %}
-                <p> No hay Pagos disponibles para esta factura.</p>
-            {% endif %}
-            <div class="col-sm-2">
-                <a id="pago" href="{% url 'pagoCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Pago">
-                    <span class="material-symbols-outlined">
-                    add
-                    </span>
-                </a>
+            <label for="{{ form.totalCompra.id_for_label }}" class="col-md-2 control-label">{{ form.totalCompra.label }}</label>
+            <div class="col-sm-8">
+                {{ form.totalCompra }}
             </div>
         </div>
-        <br> 
-        {{ form.observaciones.label_tag }}
-        {{ form.observaciones }}
+        
+        <div class="form-group row">
+            <label for="{{ form.descu.id_for_label }}" class="col-md-2 control-label">{{ form.descu.label }}</label>
+            <div class="col-sm-8">
+                {{ form.descu }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.totalDescu.id_for_label }}" class="col-md-2 control-label">{{ form.totalDescu.label }}</label>
+            <div class="col-sm-8">
+                {{ form.totalDescu }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.subTotal.id_for_label }}" class="col-md-2 control-label">{{ form.subTotal.label }}</label>
+            <div class="col-sm-8">
+                {{ form.subTotal }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.retencionIVAMH.id_for_label }}" class="col-md-2 control-label">{{ form.retencionIVAMH.label }}</label>
+            <div class="col-sm-8">
+                {{ form.retencionIVAMH }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.ivaRete1.id_for_label }}" class="col-md-2 control-label">{{ form.ivaRete1.label }}</label>
+            <div class="col-sm-8">
+                {{ form.ivaRete1 }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.reteRenta.id_for_label }}" class="col-md-2 control-label">{{ form.reteRenta.label }}</label>
+            <div class="col-sm-8">
+                {{ form.reteRenta }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.totalPagar.id_for_label }}" class="col-md-2 control-label">{{ form.totalPagar.label }}</label>
+            <div class="col-sm-8">
+                {{ form.totalPagar }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.totalLetras.id_for_label }}" class="col-md-2 control-label">{{ form.totalLetras.label }}</label>
+            <div class="col-sm-8">
+                {{ form.totalLetras }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.condicionOperacion.id_for_label }}" class="col-md-2 control-label">{{ form.condicionOperacion.label }}</label>
+            <div class="col-sm-8">
+                {{ form.condicionOperacion }}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.pago.id_for_label }}" class="col-md-2 control-label">{{ form.pago.label }}</label>
+            <div class="col-sm-8">
+                {% if form.pago.field.queryset.exists %}
+                    {{ form.pago }}
+                {% else %}
+                    <p>No hay Pagos disponibles para esta factura.</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-2">
+                <a id="pago" href="{% url 'pagoCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Pago">
+                    <span class="material-symbols-outlined">add</span>
+                </a>
+                {% if pago_id %}
+                    <a id="pago" href="{% url 'pagoUpdate' pago_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Pago">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="{{ form.observaciones.id_for_label }}" class="col-md-2 control-label">{{ form.observaciones.label }}</label>
+            <div class="col-sm-8">
+                {{ form.observaciones }}
+            </div>
+        </div>
+        
         <br>
         <input type="hidden" name="origin" value="sujetoexlcuido"> 
         <input class="btn btn-success" type="submit" value="Guardar">

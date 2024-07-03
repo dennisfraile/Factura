@@ -4,8 +4,12 @@
     <h1>Direccion</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.complementoDireccion.label_tag }}
-        {{ form.complementoDireccion }}
+        <div class="form-group row">
+            <label for="{{ form.complementoDireccion.id_for_label }}" class="col-md-2 control-label">{{ form.complementoDireccion.label }}</label>
+            <div class="col-sm-8">
+                {{ form.complementoDireccion }}
+            </div>
+        </div>
         <div class="form-group row">
             {% if form.municipio.field.queryset.exists %}
                 <label for="{{ form.municipio.id_for_label }}" class="col-md-2 control-label">{{ form.municipio.label}}</label>
@@ -16,12 +20,17 @@
                 <P>No hay ningun municipio ingresado en el sistema.</P>
             {% endif %} 
             <div class="col-sm-2">
-                <a id="municipio" href="{% url 'municipioCreate' %}" 
+                <a id="municipio" href="{% url 'municipioCreate'%}?next={{ request.path }}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Municipio">
                     <span class="material-symbols-outlined">
                     add
                     </span>
                 </a>
+                {% if municipio_id %}
+                    <a id="municipio" href="{% url 'municipioUpdate' municipio_id %}?next={{ request.path }}" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Municipio">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
         <br>

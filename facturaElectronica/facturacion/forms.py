@@ -6,12 +6,29 @@ class PaisForm(forms.ModelForm):
     class Meta:
         model = Pais
         fields = ['codigo', 'valor']
+    def __init__(self, *args, **kwargs):
+        super(PaisForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class DepartamentoForm(forms.ModelForm):
 
     class Meta:
         model = Departamento
         fields = ['codigo', 'valor']
+    
+    def __init__(self, *args, **kwargs):
+        super(DepartamentoForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class MunicipioForm(forms.ModelForm):
 
@@ -24,45 +41,66 @@ class MunicipioForm(forms.ModelForm):
             'departamento': 'Departamento',
         }
         widgets = {
-            'codigo': forms.NumberInput(attrs={'class': 'form-control'}),
+            'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'valor': forms.TextInput(attrs={'class': 'form-control'}),
             'departamento': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(MunicipioForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class DireccionForm(forms.ModelForm):
-
+    
     class Meta:
         model = Direccion
         fields = ['complementoDireccion', 'municipio']
-        label = {
-            'complementoDireccion': 'Complemento de la direccion',
-            'municipio': 'Municipio',
-        }
-        widgets = {
-            'complementoDireccion' : forms.TextInput(attrs={'class': 'form-control'}),
-            'municipio': forms.Select(attrs={'class': 'form-control'}),
-        }
-
+    
+    def __init__(self, *args, **kwargs):
+        super(DireccionForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+           
+    
 class UnidadMedidaForm(forms.ModelForm):
 
     class Meta:
         model = UnidadMedida
         fields = ['codigo', 'valor']
+    
+    def __init__(self, *args, **kwargs):
+        super(UnidadMedidaForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class OperacionesSujetoExcluidoForm(forms.ModelForm):
-
-    class Meta:
-        model = OperacionesSujetoExcluido 
-        tipoItem: forms.ChoiceField(
+    tipoItem: forms.ChoiceField(
             choices=[
                ("1", "Bienes"),
                ("2", "Servicios"),
                ("3", "Ambos (Bienes y servicios)"),
                ("4", "Otros tributos por item")
-            ]
+            ],
+            widget=forms.Select(attrs={'class': 'form-control'}),
+            label="Tipo de item"
         ) # type: ignore
+    class Meta:
+        model = OperacionesSujetoExcluido 
         fields = [
-            'numItem','tipoItem','codigo','UniMedida','cantidad',
+            'numItem','tipoItem','codigo','uniMedida','cantidad',
             'montoDescu','compra','retencion','descripccion','precioUni'
             ]
         label = {
@@ -78,21 +116,37 @@ class OperacionesSujetoExcluidoForm(forms.ModelForm):
             'precioUni': 'Precio Unitario'
             }
         widgets = {
-            'numItem': forms.IntegerField(attrs={'class': 'form-control'}),
+            'numItem': forms.NumberInput(attrs={'class': 'form-control'}),
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'uniMedida': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad' : forms.IntegerField(attrs={'class': 'form-control'}),
-            'montoDescu' : forms.DecimalField(attrs={'class': 'form-control'}),
-            'compra' : forms.DecimalField(attrs={'class': 'form-control'}),
-            'retencion' : forms.DecimalField(attrs={'class': 'form-control'}),
-            'description' : forms.TextField(attrs={'class': 'form-control'}),
-            'precioUni' : forms.DecimalField(attrs={'class': 'form-control'})
+            'cantidad' : forms.NumberInput(attrs={'class': 'form-control'}),
+            'descripccion' : forms.Textarea(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        self.usuario = kwargs.pop('usuario', None)
+        super().__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput, forms.NumberInput, forms.DecimalField, forms.Textarea)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+
 class FormaPagoForm(forms.ModelForm):
 
     class Meta:
-        model: FormaPago
+        model = FormaPago
         fields = ['codigo', 'valor'] 
+    
+    def __init__(self, *args, **kwargs):
+        super(FormaPagoForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class PagoForm(forms.ModelForm):
 
@@ -103,7 +157,8 @@ class PagoForm(forms.ModelForm):
                 ("01", "Dias"),
                 ("02", "Meses"),
                 ("03", "Años")
-            ]
+            ],
+            widget=forms.Select(attrs={'class': 'form-control'}) 
         )
         fields = ['codigo', 'formaPago','montoPago','referencia','plazo','periodo']
         label = {
@@ -117,55 +172,85 @@ class PagoForm(forms.ModelForm):
         widgets ={
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'formaPago': forms.Select(attrs={'class': 'form-control'}),
-            'montoPago': forms.DecimalField(attrs={'class': 'form-control'}),
             'referencia': forms.TextInput(attrs={'class': 'form-control'}),
-            'periodo': forms.IntegerField(attrs={'class': 'form-control'}),
+            
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(PagoForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class ApendiceForm(forms.ModelForm):
 
     class Meta:
         model = Apendice
-        fields =['campo','etiqueta','valor']
-        label = {
-            'codigo': 'Codigo',
-            'etiqueta': 'Etiqueta',
-            'valor': 'Valor',
-        }
-        
+        fields =['campo','etiqueta','valor','sujetoExcluido','comprobanteDonacion']
         widgets = {
-            'codigo': forms.TextInput(attrs={'class': 'form-control'}),
+            'campo': forms.TextInput(attrs={'class': 'form-control'}),
             'etiqueta': forms.TextInput(attrs={'class': 'form-control'}),
             'valor': forms.TextInput(attrs={'class': 'form-control'}),
+            'sujetoExcluido': forms.Select(attrs={'class': 'form-control'}),
+            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        entidad = kwargs.pop('entidad', None)
+        super(ApendiceForm, self).__init__(*args, **kwargs)
+        if entidad:
+            self.fields['sujetoExcluido'].queryset = SujetoExcluido.objects.filter(entidad=entidad)
+            self.fields['comprobanteDonacion'].queryset = ComprobanteDonacion.objects.filter(entidad=entidad)
+        
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput, forms.NumberInput, forms.DecimalField, forms.Textarea)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class TipoDocumentoForm(forms.ModelForm):
 
     class Meta:
-        models = TipoDocumento
+        model = TipoDocumento
         fields =['codigo', 'valores']
+    
+    def __init__(self, *args, **kwargs):
+        super(TipoDocumentoForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class IdentificadorForm(forms.ModelForm):
 
     class Meta:
-        models = Identificador
+        model = Identificador
         ambiente = forms.ChoiceField(
             choices=[
                 ("00","Modo Prueba"),
                 ("01","Modo Produccion")
-            ]
+            ],
+            widget=forms.Select(attrs={'class': 'form-control'})  
         )
         tipoModelo = forms.ChoiceField(
             choices=[
                 ("1", "Modelo de Facturacion previo"),
                 ("2", "Modelo de Facturacion diferido")
-            ]
+            ],
+            widget=forms.Select(attrs={'class': 'form-control'})
         )
         tipoOperacion = forms.ChoiceField(
             choices=[
                ("1", "Transmision normal"),
                ("2", "Transmision por contingencia") 
-            ]
+            ],
+            widget=forms.Select(attrs={'class': 'form-control'})
         )
         tipoContingencia = forms.ChoiceField(
             choices=[
@@ -174,7 +259,8 @@ class IdentificadorForm(forms.ModelForm):
                ("3", "Falla en el suministro de servicio de Internet del Emisor"),
                ("4", "Falla en el suministro de servicio de energia electrica del emisor que impida la transmision de los DTE"),
                ("5", "Otro (debera digitar un maximo de 500 caracteres explicando el motivo)") 
-            ]
+            ],
+            widget=forms.Select(attrs={'class': 'form-control'})
         )
         fields ='__all__'
         label = {
@@ -185,25 +271,25 @@ class IdentificadorForm(forms.ModelForm):
             'tipoOperacion':'Tipo de transmicion',
             'tipoContingencia':'Tipo de contingencia',
             'motivoContin': 'Motivo de contingencia',
-            'fechaEmi':'Fecha de generacion',
             'tipoMoneda':'Tipo de moneda'
         }
         widgets = {
-            'version': forms.IntegerField(attrs={'class': 'form-control'}),
+            'version': forms.TextInput(attrs={'class': 'form-control'}),
             'tipoDte': forms.Select(attrs={'class': 'form-control'}),
             'motivoContin': forms.TextInput(attrs={'class': 'form-control'}),
-            'fechaEmi': forms.DateInput(attrs={'class': 'form-control'}),
             'tipoMoneda': forms.TextInput(attrs={'class': 'form-control'}),
         }
-
-class ReceptorForm(forms.Form):
     
-    direccionReceptor = forms.ModelChoiceField(queryset=Direccion.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Direccion del Receptor")
     def __init__(self, *args, **kwargs):
-        entidad = kwargs.pop('entidad',None)
-        super().__init__(*args, **kwargs)
-        if entidad:
-            self.fields['direccionReceptor'].queryset = Direccion.objects.filter(entidad=entidad)
+        super(IdentificadorForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+
+class ReceptorForm(forms.ModelForm):
             
     tipo = forms.ChoiceField(
         choices={
@@ -212,16 +298,18 @@ class ReceptorForm(forms.Form):
             ("37","Otro"),
             ("03","Pasaporte"),
             ("02","Carnet de Residente")
-        }
+        },
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     homologado = forms.ChoiceField(
         choices={
             ("DUI","Documento Homologado"),
             ("NIT","Documento No Homologado")
-        }
+        },
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:
-        models = Receptor
+        model = Receptor
         fields = ['tipo', 'homologado','numero', 'nombre', 'actividadEconomica', 'direccionReceptor','cellphone', 'email']
         label ={
             'tipo': 'Tipo', 
@@ -237,74 +325,111 @@ class ReceptorForm(forms.Form):
             'nombre': forms.TextInput(attrs={'class':'form-control'}),
             'actividadEconomica': forms.Select(attrs={'class':'form-control'}),
             'cellphone': forms.TextInput(attrs={'class':'form-control'}),
-            'email': forms.EmailField(attrs={'class':'form-control'}),
+            'email': forms.EmailInput(attrs={'class':'form-control'}),
         }
-
-class SujetoExcluidoForm(forms.Form):
     
-    identificador = forms.ModelChoiceField(queryset=Identificador.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Identificador")
-    receptor = forms.ModelChoiceField(queryset=Receptor.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Receptor")
-    pago = forms.ModelChoiceField(queryset=Pago.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Pago")
     def __init__(self, *args, **kwargs):
         entidad = kwargs.pop('entidad',None)
+        super(ReceptorForm, self).__init__(*args, **kwargs)
+        if entidad:
+            self.fields['direccionReceptor'].queryset = Direccion.objects.filter(entidad=entidad)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+    
+
+class SujetoExcluidoForm(forms.ModelForm):
+    
+    identificador = forms.ModelChoiceField(
+        queryset=Identificador.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Identificador"
+    )
+    receptor = forms.ModelChoiceField(
+        queryset=Receptor.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Receptor"
+    )
+    pago = forms.ModelChoiceField(
+        queryset=Pago.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Pago"
+    )
+    condicionOperacion = forms.ChoiceField(
+        choices=[
+            ("1", "Contado"),
+            ("2", "A credito"),
+            ("3", "Otro")
+        ],
+        label="Condición de Operación",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    retencionIVAMH = forms.ChoiceField(
+        choices=[
+            ("22", "Retención IVA 1%"),
+            ("C4", "Retención IVA 13%"),
+            ("C9", "Otras retenciones IVA casos especiales")
+        ],
+        label="Retención IVA MH",
+        widget=forms.Select(attrs={'class': 'form-control'}) 
+    )
+
+    class Meta:
+        model = SujetoExcluido
+        fields = '__all__'
+        labels = {
+            'totalCompra': 'Total de Operaciones',
+            'descu': 'Monto Global del Descuento',
+            'totalDescu': 'Total del monto de Descuento',
+            'subTotal': 'Subtotal',
+            'retencionIVAMH': 'Retención IVA MH',
+            'ivaRete1': 'IVA Retenido',
+            'reteRenta': 'Retención de Renta',
+            'totalPagar': 'Total a Pagar',
+            'totalLetras': 'Total en Letras',
+            'condicionOperacion': 'Condición de Operación',
+            'observaciones': 'Observaciones',
+        }
+        widgets = {
+            'totalCompra': forms.NumberInput(attrs={'class': 'form-control'}),
+            'descu': forms.NumberInput(attrs={'class': 'form-control'}),
+            'totalDescu': forms.NumberInput(attrs={'class': 'form-control'}),
+            'ivaRete1': forms.NumberInput(attrs={'class': 'form-control'}),
+            'reteRenta': forms.NumberInput(attrs={'class': 'form-control'}),
+            'totalPagar': forms.NumberInput(attrs={'class': 'form-control'}),
+            'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
+            'observaciones': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        entidad = kwargs.pop('entidad', None)
         super().__init__(*args, **kwargs)
         if entidad:
             self.fields['identificador'].queryset = Identificador.objects.filter(entidad=entidad)
             self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
             self.fields['pago'].queryset = Pago.objects.filter(identificador=entidad)
-    class Meta:
-        models = SujetoExcluido
-        condicionOperacion = forms.ChoiceField(
-            choices={
-                ("1", "Contado"),
-                ("2", "A credito"),
-                ("3", "Otro")
-            }
-        )
-        retencionIVAMH = forms.ChoiceField(
-            choices={
-                ("22", "Retencion IVA 1%"),
-                ("C4", "Retencion IVA 13%"),
-                ("C9", "Otras retenciones IVA casos especiales")
-            }
-        )
         
-        fields = '__all__'
-        label = {
-            'totalCompra':'Total de Operaciones',
-            'descu':'Monto Global del Descuento',
-            'totalDescu':'Total del monto de Descuento',
-            'subtotal':'Subtotal',
-            'retencionIVAMH':'Retencion IVA MH',
-            'ivaRete1':'Iva Retenido',
-            'reteRenta': 'Retencion de Renta',
-            'totalPagar':'Total a Pagar',
-            'totalLetras':'Total en Letras',
-            'condicionOperacion':'Condicion de Operacion',
-            'observaciones':'Observaciones',
-        }
-        widgets = {
-            'totalCompra': forms.DecimalField(attrs={'class': 'form-control'}),
-            'descu': forms.DecimalField(attrs={'class': 'form-control'}),
-            'totalDescu': forms.DecimalField(attrs={'class': 'form-control'}),
-            'subTotal': forms.DecimalField(attrs={'class': 'form-control'}),
-            'ivaRete1': forms.DecimalField(attrs={'class': 'form-control'}),
-            'reteRenta': forms.DecimalField(attrs={'class': 'form-control'}),
-            'totalPagar': forms.DecimalField(attrs={'class': 'form-control'}),
-            'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
-            'observaciones':forms.TextInput(attrs={'class': 'form-control'}),
-        }
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput, forms.NumberInput, forms.DecimalField)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
-class OtroDocumentoAsociadoForm(forms.Form):
+class OtroDocumentoAsociadoForm(forms.ModelForm):
     class Meta:
-        models = OtroDocumentoAsociado
+        model = OtroDocumentoAsociado
         codDocAsociado = forms.ChoiceField(
             choices={
                 ("1", "Emisor"),
                 ("2", "Receptor"),
                 ("3", "Medico"),
                 ("4", "Transporte")
-            }
+            },
+            widget=forms.Select(attrs={'class': 'form-control'}) 
         )
         fields = '__all__'
         label = {
@@ -315,19 +440,29 @@ class OtroDocumentoAsociadoForm(forms.Form):
         }
         widgets = {
             'descDocumento': forms.TextInput(attrs={'class': 'form-control'}),
-            'detalleDocumento': forms.TextInput(att={'class': 'form-control'}),
-            'comprobanteDonacion': forms.Select(att={'class': 'form-control'}),
+            'detalleDocumento': forms.TextInput(attrs={'class': 'form-control'}),
+            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(OtroDocumentoAsociadoForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
-class CuerpoDocumentoForm(forms.Form):
+class CuerpoDocumentoForm(forms.ModelForm):
     class Meta:
-        models = CuerpoDocumento
+        model = CuerpoDocumento
         tipoDonacion = forms.ChoiceField(
             choices={
                 ("1", "Efectivo"),
                 ("2", "Bien"),
                 ("3", "Servicio"),
-            }
+            },
+            widget=forms.Select(attrs={'class': 'form-control'}) 
         )
         fields = '__all__'
         label = {
@@ -346,20 +481,25 @@ class CuerpoDocumentoForm(forms.Form):
         }
         widgets = {
             'numItem': forms.NumberInput(attrs={'class': 'form-control'}),
-            'cantidad': forms.IntegerField(att={'class': 'form-control'}),
-            'codigo': forms.TextInput(att={'class': 'form-control'}),
-            'uniMedida': forms.Select(att={'class': 'form-control'}),
-            'descripccion': forms.TextInput(att={'class': 'form-control'}),
-            'depreciacion': forms.IntegerField(att={'class': 'form-control'}),
-            'montoDescu': forms.DecimalField(att={'class': 'form-control'}),
-            'valorUni': forms.DecimalField(att={'class': 'form-control'}),
-            'valor': forms.DecimalField(att={'class': 'form-control'}),
-            'comprobanteDonacion': forms.Select(att={'class': 'form-control'}),
+            'cantidad': forms.IntegerField(),
+            'codigo': forms.TextInput(attrs={'class': 'form-control'}),
+            'uniMedida': forms.Select(attrs={'class': 'form-control'}),
+            'descripccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(CuerpoDocumentoForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput, forms.NumberInput, forms.DecimalField)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
-class PagoDonacionForm(forms.Form):
+class PagoDonacionForm(forms.ModelForm):
     class Meta:
-        models = PagoDonacion
+        model = PagoDonacion
         fields = '__all__'
         label = {
             'codigo': 'Codigo de Forma de Pago',
@@ -368,11 +508,19 @@ class PagoDonacionForm(forms.Form):
         }
         widgets = {
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
-            'montoPago': forms.DecimalField(attrs={'class': 'form-control'}),
             'referencia': forms.TextInput(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(PagoDonacionForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
-class ComprobanteDonacionForm(forms.Form):
+class ComprobanteDonacionForm(forms.ModelForm):
     identificador = forms.ModelChoiceField(queryset=Identificador.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Identificador")
     receptor = forms.ModelChoiceField(queryset=Receptor.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Receptor")
     pagoDonacion = forms.ModelChoiceField(queryset=PagoDonacion.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Pago Donacion")
@@ -384,12 +532,13 @@ class ComprobanteDonacionForm(forms.Form):
             self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
             self.fields['pagoDonacion'].queryset = PagoDonacion.objects.filter(identificador=entidad)
     class Meta:
-        models = ComprobanteDonacion
+        model = ComprobanteDonacion
         codDomiciliado = forms.ChoiceField(
             choices = {
                 ("1", "Domiciliado"),
                 ("2", "No Domiciliado"),
-            }
+            },
+            widget=forms.Select(attrs={'class': 'form-control'})
         )
         fields = '__all__'
         label = {
@@ -401,10 +550,18 @@ class ComprobanteDonacionForm(forms.Form):
             'totalLetras': 'Total en Letras',
         }
         widgets = {
-            'identificador': forms.Select(att={'class': 'form-control'}),
-            'emisor':forms.Select(att={'class': 'form-control'}),
-            'codPais': forms.Select(att={'class': 'form-control'}),
-            'valorTotal': forms.DateTimeField(attrs={'class': 'form-control'}),
+            'identificador': forms.Select(attrs={'class': 'form-control'}),
+            'emisor':forms.Select(attrs={'class': 'form-control'}),
+            'codPais': forms.Select(attrs={'class': 'form-control'}),
             'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
             
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(ComprobanteDonacionForm, self).__init__(*args, **kwargs)
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})

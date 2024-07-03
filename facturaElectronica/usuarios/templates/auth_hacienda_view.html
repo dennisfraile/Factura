@@ -1,11 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Parametros de Auth Hacienda</h1>
-    <label for="userAgent">User Agent</label>
-    <input name="userAgent" type="text" readonly value="{{ parametro.userAgent }}">
-    <label for="nit">NIT</label>
-    <input name="nit" type="text" readonly value="{{ parametro.nit }}">
-
-    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+<div class="container-fluid py-5">
+    <div class="container-fluid">
+        <a id="emisor" href="{% url 'createParametrosHacienda' %}?next={{ request.path }}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Parametros de Hacienda">
+            <span class="material-symbols-outlined">
+              add
+            </span>
+        </a>
+        {% if parametro %}
+            <<a id="emisor" href="{% url 'updateParametrosHacienda' parametro.pk %}?next={{ request.path }}" 
+                class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Parametros de Hacienda">
+                <span class="material-symbols-outlined">
+                edit
+                </span>
+            </a>>
+        {% endif %}
+    </div>
+    <div class="table-responsive">
+        {% if object %}
+            <div class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
+                <h1>Parametros de Auth Hacienda</h1>
+                <label for="userAgent">User Agent</label>
+                <input name="userAgent" type="text" readonly value="{{ parametro.userAgent }}">
+                <label for="nit">NIT</label>
+                <input name="nit" type="text" readonly value="{{ parametro.nit }}">
+                <h2>Private Key</h2>
+                <p>{{ parametro.privateKey }}
+                    
+                </P>
+                <h2>Public Key</h2>
+                <p>{{ parametro.publicKey }}</p>
+            </div>
+        {% else %}
+            <p> {{ parametro }} </p>
+        {% endif %}
+    </div>
+    <br>
+    <a href="{% url 'panel_administrativo' %}" class="btn btn-danger">Regresar</a>
+</div>
 {% endblock %}
