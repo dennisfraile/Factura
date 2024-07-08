@@ -52,7 +52,7 @@ urlpatterns = [
     path('factura/tipoDocumentoUpdate/<int:pk>', views.TipoDocumentoUpdateView.as_view(), name='tipoDocumentoUpdate'),
     
     path('factura/identificador', views.IdentificadorView.as_view(), name='index_identificador'),
-    path('factura/identificadorCreate', views.IdentificadorCreateView.as_view(), name='identificadorCreate'),
+    path('factura/identificadorCreate/<int:pk>', views.IdentificadorCreateView.as_view(), name='identificadorCreate'),
     path('factura/identificadorUpdate/<int:pk>', views.IdentificadorUpdateView.as_view(), name='identificadorUpdate'),
     
     path('factura/receptor', views.ReceptorView.as_view(), name='index_receptor'),

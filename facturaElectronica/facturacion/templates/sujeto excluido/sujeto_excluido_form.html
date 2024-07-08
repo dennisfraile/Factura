@@ -6,29 +6,6 @@
         {% csrf_token %}
         
         <div class="form-group row">
-            <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label }}</label>
-            <div class="col-sm-8">
-                {% if form.identificador.field.queryset.exists %}
-                    {{ form.identificador }}
-                {% else %}
-                    <p>No hay identificadores disponibles</p>
-                {% endif %}
-            </div>
-            <div class="col-sm-2">
-                <a id="identificador" href="{% url 'identificadorCreate' %}?next={{ request.path }}" 
-                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
-                    <span class="material-symbols-outlined">add</span>
-                </a>
-                {% if identificador_id %}
-                    <a id="identificador" href="{% url 'identificadorUpdate' identificador_id %}?next={{ request.path }}" 
-                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Identificador">
-                        <span class="material-symbols-outlined">edit</span>
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="form-group row">
             <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label }}</label>
             <div class="col-sm-8">
                 {% if form.receptor.field.queryset.exists %}

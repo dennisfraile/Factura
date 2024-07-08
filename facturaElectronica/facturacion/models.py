@@ -109,53 +109,6 @@ class TipoDocumento(models.Model):
     def __str__(self):
         return f'{self.codigo}'
 
-def generateNumeroControl():
-    part1 = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-    part2 = ''.join(random.choices(string.digits, k=15))
-    return f'DTE-14-{part1}-{part2}'
-
-
-class Identificador(models.Model):
-  
-    AMBIENTE_DESTINO = (
-        ("00","Modo Prueba"),
-        ("01","Modo Produccion")
-    )
-    MODELO_FACTURACION = (
-        ("1", "Modelo de Facturacion previo"),
-        ("2", "Modelo de Facturacion diferido")
-    )
-    TIPO_TRANSMICION = (
-        ("1", "Transmision normal"),
-        ("2", "Transmision por contingencia")
-    )
-    TIPO_CONTINGENCIA = (
-        ("1", "No disponibilidad de sistema del MH"),
-        ("2", "No disponibilidad de sistema del emisor"),
-        ("3", "Falla en el suministro de servicio de Internet del Emisor"),
-        ("4", "Falla en el suministro de servicio de energia electrica del emisor que impida la transmision de los DTE"),
-        ("5", "Otro (debera digitar un maximo de 500 caracteres explicando el motivo)")
-    )
-    #Identificacion
-    version = models.CharField(verbose_name="Version", max_length=10)
-    ambiente = models.CharField(verbose_name="Ambiente de destino", max_length=20, choices=AMBIENTE_DESTINO)
-    tipoDte = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
-    numeroControl = models.CharField(verbose_name="Numero de control", editable=False , max_length=31, default=generateNumeroControl)
-    codigoGeneracion = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    tipoModelo = models.CharField(verbose_name="Modelo de facturacion", choices=MODELO_FACTURACION, max_length=50)
-    tipoOperacion = models.CharField(verbose_name="Tipo de Transmicion", choices=TIPO_TRANSMICION, max_length=50)
-    tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia", choices=TIPO_CONTINGENCIA, max_length=50)
-    motivoContin = models.CharField(verbose_name="Motivo de Contingencia", max_length=500)
-    tipoMoneda = models.CharField(verbose_name="Tipo de Moneda", max_length=30) 
-    
-    #Entidad a la que pertenece
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False) 
-    
-    class Meta:
-        verbose_name_plural = "Identificaciones"
-
-    def __str__(self):
-        return f'{self.version}'
 
 class Receptor(models.Model):
 
@@ -202,9 +155,6 @@ class SujetoExcluido(models.Model):
         ("C4", "Retencion IVA 13%"),
         ("C9", "Otras retenciones IVA casos especiales")
     )
-   
-    #Identificador
-    identificador = models.ForeignKey(Identificador, on_delete=models.CASCADE)
     
     #Emisor
     emisor = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
@@ -306,8 +256,6 @@ class ComprobanteDonacion(models.Model):
         ("1", "Domiciliado"),
         ("2", "No Domiciliado"),
     )
-    #Identificador
-    identificador = models.ForeignKey(Identificador, on_delete=models.CASCADE) 
 
     #Donatorio
     emisor = models.ForeignKey(Entidad, on_delete=models.CASCADE)
@@ -321,6 +269,7 @@ class ComprobanteDonacion(models.Model):
     valorTotal = models.DecimalField(verbose_name="Total de la donacion", max_digits=12, decimal_places=2)
     totalLetras = models.CharField(verbose_name="Total en letras", max_length=200)
     pago = models.ForeignKey(PagoDonacion, on_delete=models.CASCADE)
+    fecha = models.DateField(verbose_name="Fecha", auto_now_add=True)
     fechaTransmicion = models.DateTimeField(verbose_name="Fecha de Transmicion",auto_now_add=True)
     #Si ya fue transmitido el comprobante de donacion
     transmitido = models.BooleanField(default=False, editable=False)
@@ -382,6 +331,61 @@ class CuerpoDocumento(models.Model):
 
     def __str__(self):
         return f'{self.numItem}'
+
+def generateNumeroControl():
+    part1 = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    part2 = ''.join(random.choices(string.digits, k=15))
+    return f'DTE-14-{part1}-{part2}'
+
+
+class Identificador(models.Model):
+  
+    AMBIENTE_DESTINO = (
+        ("00","Modo Prueba"),
+        ("01","Modo Produccion")
+    )
+    MODELO_FACTURACION = (
+        ("1", "Modelo de Facturacion previo"),
+        ("2", "Modelo de Facturacion diferido")
+    )
+    TIPO_TRANSMICION = (
+        ("1", "Transmision normal"),
+        ("2", "Transmision por contingencia")
+    )
+    TIPO_CONTINGENCIA = (
+        ("1", "No disponibilidad de sistema del MH"),
+        ("2", "No disponibilidad de sistema del emisor"),
+        ("3", "Falla en el suministro de servicio de Internet del Emisor"),
+        ("4", "Falla en el suministro de servicio de energia electrica del emisor que impida la transmision de los DTE"),
+        ("5", "Otro (debera digitar un maximo de 500 caracteres explicando el motivo)")
+    )
+    #Identificacion
+    version = models.CharField(verbose_name="Version", max_length=10)
+    ambiente = models.CharField(verbose_name="Ambiente de destino", max_length=20, choices=AMBIENTE_DESTINO)
+    tipoDte = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
+    numeroControl = models.CharField(verbose_name="Numero de control", editable=False , max_length=31, default=generateNumeroControl)
+    codigoGeneracion = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    tipoModelo = models.CharField(verbose_name="Modelo de facturacion", choices=MODELO_FACTURACION, max_length=50)
+    tipoOperacion = models.CharField(verbose_name="Tipo de Transmicion", choices=TIPO_TRANSMICION, max_length=50)
+    tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia", choices=TIPO_CONTINGENCIA, max_length=50)
+    motivoContin = models.CharField(verbose_name="Motivo de Contingencia", max_length=500)
+    tipoMoneda = models.CharField(verbose_name="Tipo de Moneda", max_length=30) 
+    
+    #Sujeto Excluido
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False, null=True, blank=True)
+    
+    #Comprobante de Donacion
+    comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, on_delete=models.CASCADE, editable=False, null=True, blank=True)
+    
+    #Entidad a la que pertenece
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False) 
+    
+    class Meta:
+        verbose_name_plural = "Identificaciones"
+
+    def __str__(self):
+        return f'{self.version}'
+
     
 class Apendice(models.Model):
 

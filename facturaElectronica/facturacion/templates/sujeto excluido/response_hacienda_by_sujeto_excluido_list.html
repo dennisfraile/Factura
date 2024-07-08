@@ -8,10 +8,8 @@
             <tr>
                 <th>Nombre</th>
                 <th>Datos JSON</th>
-                <th>Sujeto Excluido</th>
-                <th>Comprobante Donación</th>
                 <th>Status Code</th>
-                <th>Error Message</th>
+                <th>Message</th>
                 <th>Fecha y Hora</th>
             </tr>
         </thead>
@@ -20,17 +18,22 @@
             <tr>
                 <td>{{ response.nombre }}</td>
                 <td>{{ response.datosJson }}</td>
-                <td>{{ response.sujetoExcluido }}</td>
-                <td>{{ response.comprobanteDonacion }}</td>
                 <td>{{ response.status_code }}</td>
-                <td>{{ response.error_message }}</td>
-                <td>{{ response.created_at }}</td>
+                <td>{{ response.message }}</td>
+                <td>{{ response.created }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     <br>
-    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+    <div class="row mt-4">
+        <div class="col-md-4 text-start">
+            <a href="javascript:history.back()" class="btn btn-danger d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-2">arrow_back</span>
+                <span>Regresar</span>
+            </a>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

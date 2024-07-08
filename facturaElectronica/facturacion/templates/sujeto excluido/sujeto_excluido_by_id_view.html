@@ -14,7 +14,7 @@
 <div class="container py-5">
   <div class="row">
     <div class="col-md-12">
-      <h3 class="display-5 fw-bold">Detalle del sujeto excluido {{object.identificador.version}}
+      <h3 class="display-5 fw-bold">Detalle del sujeto excluido {{identificador.version}}
       {% if not sujetoExcluido.transmitido %}
         <a id="tramite" href="{% url 'sujetoExcluidoUpdateView' object.id %}?next={{ request.path }}" 
             class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Sujeto Excluido">
@@ -30,49 +30,64 @@
   <div class="row mt-4">
     <div class="col-md-12">
       <div class="table-responsive">
-        {% if sujetoExcluido %}
-          <h2>Identificación</h2>
+        {% if identificador %}
+          <h2>Identificador</h2>
+          <a id="identificador" href="{% url 'identificadorUpdate' sujetoExcluido.id %}?next={{ request.path }}" 
+          class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar el Identificador de la Factura">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
           <table class="table table-bordered">
             <tbody>
               <tr>
                 <td><strong>Versión</strong></td>
-                <td>{{ sujetoExcluido.identificador.version }}</td>
+                <td>{{ identificador.version }}</td>
                 <td><strong>Ambiente de destino</strong></td>
-                <td>{{ sujetoExcluido.identificador.ambiente }}</td>
+                <td>{{ identificador.ambiente }}</td>
               </tr>
               <tr>
                 <td><strong>Tipo de documento</strong></td>
-                <td>{{ sujetoExcluido.identificador.tipoDte.valores }}</td>
+                <td>{{ identificador.tipoDte.valores }}</td>
                 <td><strong>Número de Control</strong></td>
-                <td>{{ sujetoExcluido.identificador.numeroControl }}</td>
+                <td>{{ identificador.numeroControl }}</td>
               </tr>
               <tr>
                 <td><strong>Código de Generación</strong></td>
-                <td>{{ sujetoExcluido.identificador.codigoGeneracion }}</td>
+                <td>{{ identificador.codigoGeneracion }}</td>
                 <td><strong>Modelo de Facturación</strong></td>
-                <td>{{ sujetoExcluido.identificador.tipoModelo }}</td>
+                <td>{{ identificador.tipoModelo }}</td>
               </tr>
               <tr>
                 <td><strong>Tipo de Transmisión</strong></td>
-                <td>{{ sujetoExcluido.identificador.tipoOperacion }}</td>
+                <td>{{ identificador.tipoOperacion }}</td>
                 <td><strong>Tipo de Contingencia</strong></td>
-                <td>{{ sujetoExcluido.identificador.tipoContingencia }}</td>
+                <td>{{ identificador.tipoContingencia }}</td>
               </tr>
               <tr>
                 <td><strong>Motivo de Contingencia</strong></td>
-                <td>{{ sujetoExcluido.identificador.motivoContin }}</td>
+                <td>{{ identificador.motivoContin }}</td>
                 <td><strong>Fecha de Generación</strong></td>
                 <td>{{ sujetoExcluido.fecha }}</td>
               </tr>
               <tr>
                 <td><strong>Tipo de Moneda</strong></td>
-                <td>{{ sujetoExcluido.identificador.tipoMoneda }}</td>
+                <td>{{ identificador.tipoMoneda }}</td>
                 <td></td>
                 <td></td>
               </tr>
             </tbody>
           </table>
         {% endif %}
+        {% if not Identificador %}
+        <a id="identificador" href="{% url 'identificadorCreate' sujetoExcluido.id %}?next={{ request.path }}" 
+          class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar el Identificador a la Factura">
+            <span class="material-symbols-outlined">
+              list_alt_add
+            </span>
+        </a>
+        <p>No se a ingresado un identificador para este  sujeto excluido</p>
+      {% endif %}
       </div>
     </div>
   </div>
@@ -311,16 +326,17 @@
 
   <div class="row mt-4">
     <div class="col-md-6 text-start">
-      <a href="javascript:history.back()" class="btn btn-primary d-inline-flex align-items-center">
+      <a href="{{ next }}" class="btn btn-primary d-inline-flex align-items-center">
         <span class="material-symbols-outlined me-2">arrow_back</span>
         <span>Regresar</span>
       </a>
     </div>
     <div class="col-md-6 text-end">
-      <a href="{% url 'transmitirSujetoExcluido' sujetoExcluido.id %}?next={{ request.path }}" class="btn btn-success d-inline-flex align-items-center">
-        <span class="material-symbols-outlined me-2">send</span>
-        <span>Transmitir</span>
-      </a>
+      <form action="{% url 'transmitirSujetoExcluido' sujetoExcluido.id %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="origin" value="sujetoExcluido">
+        <button type="submit" class="btn btn-success d-inline-flex align-items-center"><span class="material-symbols-outlined me-2">send</span>Transmitir</button>
+      </form>
     </div>
   </div>
 </div>

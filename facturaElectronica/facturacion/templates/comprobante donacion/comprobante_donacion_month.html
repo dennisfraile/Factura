@@ -11,17 +11,17 @@
       {% endfor %}
     {% endif %}
     <div class="card-body">
-      <h4 class="display-5 fw-bold float-start">Listado de facturas de sujeto excluido mensuales - {{ month|date:"M Y" }}</h4>
-      <a id="sujeto" href="{% url 'sujetoExcluidoCreateView' %}?next={{ request.path }}" 
-        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nueva Factura Sujeto Excluido">
+      <h4 class="display-5 fw-bold float-start">Listado de facturas de comprobantes de donacion mensuales - {{ month|date:"M Y" }}</h4>
+      <a id="comprobante" href="{% url 'comprobanteDonacionCreateView' %}?next={{ request.path }}" 
+        class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nuevo Comprobante de Donacion">
         <span class="material-symbols-outlined">
           list_alt_add
         </span>
       </a>
     </div>
     <p class="col-md-8 fs-4">
-      Esta vista despliega los datos de las facturas de sujeto excluido.
-      Haz clic sobre la que sea de tu interés para ver los datos concretos.
+      Esta vista despliega los datos de los Comprobantes de Donacion.
+      Haz clic sobre el que sea de tu interés para ver los datos concretos.
     </p>
     <div class="row mt-4">
       <div class="col-md-12">
@@ -34,7 +34,7 @@
               <th scope="col">Emisor</th>
               <th scope="col">Receptor</th>
               <th scope="col">Total a pagar</th>
-              <th scope="col">Periodo</th>
+              <th scope="col">Monto de la Forma de Pago</th>
               <th scope="col">Transmitido</th>
               <th scope="col" class="text-center">Responses</th>
             </tr>
@@ -43,18 +43,18 @@
             {% if object_list %}
               {% for registro in object_list %}
                   <tr>
-                    <th scope="row" class="text-center"><a href="{% url 'sujetoExcluidoDetailView' pk=registro.pk %}?next={{ request.path }}">{{ registro.id }}</a></th>
-                    <td class="text-center">{{ registro.identificador.version }}</td>
+                    <th scope="row" class="text-center"><a href="{% url 'comprobanteDonacionDetailView' pk=registro.pk %}?next={{ request.path }}">{{ registro.id }}</a></th>
+                    <td class="text-center">{{ identificador.version }}</td>
                     <td>{{ registro.fecha }}</td>
                     <td>{{ registro.emisor.razonSocial }}</td>
                     <td>{{ registro.receptor.nombre }}</td>
-                    <td class="text-center">{{ registro.totalPagar }}</td>
-                    <td class="text-center">{{ registro.pago.periodo }}</td>
+                    <td class="text-center">{{ registro.valorTotal }}</td>
+                    <td class="text-center">{{ registro.pago.montoPago }}</td>
                     <td class="text-center">
                       <div class="transmitido-status {% if registro.transmitido %}transmitido{% else %}no-transmitido{% endif %}"></div>
                     </td>
                     <td class="text-center">
-                      <a id="sujeto" href="{% url 'response_hacienda_by_sujeto_excluido_list' registro.id %}" 
+                      <a id="sujeto" href="{% url 'response_hacienda_by_comprobante_donacion_list' registro.id %}" 
                         class="btn btn-warning d-inline-flex align-items-center"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Responses">
                         <span class="material-symbols-outlined me-2">
                           description
@@ -66,7 +66,7 @@
               {% endfor %}
             {% else %}
               <tr>
-                <th scope="row" colspan="9" class="text-center">No hay Facturas Ingresadas.</th>
+                <th scope="row" colspan="9" class="text-center">No hay Comprobantes Ingresados.</th>
               </tr>
             {% endif %}
           </tbody>
@@ -75,7 +75,7 @@
     </div>
     <div class="row mt-4">
       <div class="col-md-4 text-start">
-        <a href="{% url 'sujetoExcluidoMonth' year=next_month|date:'Y' month=next_month|date:'m' %}" class="btn btn-primary d-inline-flex align-items-center" 
+        <a href="{% url 'comprobanteDonacionMonth' year=next_month|date:'Y' month=next_month|date:'m' %}" class="btn btn-primary d-inline-flex align-items-center" 
           role="button" aria-pressed="true">
           <span class="material-symbols-outlined me-2">arrow_back</span>
           <span>Siguiente mes</span>
@@ -90,7 +90,7 @@
         </a>
       </div> 
       <div class="col-md-4 text-end">
-        <a href="{% url 'sujetoExcluidoMonth' year=previous_month|date:'Y' month=previous_month|date:'m' %}" class="btn btn-secondary d-inline-flex align-items-center" 
+        <a href="{% url 'comprobanteDonacionMonth' year=previous_month|date:'Y' month=previous_month|date:'m' %}" class="btn btn-secondary d-inline-flex align-items-center" 
             role="button" aria-pressed="true">
             <span class="material-symbols-outlined me-2">
               arrow_forward

@@ -30,6 +30,10 @@ from django.core.mail import EmailMessage
 from io import BytesIO
 from email.mime.application import MIMEApplication
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from decimal import Decimal
+from uuid import UUID
+import datetime
 # Create your views here.
 
 @login_required(redirect_field_name='/ingresar')
@@ -398,7 +402,7 @@ class SujetoExcluidoMonthView(LoginRequiredMixin,MonthArchiveView):
 
     def get_context_data(self, **kwargs) :
         context = super().get_context_data(**kwargs)
-        sujeto = SujetoExcluido.objects.all()
+        sujeto = SujetoExcluido.objects.all(entidad=self.request.user.entidad)
         context['registro'] = sujeto
         return context
 
@@ -416,13 +420,19 @@ class SujetoExcluidoDetailView(LoginRequiredMixin,DetailView):
         sujetoExcluido = self.object  # Obtenemos el objeto SujetoExcluido actual
         
         try:
-            # Intentamos obtener OperacionesSujetoExcluido y Apendice si existen
+            # Intentamos obtener Identificador, OperacionesSujetoExcluido y Apendice si existen
+            identificador = Identificador.objects.filter(sujetoExcluido=sujetoExcluido)
             operaciones_sujeto_excluido = OperacionesSujetoExcluido.objects.filter(sujetoExcluido=sujetoExcluido)
             apendice = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
             
+            context['identificador'] = identificador
             context['operacionesSujetoExcluido'] = operaciones_sujeto_excluido
             context['apendices'] = apendice
             context['show'] = True
+        
+        except identificador.DoesNotExist:
+            #Si no hay Identificador, asignamos None al contexto
+            context['identificador'] = None
             
         except OperacionesSujetoExcluido.DoesNotExist:
             # Si no hay OperacionesSujetoExcluido, asignamos None al contexto
@@ -732,6 +742,15 @@ class IdentificadorCreateView(LoginRequiredMixin,CreateView):
         return super().get_success_url()
     
     def form_valid(self, form):
+        origin = self.request.POST.get('origin')
+        id = self.kwargs.get('pk')
+        
+        if origin == 'sujetoExcluido':
+            sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
+            form.instance.sujetoExcluido = sujetoExcluido
+        else:
+            comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+            form.instance.comprobanteDonacion = comprobanteDonacion
         # Asignar la entidad actual al formulario antes de guardarlo
         form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
         return super().form_valid(form)
@@ -850,22 +869,22 @@ class OtroDocumentoAsociadoCreateView(LoginRequiredMixin,CreateView):
     form_class = OtroDocumentoAsociadoForm
     
     def get_success_url(self):
-        p = self.kwargs
-        id = p.get("pk")
-        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        id=self.kwargs.get("pk")
-        codDocAsociado = request.POST.get('codDocAsociado')
-        descDocumento = request.POST.get('descDocumento')
-        detalleDocumento = request.POST.get('detalleDocumento')
-        user = request.user
-        entidad = user.Usuarios.all()
-        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
-        otroDocumentoAsociado = OtroDocumentoAsociado.objects.create(codDocAsociado=codDocAsociado, descDocumento=descDocumento, detalleDocumento=detalleDocumento,
-                                                                     comprobanteDonacion=comprobanteDonacion,entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado un nuevo comprobante de donacion con exito con exito")
-        return redirect(self.get_success_url())
+    def form_valid(self, form):
+        id=self.kwargs.get("id")
+        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, id=id)
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        form.instance.comprobanteDonacion = comprobanteDonacion
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
     
 
 class OtroDocumentoAsociadoUpdateView(LoginRequiredMixin, UpdateView):
@@ -874,18 +893,19 @@ class OtroDocumentoAsociadoUpdateView(LoginRequiredMixin, UpdateView):
     form_class = OtroDocumentoAsociadoForm
     
     def get_success_url(self):
-        p = self.kwargs
-        id = p.get("pk")
-        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
+
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
     
-    def post(self, request, *args, **kwargs):
-        id=self.kwargs.get("pk")
-        codDocAsociado = request.POST.get('codDocAsociado')
-        descDocumento = request.POST.get('descDocumento')
-        detalleDocumento = request.POST.get('detalleDocumento')
-        otroDocumentoAsociado = OtroDocumentoAsociado.objects.filter(id=id).update(codDocAsociado=codDocAsociado, descDocumento=descDocumento, detalleDocumento=detalleDocumento)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito con exito")
-        return redirect(self.get_success_url())
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
 
 class CuerpoDocumentoView(LoginRequiredMixin,View):
     
@@ -906,32 +926,32 @@ class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
     form_class = CuerpoDocumentoForm
     
     def get_success_url(self):
-        p = self.kwargs
-        id = p.get("pk")
-        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        id=self.kwargs.get("pk")
-        numItem = request.POST.get('numItem')
-        tipoDonacion = request.POST.get('tipoDonacion')
-        cantidad = request.POST.get('cantidad')
-        codigo = request.POST.get('codigo')
-        unidadMedidaId = request.POST.get('unidadMedida')
-        unidadMedida = get_object_or_404(UnidadMedida, id=unidadMedidaId)
-        descripccion = request.POST.get('descripccion')
-        depreciacion = request.POST.get('depreciacion')
-        montoDescu = request.POST.get('montoDescu')
-        valorUni = request.POST.get('valorUni')
-        valor = request.POST.get('valor')
-        user = request.user
-        entidad = user.Usuarios.all()
-        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
-        cuerpoDocumento = CuerpoDocumento.objects.create(numItem=numItem, tipoDonacion=tipoDonacion, cantidad=cantidad, codigo=codigo,
-                                                         uniMedida=unidadMedida, descripccion=descripccion, depreciacion=depreciacion,
-                                                         montoDescu=montoDescu, valorUni=valorUni, valor=valor, entidad=entidad, comprobanteDonacion=comprobanteDonacion)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el cuerpo del documento con exito")
-        return redirect(self.get_success_url())
-
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['unidadMedida'] = self.request.GET.get('unidadMedida')
+        return initial
+    
+    def form_valid(self, form):
+        id=self.kwargs.get("id")
+        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, id=id)
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        form.instance.comprobanteDonacion = comprobanteDonacion
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unidadMedida_id'] = self.request.GET.get('unidadMedida_id')
+        return context
+    
 class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'cuerpo_documento_form.html'
@@ -939,28 +959,23 @@ class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     model = CuerpoDocumento
     
     def get_success_url(self):
-        p = self.kwargs
-        id = p.get("pk")
-        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        id = self.kwargs['pk']
-        numItem = request.POST.get('numItem')
-        tipoDonacion = request.POST.get('tipoDonacion')
-        cantidad = request.POST.get('cantidad')
-        codigo = request.POST.get('codigo')
-        unidadMedidaId = request.POST.get('unidadMedida')
-        unidadMedida = get_object_or_404(UnidadMedida, id=unidadMedidaId)
-        descripccion = request.POST.get('descripccion')
-        depreciacion = request.POST.get('depreciacion')
-        montoDescu = request.POST.get('montoDescu')
-        valorUni = request.POST.get('valorUni')
-        valor = request.POST.get('valor')
-        cuerpoDocumento = CuerpoDocumento.objects.filter(id=id).update(numItem=numItem, tipoDonacion=tipoDonacion, cantidad=cantidad, codigo=codigo,
-                                                         uniMedida=unidadMedida, descripccion=descripccion, depreciacion=depreciacion,
-                                                         montoDescu=montoDescu, valorUni=valorUni, valor=valor)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el cuerpo del documento con exito")
-        return redirect(self.get_success_url())
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unidadMedida_id'] = self.object.unidadMedida.id if self.object.unidadMedida else None
+        return context
 
 class PagoDonacionView(LoginRequiredMixin,View):
     
@@ -982,19 +997,19 @@ class PagoDonacionCreateView(LoginRequiredMixin,CreateView):
     model = PagoDonacion
     
     def get_success_url(self):
-        id=self.kwargs.get("pk")
-        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        pk=self.kwargs.get("pk")
-        codigo = request.POST.get('codido')
-        montoPago = request.POST.get('montoPago')
-        referencia = request.POST.get('referencia')
-        user = request.user
-        entidad = user.Usuarios.all()
-        pagoDonacion = PagoDonacion.objects.create(codigo=codigo, montoPago=montoPago, referencia=referencia,entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado un pago a donacion con exito")
-        return redirect(self.get_success_url())
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
 
 class PagoDonacionUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
@@ -1003,29 +1018,32 @@ class PagoDonacionUpdateView(LoginRequiredMixin, UpdateView):
     model = PagoDonacion
     
     def get_success_url(self):
-        return reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk': id})
-
-    def post(self, request, *args, **kwargs):
-        id = self.kwargs['pk']
-        codigo = request.POST.get('codido')
-        montoPago = request.POST.get('montoPago')
-        referencia = request.POST.get('referencia')
-        pagoDonacion = PagoDonacion.objects.filter(id=id).update(codigo=codigo, montoPago=montoPago, referencia=referencia)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado un pago a donacion con exito")
-        return redirect(self.get_success_url())
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
+    
+    def form_valid(self, form):
+        # Asegúrate de que la entidad no se modifique durante la actualización
+        form.instance.entidad = self.request.user.entidad
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
 class ComprobanteDonacionMonthView(LoginRequiredMixin,MonthArchiveView):
     """Muestra la lista de sujetos excluidos por mes"""
 
     login_url='/ingresar/'
-    data_field = "fechaTransmicion"
-    template_name='comprobante_donacion_month.html'
+    data_field = "fecha"
+    queryset = ComprobanteDonacion.objects.all()
+    template_name='comprobante donacion/comprobante_donacion_month.html'
     allow_empty = True
     allow_future = True
 
     def get_context_data(self, **kwargs) :
-        context = super(ComprobanteDonacionMonthView, self).get_context(**kwargs)
-        comprobante = ComprobanteDonacion.objects.all()
+        context = super().get_context(**kwargs)
+        comprobante = ComprobanteDonacion.objects.all(entidad=self.request.user.entidad)
         context['registro'] = comprobante
         return context
 
@@ -1033,87 +1051,109 @@ class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
     """Muestra los datos de un comprobante de donacion en especifico"""
 
     login_url = '/ingresar/'
-    template_name = 'comprobante_donacion_by_id_view.html'
+    template_name = 'comprobante donacion/comprobante_donacion_by_id_view.html'
     model = ComprobanteDonacion
+    context_object_name = 'comprobanteDonacion'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        comprobanteDonacion = ComprobanteDonacion.objects.filter(id=context['object'].id)
-        otroDocumentoAsociado = OtroDocumentoAsociado.objects.filter(id=comprobanteDonacion.id) 
-        cuerpoDocumento = CuerpoDocumento.objects.filter(id=comprobanteDonacion.id)
-        apendice = Apendice.objects.filter(comprobanteDonacion=comprobanteDonacion)
-        context['comprobanteDonacion'] = comprobanteDonacion
-        context['otroDocumentoAsociado'] = otroDocumentoAsociado
-        context['cuerpoDocumento'] = cuerpoDocumento
-        context['apendice'] = apendice
-        context['show'] = True
-        return context   
+        
+        comprobanteDonacion = self.object #Obtenemos el comprobante de donacion actual
+        
+        try:
+            #intentamos obtener identificador, cuerpos de documento, otros documentos y apendices si exixten 
+            identificador = get_object_or_404(Identificador, comprobanteDonacion=comprobanteDonacion)
+            cuerpoDocumento = CuerpoDocumento.objects.filter(comprobanteDonacion=comprobanteDonacion)
+            otroDocumentoAsociado = OtroDocumentoAsociado.objets.filter(comprobanteDonacion=comprobanteDonacion)
+            apendice = Apendice.objects.filter(comprobanteDonacion=comprobanteDonacion)
+            context['identificador'] = identificador
+            context['otroDocumentoAsociado'] = otroDocumentoAsociado
+            context['cuerpoDocumento'] = cuerpoDocumento
+            context['apendice'] = apendice
+            context['show'] = True
+            return context   
+        
+        except identificador.DoesNotExist:
+            context['identificador'] = None
+        
+        except CuerpoDocumento.DoesNotExist:
+            context['cuerpoDocumento'] = None
+        
+        except OtroDocumentoAsociado.DoesNotExist:
+            context['otroDocumentoAsociado'] = None
+        
+        except Apendice.DoesNotExist:
+            context['apendice'] = None
+        
+        return context
 
 class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
     
     login_url = '/ingresar/'
     template_name = 'comprobante donacion/comprobante_donacion_create_view.html'
     model = ComprobanteDonacion
+    form_class = ComprobanteDonacionForm
     
     def get_success_url(self):
-        current_date = datetime.datetime.now()
-        mes = current_date.month
-        año = current_date.year
-        return reverse_lazy('comprobanteDonacionMonthView', kwargs={'year':año, 'month':mes})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
     
-    def post(self, request, *args, **kwargs):
-        identificadorId = request.POST.get('identificador')
-        identificador = get_object_or_404(Identificador, id=identificadorId)
-        entidadId = request.POST.get('emisor')
-        emisor = get_object_or_404(Entidad, id=entidadId)
-        receptorId = request.POST.get('receptor')
-        receptor = get_object_or_404(Receptor, id=receptorId)
-        codDomicilio = request.POST.get('codDomicilio')
-        valorTotal = request.POST.get('valorTotal')
-        totalLetras = request.POST.get('totalLetras')
-        pagoDonacionId = request.POST.get('pago')
-        pagoDonacion = get_object_or_404(PagoDonacion, pagoDonacionId)
-        user = request.user
-        entidad = user.Usuarios.all()
-        pagoDonacion = PagoDonacion.objects.create(identificador=identificador,emisor=emisor,receptor=receptor,codDomicilio=codDomicilio,valorTotal=valorTotal,totalLetras=totalLetras,
-                                                       pagoDonacion=pagoDonacion,entidad=entidad)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a creado el comprobante de donacion con exito")
-        return redirect(self.get_success_url())
-        
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['identificador'] = self.request.GET.get('identificador')
+        initial['receptor'] = self.request.GET.get('receptor')
+        initial['pagoDonacion'] = self.request.GET.get('pagoDonacion')
+        return initial
+    
 
+    def form_valid(self, form):
+        form.instance.emisor = self.request.user.entidad
+        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['identificador_id'] = self.request.GET.get('identificador_id')
+        context['receptor_id'] = self.request.GET.get('receptor_id')
+        context['pagoDonacion_id'] = self.request.GET.get('pagoDonacion_id')
+        return context   
+        
 class ComprobanteDonacionUpdateView(LoginRequiredMixin, UpdateView):
     
     login_url = '/ingresar/'
-    model = SujetoExcluido
-    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'    
+    model = ComprobanteDonacion
+    template_name = 'comprobante donacion/comprobante_donacion_create_view.html'
+    form_class = ComprobanteDonacionForm    
     
     def get_success_url(self):
-        current_date = datetime.datetime.now()
-        mes = current_date.month
-        año = current_date.year
-        return reverse_lazy('comprobanteDonacionMonthView', kwargs={'year':año, 'month':mes})
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return super().get_success_url()
+
+    def form_valid(self, form):
+        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
     
-    def post(self, request):
-        id = self.kwargs['pk']
-        identificadorId = request.POST.get('identificador')
-        identificador = get_object_or_404(Identificador, id=identificadorId)
-        entidadId = request.POST.get('emisor')
-        emisor = get_object_or_404(Entidad, id=entidadId)
-        receptorId = request.POST.get('receptor')
-        receptor = get_object_or_404(Receptor, id=receptorId)
-        codDomicilio = request.POST.get('codDomicilio')
-        valorTotal = request.POST.get('valorTotal')
-        totalLetras = request.POST.get('totalLetras')
-        pagoDonacionId = request.POST.get('pago')
-        pagoDonacion = get_object_or_404(PagoDonacion, pagoDonacionId)
-        pagoDonacion = PagoDonacion.objects.filter(id=id).update(identificador=identificador,emisor=emisor,receptor=receptor,codDomicilio=codDomicilio,valorTotal=valorTotal,totalLetras=totalLetras,
-                                                       pagoDonacion=pagoDonacion)
-        messages.add_message(request=request, level=messages.SUCCESS, message= "Se a actualizado el comprobante de donacion con exito")
-        return redirect(self.get_success_url())
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['identificador_id'] = self.object.identificador.id if self.object.identificador else None
+        context['receptor_id'] = self.object.receptor.id if self.object.receptor else None
+        context['pagoDonacion_id'] = self.object.pagoDonacion.id if self.object.pagoDonacion else None
+        return context
+
 
 class ResponseHaciendaBySujetoExcluidoListView(ListView):
     model = ResponseHacienda
-    template_name = 'response_hacienda_by_sujeto_excluido_list.html'
+    template_name = 'sujeto excluido/response_hacienda_by_sujeto_excluido_list.html'
     context_object_name = 'responses'
 
     def get_queryset(self):
@@ -1121,11 +1161,11 @@ class ResponseHaciendaBySujetoExcluidoListView(ListView):
         sujeto_excluido_id = self.kwargs['pk']
         if sujeto_excluido_id:
             queryset = queryset.filter(sujetoExcluido_id=sujeto_excluido_id)
-        return queryset.order_by('-created_at')
+        return queryset.order_by('-created')
 
 class ResponseHaciendaByComprobanteDonacionListView(ListView):
     model = ResponseHacienda
-    template_name = 'response_hacienda_by_comprobante_donacion_list.html'
+    template_name = 'comprobante donacion/response_hacienda_by_comprobante_donacion_list.html'
     context_object_name = 'responses'
 
     def get_queryset(self):
@@ -1133,38 +1173,46 @@ class ResponseHaciendaByComprobanteDonacionListView(ListView):
         comprobante_donacion_id= self.kwargs['pk']
         if comprobante_donacion_id:
             queryset = queryset.filter(comprobanteDonacion_id=comprobante_donacion_id)
-        return queryset.order_by('-created_at')
+        return queryset.order_by('-created')
 
 #Creando los Json correspondiente a cada factura
 
-@login_required(redirect_field_name='/ingresar')
-def sujetoExcluidoList(self,id):
+
+def sujetoExcluidoList(id):
     sujetoExcluido = SujetoExcluido.objects.get(id=id)
-    emisor = User.objects.get(id = sujetoExcluido.emisor.emisor.id)
-    documentoEmisor = emisor.documentos.all()
-    entidad = emisor.Usuarios.all()
-    receptor = User.objects.get(id=sujetoExcluido.receptor.receptor.id)
-    documentoReceptor = receptor.documentos.all()
-    operacionesSujetoExcluido = sujetoExcluido.operacionesSujetoExcluido.all()
-    apendiceSujetoExcluido = sujetoExcluido.apendices.all()
-    fechaEmi = sujetoExcluido.fechaTransmicion.date()
-    horaEmi = sujetoExcluido.get_formatted_time()
-    sujetoData = []
+    identificador = Identificador.objects.filter(sujetoExcluido=sujetoExcluido)
+    operacionesSujetoExcluido = OperacionesSujetoExcluido.objects.filter(sujetoExcluido=sujetoExcluido)
+    apendiceSujetoExcluido = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
+    fechaEmi = sujetoExcluido.fechaTransmicion.date().isoformat()
+    horaEmi = sujetoExcluido.fechaTransmicion.strftime("%H:%M:%S")
+    
+    def serialize(obj):
+        if isinstance(obj,(datetime.date, datetime.datetime)):
+            return obj.isoformat()
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, UUID):
+            return str(obj)
+        if isinstance(obj, TipoDocumento):
+            return str(obj)
+        if isinstance(obj, FormaPago):
+            return str(obj)
+        raise TypeError("Type not serializable")
     
     sujetoData = {
         'identificacion': {
-            'version': sujetoExcluido.identificador.version,
-            'ambiente': sujetoExcluido.identificador.ambiente,
-            'tipoDte': sujetoExcluido.identificador.tipoDte,
-            'numeroControl': sujetoExcluido.identificador.numeroControl,
-            'codigoGeneracion': sujetoExcluido.identificador.codigoGeneracion,
-            'tipoModelo': sujetoExcluido.identificador.tipoModelo,
-            'tipoOperacion': sujetoExcluido.identificador.tipoOperacion,
-            'tipoContingencia': sujetoExcluido.identificador.tipoContingencia,
-            'motivoContin': sujetoExcluido.identificador.motivoContin,
+            'version': identificador.version,
+            'ambiente': identificador.ambiente,
+            'tipoDte': identificador.tipoDte.codigo,
+            'numeroControl': identificador.numeroControl,
+            'codigoGeneracion': serialize(identificador.codigoGeneracion),
+            'tipoModelo': identificador.tipoModelo,
+            'tipoOperacion': identificador.tipoOperacion,
+            'tipoContingencia': identificador.tipoContingencia,
+            'motivoContin': identificador.motivoContin,
             'fechaEmi': fechaEmi,
             'horaEmi': horaEmi,
-            'tipoMoneda': sujetoExcluido.identificador.tipoMoneda
+            'tipoMoneda': identificador.tipoMoneda
         },
         'Emisor': {
             "nit": sujetoExcluido.emisor.nit,
@@ -1187,7 +1235,7 @@ def sujetoExcluidoList(self,id):
         "sujetoExcluido": {
             "tipoDocumento": sujetoExcluido.receptor.tipo,
             "numDocumento": sujetoExcluido.receptor.numero,
-            "nombre": sujetoExcluido.receptor.receptor.nombre,
+            "nombre": sujetoExcluido.receptor.nombre,
             "codActividad": sujetoExcluido.receptor.actividadEconomica.codigo,
             "descActividad": sujetoExcluido.receptor.actividadEconomica.valor,
             "direccion": {
@@ -1200,21 +1248,21 @@ def sujetoExcluidoList(self,id):
         },
         "cuerpoDocumento":[],
         "resumen": {
-            "totalCompra" : sujetoExcluido.totalCompra,
-            "descu" : sujetoExcluido.descu,
-            "totalDescu" : sujetoExcluido.totalDescu,
-            "subTotal" : sujetoExcluido.subTotal,
+            "totalCompra" : serialize(sujetoExcluido.totalCompra),
+            "descu" : serialize(sujetoExcluido.descu),
+            "totalDescu" : serialize(sujetoExcluido.totalDescu),
+            "subTotal" : serialize(sujetoExcluido.subTotal),
             "retencionIVAMH": sujetoExcluido.retencionIVAMH,
-            "ivaRete1" : sujetoExcluido.ivaRete1,
-            "reteRenta" : sujetoExcluido.reteRenta,
-            "totalPagar" : sujetoExcluido.totalPagar,
+            "ivaRete1" : serialize(sujetoExcluido.ivaRete1),
+            "reteRenta" : serialize(sujetoExcluido.reteRenta),
+            "totalPagar" : serialize(sujetoExcluido.totalPagar),
             "totalLetras" : sujetoExcluido.totalLetras,
             "condicionOperacion" : sujetoExcluido.condicionOperacion,
             "pagos" : [
                 {
                     "codigo" : sujetoExcluido.pago.codigo,
-                    "formaPago":sujetoExcluido.pago.formaPago,
-                    "montoPago" : sujetoExcluido.pago.montoPago,
+                    "formaPago": sujetoExcluido.pago.formaPago.codigo,
+                    "montoPago" : serialize(sujetoExcluido.pago.montoPago),
                     "referencia" : sujetoExcluido.pago.referencia,
                     "plazo" : sujetoExcluido.pago.plazo,
                     "periodo" : sujetoExcluido.pago.periodo
@@ -1231,11 +1279,11 @@ def sujetoExcluidoList(self,id):
             "codigo" : operacion.codigo,
             "uniMedida": operacion.uniMedida.codigo,
             "cantidad" : operacion.cantidad,
-            "montoDescu": operacion.montoDescu,
-            "compra": operacion.compra,
-            "retencion": operacion.retencion,
-            "descripcion" : operacion.descripcion,
-            "precioUni": operacion.precioUni
+            "montoDescu": serialize(operacion.montoDescu),
+            "compra": serialize(operacion.compra),
+            "retencion": serialize(operacion.retencion),
+            "descripcion" : operacion.descripccion,
+            "precioUni": serialize(operacion.precioUni)
         }
         sujetoData['cuerpoDocumento'].append(operacionesData)
     
@@ -1247,36 +1295,45 @@ def sujetoExcluidoList(self,id):
         }
         sujetoData['apendice'].append(apendicesData)
     
-    return JsonResponse(sujetoData, safe=False)
+    return json.dumps(sujetoData, default=serialize)
 
 
-@login_required(redirect_field_name='/ingresar')
-def comprobanteDonacionList(self,id):
+def comprobanteDonacionList(id):
     comprobanteDonacion = ComprobanteDonacion.objects.get(id=id)
-    emisor = User.objects.get(id = comprobanteDonacion.emisor.emisor.id)
-    documentoEmisor = emisor.documentos.all()
-    entidad = emisor.Usuarios.all()
-    receptor = User.objects.get(id=comprobanteDonacion.receptor.receptor.id)
-    documentoReceptor = receptor.documentos.all()
-    otroDocumentoAsociado = OtroDocumentoAsociado.otrosDocumentos.all()
-    cuerpoDocumento = CuerpoDocumento.cuerpoDocumentos.all()
-    apendiceComprobanteDonacion = comprobanteDonacion.apendicesDonacion.all()
-    fechaEmi = comprobanteDonacion.fechaTransmicion.date()
-    horaEmi = comprobanteDonacion.fechaTransmicion.get_formatted_time()
-    comprobanteData = []
+    identificador = Identificador.objects.filter(comprobanteDonacion=comprobanteDonacion)
+    otroDocumentoAsociado = OtroDocumentoAsociado.objects.filter(comprobanteDonacion=comprobanteDonacion)
+    cuerpoDocumento = CuerpoDocumento.objects.filter(comprobanteDonacion=comprobanteDonacion)
+    apendiceComprobanteDonacion = Apendice.objects.filter(comprobanteDonacion=comprobanteDonacion)
+    fechaEmi = comprobanteDonacion.fechaTransmicion.date().isoformat()
+    horaEmi = comprobanteDonacion.fechaTransmicion.strftime("%H:%M:%S")
+    
+    def serialize(obj):
+        if isinstance(obj,(datetime.date, datetime.datetime)):
+            return obj.isoformat()
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, UUID):
+            return str(obj)
+        if isinstance(obj, TipoDocumento):
+            return str(obj)
+        if isinstance(obj, FormaPago):
+            return str(obj)
+        raise TypeError("Type not serializable")
     
     comprobanteData = {
         'identificacion': {
-            'version': comprobanteDonacion.identificador.version,
-            'ambiente': comprobanteDonacion.identificador.ambiente,
-            'tipoDte': comprobanteDonacion.identificador.tipoDte,
-            'numeroControl': comprobanteDonacion.identificador.numeroControl,
-            'codigoGeneracion': comprobanteDonacion.identificador.codigoGeneracion,
-            'tipoModelo': comprobanteDonacion.identificador.tipoModelo,
-            'tipoOperacion': comprobanteDonacion.identificador.tipoOperacion,
+            'version': identificador.version,
+            'ambiente': identificador.ambiente,
+            'tipoDte': identificador.tipoDte.codigo,
+            'numeroControl': identificador.numeroControl,
+            'codigoGeneracion': serialize(identificador.codigoGeneracion),
+            'tipoModelo': identificador.tipoModelo,
+            'tipoOperacion': identificador.tipoOperacion,
+            'tipoContingencia': identificador.tipoContingencia,
+            'motivoContin': identificador.motivoContin,
             'fechaEmi': fechaEmi,
             'horaEmi': horaEmi,
-            'tipoMoneda': comprobanteDonacion.identificador.tipoMoneda
+            'tipoMoneda': identificador.tipoMoneda
         },
         'donatorio': {
             "tipoDocumento":"nit",
@@ -1318,12 +1375,12 @@ def comprobanteDonacionList(self,id):
         "otrosDocumentos":[],
         "cuerpoDocumento":[],
         "resumen": {
-            "valorTotal" : comprobanteDonacion.valorTotal,
+            "valorTotal" : serialize(comprobanteDonacion.valorTotal),
             "totalLetras" : comprobanteDonacion.totalLetras,
             "pagos" : [
                 {
                     "codigo" : comprobanteDonacion.pago.codigo,
-                    "montoPago" : comprobanteDonacion.pago.montoPago,
+                    "montoPago" : serialize(comprobanteDonacion.pago.montoPago),
                     "referencia" : comprobanteDonacion.pago.referencia,
                 }
             ],
@@ -1340,16 +1397,16 @@ def comprobanteDonacionList(self,id):
     
     for cuerpoDoc in cuerpoDocumento:
         cuerpoDocumentoData = {
-            "numItem": cuerpoDoc.numItem,
+            "numItem": serialize(cuerpoDoc.numItem),
             "tipoDonacion": cuerpoDoc.tipoDonacion,
-            "cantidad": cuerpoDoc.cantidad,
+            "cantidad": serialize(cuerpoDoc.cantidad),
             "codigo": cuerpoDoc.codigo,
             "uniMedida": cuerpoDoc.uniMedida.codigo,
             "descripccion": cuerpoDoc.descripccion,
-            "depreciacion": cuerpoDoc.depreciacion,
-            "montoDescu": cuerpoDoc.montoDescu,
-            "valorUni": cuerpoDoc.valorUni,
-            "valor": cuerpoDoc.valor
+            "depreciacion": serialize(cuerpoDoc.depreciacion),
+            "montoDescu": serialize(cuerpoDoc.montoDescu),
+            "valorUni": serialize(cuerpoDoc.valorUni),
+            "valor": serialize(cuerpoDoc.valor)
         }
         comprobanteData['cuerpoDocumento'].append(cuerpoDocumentoData)
     
@@ -1361,18 +1418,25 @@ def comprobanteDonacionList(self,id):
         }
         comprobanteData['apendice'].append(apendicesData)
     
-    return JsonResponse(comprobanteData, safe=False)
+    return json.dump(comprobanteData, default=serialize)
 
 #Creando los PDF's para cada Factura
 
-@login_required(redirect_field_name='/ingresar')
+
 def cargarDatosFactura(factura):
-    with open(factura, 'r') as archivo:
-        datos = json.load(archivo)
+    # Si 'factura' es una cadena JSON, conviértelo a un diccionario
+    if isinstance(factura, str):
+        datos = json.loads(factura)
+    # Si 'factura' es un diccionario ya parseado, úsalo directamente
+    elif isinstance(factura, dict):
+        datos = factura
+    else:
+        raise ValueError("El parámetro 'factura' debe ser una cadena JSON o un diccionario")
+    
     return datos
 
 
-@login_required(redirect_field_name='/ingresar')
+
 def crearFacturaSujetoExcluido(datos):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
@@ -1635,128 +1699,140 @@ def crearComprobanteDonacion(datos):
     
 class Transmitir(LoginRequiredMixin,View):
     
-    def obtenerFactura(self,*args, **kwargs):
+    
+    @method_decorator(csrf_exempt)
+    def post(self, request, *args, **kwargs):
+        return self.transmitir(request, *args, **kwargs)
+    
+    def obtenerFactura(self, request,*args, **kwargs):
         origin = self.request.POST.get('origin')
-        id = self.kwargs.get('id')
-        if origin == 'sujetoExclido':
+        id = self.kwargs.get('pk')
+        
+        if origin == 'sujetoExcluido':
             factura = sujetoExcluidoList(id)
         else:
             factura = comprobanteDonacionList(id)
         return factura
+    
     @csrf_exempt
-    def transmitir(self,*args, **kwargs):
-        id = self.kwargs.get('id')
+    def transmitir(self, request,*args, **kwargs):
+        id = self.kwargs.get('pk')
         
         #Generando el pdf a partir del json 
-        jsonData = self.obtenerFactura()
+        jsonData = self.obtenerFactura(request, *args, **kwargs)
+        jsonData = json.dumps(jsonData)  # Convierte el diccionario en JSON
+       
         datosFactura = cargarDatosFactura(jsonData)
-        
         origin = self.request.POST.get('origin')
-        if origin == 'sujetoExcluido':
-            sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-            idIdentificador = sujetoExcluido.identificador.id
-            identificador = get_object_or_404(Identificador, pk=idIdentificador)
-        else:
-            comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
-            idIdentificador = comprobanteDonacion.identificador.id
-            identificador = get_object_or_404(Identificador, pk=idIdentificador)
-        user = get_object_or_404(User, pk=self.user.pk)
-        entidadId = user.entidad.id
-        entidad = Entidad.objects.filter(id=entidadId)
-        authHacienda = ParametrosAuthHacienda.objects.filter(entidad=entidad.id)
-        privateKey = authHacienda.privateKey
-        url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
-        parametros_auth = {
-            'content_Type' : 'application/x-www-form-urlencoded',
-            'user_agent ': authHacienda.userAgent,
-            'user' : authHacienda.user,
-            'pwd' : authHacienda.pwd,
-            }
-        if requests.method == 'POST':
+        try:
+            if origin == 'sujetoExcluido':
+                sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
+                identificador = get_object_or_404(Identificador, pk=sujetoExcluido.identificador.id)
+            else:
+                comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+                identificador = get_object_or_404(Identificador, pk=comprobanteDonacion.identificador.id)
+            
+            entidad = self.request.user.entidad
+            print(entidad)
+            authHacienda = get_object_or_404(ParametrosAuthHacienda,entidad=entidad)
+            privateKey = authHacienda.privateKey
+            print(privateKey)
             url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
             
-            try:
-                acesso = requests.post(url_auth, params=parametros_auth).json()
-                if origin == 'sujetoExcluido':  
-                    responseHacienda = ResponseHacienda(nombre="Auth de Hacienda", datosJason=acesso, sujetoExcluido=sujetoExcluido, stastus_code=acesso['status'])
-                else:
-                    responseHacienda = ResponseHacienda(nombre="Auth de Hacienda", datosJason=acesso, comprobanteDonacion=comprobanteDonacion, stastus_code=acesso['status'])
+            parametros_auth = {
+                'content_Type' : 'application/x-www-form-urlencoded',
+                'user_agent ': authHacienda.userAgent,
+                'user' : authHacienda.user,
+                'pwd' : authHacienda.pwd,
+                }
+
+            acceso = requests.post(url_auth, params=parametros_auth).json()
+
+            responseHacienda = ResponseHacienda(
+                nombre="Auth de Hacienda",
+                datosJason=json.dumps(acceso),  # Corregido el nombre del campo y la serialización JSON
+                stastus_code=acceso['status']
+            )
+            responseHacienda.save()
+            
+            if acceso['status'] == "OK":
+                token = acceso['body']['token']
+                factura = self.obtenerFactura()
+                encoded = jwt.encode(factura, privateKey, algorithm="HS256")
+                url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
+
+                parametros_recepcion = {
+                    'Authorization': token,
+                    'User-Agent': authHacienda.userAgent,
+                    'content-Type': 'application/JSON',
+                    'ambiente': identificador.ambiente,
+                    'idEnvio': identificador.id,
+                    'version': identificador.version,
+                    'tipoDte': identificador.tipoDte.codigo,
+                    'documento': encoded,
+                    'codigoGeneracion': identificador.codigoGeneracion,
+                }
+
+                transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
+
+                responseHacienda = ResponseHacienda(
+                    nombre="Transmicion de factura a Hacienda",
+                    datosJason=json.dumps(transmitir),  # Corregido el nombre del campo y la serialización JSON
+                    stastus_code=transmitir['status']
+                )
                 responseHacienda.save()
-                
-                if acesso['status'] == "OK":
-                    token = acesso['body']['token']
-                    private = open('clave_privada.pem', 'r')
-                    factura = self.obtenerFactura()
-                    encoded = jwt.encode(factura, privateKey, algorithm="HS256")
-                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
-                    parametros_recepcion = {
-                        'Authorization': token,
-                        'User-Agent': authHacienda.userAgent,
-                        'content-Type': 'application/JSON',
-                        'ambiente': identificador.ambiente,
-                        'idEnvio': identificador.id,
-                        'version': identificador.version,
-                        'tipoDte': identificador.tipoDte.codigo,
-                        'documento': encoded,
-                        'codigoGeneracion': identificador.codigoGeneracion,
-                    }
-                    try:
-                        transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
-                        if origin == 'sujetoExcluido':
-                            responseHacienda = ResponseHacienda(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, sujetoExcluido=sujetoExcluido, stastus_code=transmitir['status'])
-                            responseHacienda.save()
-                            if(transmitir['codigoMsg']=="001"):
-                                sujetoExcluido.objects.update(transmitido=True)
-                                # Envía un correo electrónico con la factura Electrnica
-                                subject = 'Factura Sujeto Excluido'
-                                body = f'Hola {sujetoExcluido.receptor.nombre},\n\nse le a emitido una factura de sujeto excluido'
-                                from_email = sujetoExcluido.emisor.email  
-                                to_email = sujetoExcluido.receptor.email
-                                email =  EmailMessage(subject, body, from_email, to_email)
-                                jsonContent = json.dumps(jsonData, indent=4)
-                                pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
-                                pdf_sujeto_excluido = MIMEApplication(pdf_bytes, _subtype='pdf')
-                                email.attach('data.json', jsonContent, 'application/json')
-                                email.attach('data.pdf', pdf_sujeto_excluido, 'application/pdf')
-                                email.send()
-                        else:
-                            responseHacienda = ResponseHacienda.objects(nombre="Transmicion de factura a  Hacienda", datosJason=transmitir, comprobanteDonacion=comprobanteDonacion,stastus_code=transmitir['status'])
-                            responseHacienda.save()
-                            if(transmitir['codigoMsg']=="001"):
-                                comprobanteDonacion.objects.update(transmitido=True)
-                                # Envía un correo electrónico con la factura Electrnica
-                                subject = 'Comprobante de Donacion'
-                                body = f'Hola {comprobanteDonacion.receptor.nombre},\n\nse le a emitido un Comprobante de Donacion'
-                                from_email = comprobanteDonacion.emisor.email  
-                                to_email = comprobanteDonacion.receptor.email
-                                email =  EmailMessage(subject, body, from_email, to_email)
-                                jsonContent = json.dumps(jsonData, indent=4)
-                                pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
-                                pdf_comprobante_donacion = MIMEApplication(pdf_bytes, _subtype='pdf')
-                                email.attach('data.json', jsonContent, 'application/json')
-                                email.attach('data.pdf', pdf_comprobante_donacion, 'application/pdf')
-                                email.send()
-                    except:
-                        messages.danger(self.request, 'Ocurrio un problema en la transmision de la factura' + transmitir['status'])
-                    messages.success(self.request, 'Se logueo con exito en hacienda' + acesso['status'])
+            
+                if transmitir['codigoMsg'] == "001":
                     if origin == 'sujetoExcluido':
-                        return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+                        SujetoExcluido.objects.filter(pk=id).update(transmitido=True)  # Actualizar el campo transmitido
+                        # Envía un correo electrónico con la factura electrónica
+                        subject = 'Factura Sujeto Excluido'
+                        body = f'Hola {sujetoExcluido.receptor.nombre},\n\nse le ha emitido una factura de sujeto excluido.'
+                        from_email = sujetoExcluido.emisor.email  
+                        to_email = sujetoExcluido.receptor.email
+                        email = EmailMessage(subject, body, from_email, [to_email])
+                        jsonContent = json.dumps(jsonData, indent=4)
+                        pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
+                        pdf_sujeto_excluido = MIMEApplication(pdf_bytes, _subtype='pdf')
+                        email.attach('data.json', jsonContent, 'application/json')
+                        email.attach('data.pdf', pdf_sujeto_excluido, 'application/pdf')
+                        email.send()
                     else:
-                         return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
-                
+                        ComprobanteDonacion.objects.filter(pk=id).update(transmitido=True)  # Actualizar el campo transmitido
+                        # Envía un correo electrónico con el comprobante de donación
+                        subject = 'Comprobante de Donación'
+                        body = f'Hola {comprobanteDonacion.receptor.nombre},\n\nse le ha emitido un Comprobante de Donación.'
+                        from_email = comprobanteDonacion.emisor.email  
+                        to_email = comprobanteDonacion.receptor.email
+                        email = EmailMessage(subject, body, from_email, [to_email])
+                        jsonContent = json.dumps(jsonData, indent=4)
+                        pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
+                        pdf_comprobante_donacion = MIMEApplication(pdf_bytes, _subtype='pdf')
+                        email.attach('data.json', jsonContent, 'application/json')
+                        email.attach('data.pdf', pdf_comprobante_donacion, 'application/pdf')
+                        email.send()
+
+                messages.success(self.request, 'Se ha transmitido la factura correctamente.')
+                if origin == 'sujetoExcluido':
+                    return redirect('sujetoExcluidoDetailView', pk=id)
                 else:
-                    messages.success(self.request, 'Ocurrio un error con las credenciales' + acesso['status'])
-                    return redirect('authHacienda', pk=authHacienda.pk)
-                
-            except requests.exceptions.RequestException as e:
-                messages.success(self.request, 'Ocurrio un error al hacer la solicitud a la api de hacienda ' + str(e))
-            if origin == 'sujetoExcluido':
-                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+                    return redirect('comprobanteDonacionDetailView', pk=id)
+
             else:
-                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
-        else:
-            messages.success(self.request, 'Error esta vista solo admite solicitudes POST, error 405')
+                messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
+                return redirect('authHacienda', pk=authHacienda.pk)
+
+        except requests.exceptions.RequestException as e:
+            messages.error(self.request, f'Ocurrió un error al hacer la solicitud a la API de Hacienda: {str(e)}')
             if origin == 'sujetoExcluido':
-                return redirect(reverse_lazy('sujetoExcluidoDetailView', kwargs={'pk':id}))
+                return redirect('sujetoExcluidoDetailView', pk=id)
             else:
-                return redirect(reverse_lazy('comprobanteDonacionDetailView', kwargs={'pk':id}))
+                return redirect('comprobanteDonacionDetailView', pk=id)
+
+        except Exception as e:
+            messages.error(self.request, f'Ocurrió un error inesperado: {str(e)}')
+            if origin == 'sujetoExcluido':
+                return redirect('sujetoExcluidoDetailView', pk=id)
+            else:
+                return redirect('comprobanteDonacionDetailView', pk=id)
+            

@@ -343,11 +343,7 @@ class ReceptorForm(forms.ModelForm):
 
 class SujetoExcluidoForm(forms.ModelForm):
     
-    identificador = forms.ModelChoiceField(
-        queryset=Identificador.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label="Identificador"
-    )
+    
     receptor = forms.ModelChoiceField(
         queryset=Receptor.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
@@ -408,9 +404,8 @@ class SujetoExcluidoForm(forms.ModelForm):
         entidad = kwargs.pop('entidad', None)
         super().__init__(*args, **kwargs)
         if entidad:
-            self.fields['identificador'].queryset = Identificador.objects.filter(entidad=entidad)
             self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
-            self.fields['pago'].queryset = Pago.objects.filter(identificador=entidad)
+            self.fields['pago'].queryset = Pago.objects.filter(entidad=entidad)
         
         # Añadir clase 'form-control' a todos los campos del formulario automáticamente
         for field_name, field in self.fields.items():
@@ -521,16 +516,7 @@ class PagoDonacionForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'form-check-input'})
 
 class ComprobanteDonacionForm(forms.ModelForm):
-    identificador = forms.ModelChoiceField(queryset=Identificador.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Identificador")
-    receptor = forms.ModelChoiceField(queryset=Receptor.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Receptor")
-    pagoDonacion = forms.ModelChoiceField(queryset=PagoDonacion.objects.none(), widget=forms.Select(attrs={'class': 'form-control'}), label = "Pago Donacion")
-    def __init__(self, *args, **kwargs):
-        entidad = kwargs.pop('entidad',None)
-        super().__init__(*args, **kwargs)
-        if entidad:
-            self.fields['identificador'].queryset = Identificador.objects.filter(entidad=entidad)
-            self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
-            self.fields['pagoDonacion'].queryset = PagoDonacion.objects.filter(identificador=entidad)
+       
     class Meta:
         model = ComprobanteDonacion
         codDomiciliado = forms.ChoiceField(
@@ -558,7 +544,11 @@ class ComprobanteDonacionForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
-        super(ComprobanteDonacionForm, self).__init__(*args, **kwargs)
+        entidad = kwargs.pop('entidad',None)
+        super().__init__(*args, **kwargs)
+        if entidad:
+            self.fields['receptor'].queryset = Receptor.objects.filter(entidad=entidad)
+            self.fields['pagoDonacion'].queryset = PagoDonacion.objects.filter(entidad=entidad)
         # Añadir clase 'form-control' a todos los campos del formulario automáticamente
         for field_name, field in self.fields.items():
             if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):

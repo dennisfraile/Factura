@@ -4,14 +4,30 @@
     <h1>Cuerpo de Documento</h1>
     <form method= "post">
         {% csrf_token %}
-        {{ form.numItem.label_tag }}
-        {{ form.numItem }}
-        {{ form.tipoDonacion.label_tag }}
-        {{ form.tipoDonacion }}
-        {{ form.cantidad.label_tag }}
-        {{ form.cantidad }}
-        {{ form.codigo.label_tag }}
-        {{ form.codigo }}
+        <div class="form-group row">
+            <label for="{{ form.numItem.id_for_label }}" class="col-md-2 control-label">{{ form.numItem.label }}</label>
+            <div class="col-sm-8">
+                {{ form.numItem }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.tipoDonacion.id_for_label }}" class="col-md-2 control-label">{{ form.tipoDonacion.label }}</label>
+            <div class="col-sm-8">
+                {{ form.tipoDonacion }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.cantidad.id_for_label }}" class="col-md-2 control-label">{{ form.cantidad.label }}</label>
+            <div class="col-sm-8">
+                {{ form.cantidad }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.codigo.id_for_label }}" class="col-md-2 control-label">{{ form.codigo.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codigo }}
+            </div>
+        </div>
         <div class="form-group row">
             {% if form.uniMedida.field.queryset.exists %}
                 <label for="{{ form.uniMedida.id_for_label }}" class="col-md-2 control-label">{{ form.uniMedida.label}}</label>
@@ -22,24 +38,52 @@
                 <p>No hay Unidades de medidas ingresadas en el sistema </p>
             {% endif %}
             <div class="col-sm-2">
-                <a id="unidadmedida" href="{% url 'unidadMedidaCreate' %}" 
+                <a id="unidadmedida" href="{% url 'unidadMedidaCreate' %}?next={{ request.path }}" 
                     class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nueva Unidad de Medida">
                     <span class="material-symbols-outlined">
                     add
                     </span>
                 </a>
+                {% if unidadMedida_id %}
+                    <a id="unidadmedida" href="{% url 'unidadMedidaUpdate' unidadMedida_id %}?next={{ request.path }}" 
+                        class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Unidad de Medida">
+                        <span class="material-symbols-outlined">
+                        edit
+                        </span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        {{ form.descripccion.label_tag }}
-        {{ form.descripccion }}
-        {{ form.depreciacion.label_tag }}
-        {{ form.depreciacion }}
-        {{ form.montoDescu.label_tag }}
-        {{ form.montoDescu }}
-        {{ form.valorUni.label_tag }}
-        {{ form.valorUni }}
-        {{ form.valor.label_tag }}
-        {{ form.valor }}
+        <div class="form-group row">
+            <label for="{{ form.descripccion.id_for_label }}" class="col-md-2 control-label">{{ form.descripccion.label }}</label>
+            <div class="col-sm-8">
+                {{ form.descripccion }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.depreciacion.id_for_label }}" class="col-md-2 control-label">{{ form.depreciacion.label }}</label>
+            <div class="col-sm-8">
+                {{ form.depreciacion }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.montoDescu.id_for_label }}" class="col-md-2 control-label">{{ form.montoDescu.label }}</label>
+            <div class="col-sm-8">
+                {{ form.montoDescu }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.valorUni.id_for_label }}" class="col-md-2 control-label">{{ form.valorUni.label }}</label>
+            <div class="col-sm-8">
+                {{ form.valorUni }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.valor.id_for_label }}" class="col-md-2 control-label">{{ form.valor.label }}</label>
+            <div class="col-sm-8">
+                {{ form.valor }}
+            </div>
+        </div>
         <br>
         <input type="hidden" name="origin" value="cuerpodocumento">
         <input class="btn btn-success" type="submit" value="Guardar">

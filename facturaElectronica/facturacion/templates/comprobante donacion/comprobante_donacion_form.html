@@ -5,58 +5,93 @@
     <form method= "post">
         {% csrf_token %}
         <div class="form-group row">
-            {% if form.identificador.field.queryset.exists %}
-                <label for="{{ form.identificador.id_for_label }}" class="col-md-2 control-label">{{ form.identificador.label}}</label>
-                <div class="col-sm-8">
-                    {{ form.identificador }}
-                </div>
-            {% else %}
-                <p> No hay identificadres disponibles </p>
-            {% endif %}
-            <div class="col-sm-2">
-                <a id="identificador" href="{% url 'identificadorCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Identificador">
-                    <span class="material-symbols-outlined">
-                    add
-                    </span>
-                </a>
-            </div>
-        </div>
-        <br> 
-        <div class="form-group row">
-            {% if form.receptor.field.queryset.exists %}
-                <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
-                <div class="col-sm-8">
+            <label for="{{ form.receptor.id_for_label }}" class="col-md-2 control-label">{{ form.receptor.label}}</label>
+            <div class="col-sm-8">
+                {% if form.receptor.field.queryset.exists %}
                     {{ form.receptor }}
-                </div>
-            {% else %}
-                <p> No hay Receptores para esta factura </p>
-            {% endif %} 
+                {% else %}
+                    <p> No hay Receptores para este comprobante </p>
+                {% endif %}
+            </div>
             <div class="col-sm-2">
-                <a id="receptor" href="{% url 'receptorCreate' %}" 
-                    class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
-                    <span class="material-symbols-outlined">
-                    add
-                    </span>
+                <a id="receptor" href="{% url 'receptorCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Receptor">
+                    <span class="material-symbols-outlined">add</span>
                 </a>
+                {% if receptor_id %}
+                    <a id="receptor" href="{% url 'receptorUpdate' receptor_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Receptor">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
-        <br> 
-        {{ form.codDomicilio.label_tag }}
-        {{ form.codDomicilio }}
-        <br> 
-        {{ form.pais.label_tag }}
-        {{ form.pais }}
-        <br> 
-        {{ form.valorTotal.label_tag }}
-        {{ form.valorTotal }}
-        <br> 
-        {{ form.totalLetras.label_tag }}
-        {{ form.totalLetras }}
-        <br> 
-        {{ form.pago.label_tag }}
-        {{ form.pago }}
-        <br> 
+
+        <div class="form-group row">
+            <label for="{{ form.codDomicilio.id_for_label }}" class="col-md-2 control-label">{{ form.codDomicilio.label }}</label>
+            <div class="col-sm-8">
+                {{ form.codDomicilio }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.pais.id_for_label }}" class="col-md-2 control-label">{{ form.pais.label }}</label>
+            <div class="col-sm-8">
+                {% if form.pais.field.queryset.exists %}
+                    {{ form.pais }}
+                {% else %}
+                    <p>No hay Paises ingresados en el sistema</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-2">
+                <a id="pais" href="{% url 'paisCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Pais">
+                    <span class="material-symbols-outlined">add</span>
+                </a>
+                {% if pais_id %}
+                    <a id="pais" href="{% url 'paisUpdate' pais_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Pais">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="{{ form.valorTotal.id_for_label }}" class="col-md-2 control-label">{{ form.valorTotal.label }}</label>
+            <div class="col-sm-8">
+                {{ form.valorTotal }}
+            </div>
+        </div> 
+        <div class="form-group row">
+            <label for="{{ form.totalLetras.id_for_label }}" class="col-md-2 control-label">{{ form.totalLetras.label }}</label>
+            <div class="col-sm-8">
+                {{ form.totalLetras }}
+            </div>
+        </div> 
+        <div class="form-group row">
+            <label for="{{ form.pago.id_for_label }}" class="col-md-2 control-label">{{ form.pago.label }}</label>
+            <div class="col-sm-8">
+                {% if form.pago.field.queryset.exists %}
+                    {{ form.pago }}
+                {% else %}
+                    <p>No hay Pagos para donacion ingresados en el sistema</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-2">
+                <a id="pago" href="{% url 'pagoDonacionCreate' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Nuevo Pago de Donacion">
+                    <span class="material-symbols-outlined">add</span>
+                </a>
+                {% if pagoDonacion_id %}
+                    <a id="pago" href="{% url 'pagoDonacionUpdate' pago_id %}?next={{ request.path }}" 
+                        class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Editar Pago de Donacion ">
+                        <span class="material-symbols-outlined">edit</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <br>
+        <input type="hidden" name="origin" value="comprobantedonacion">  
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
     </form>
