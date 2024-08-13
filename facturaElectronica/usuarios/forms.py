@@ -19,6 +19,16 @@ class SystemAdminRegistrationForm(UserCreationForm):
         model = CustomUser
         fields = ['name', 'lastname', 'email', 'cellphone', 'organizacion', 'nrc', 'actividadEconomica', 'is_system_superuser','is_entidad_superuser','is_staff', 'password1', 'password2']
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+    
     def clean(self):
         cleaned_data = super().clean()
         if User.objects.filter(is_system_superuser=True).exists():
@@ -38,6 +48,13 @@ class CustomAuthenticationForm(AuthenticationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
     
     def clean(self):
         cleaned_data = super().clean()
@@ -98,6 +115,25 @@ class EntidadForm(forms.ModelForm):
     class Meta:
         model= Entidad
         fields = '__all__'
+    
+    widgets = {
+        'nit': forms.TextInput(attrs={'class': 'form-control','data-mask':'00000000000000'}),
+    }
+    class Media:
+            js = ['https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js']
+    
+    def __init__(self, *args, **kwargs):
+        super(EntidadForm, self).__init__(*args, **kwargs)
+        if self.initial:
+            if 'nit' in self.initial:
+                self.initial['nit'] = str(self.initial['nit']).zfill(9)
+        
+        # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class ParametrosAuthHaciendaForm(forms.ModelForm):
     class Meta:
@@ -127,3 +163,10 @@ class ParametrosAuthHaciendaForm(forms.ModelForm):
             if self.initial:
                 if 'nit' in self.initial:
                     self.initial['nit'] = str(self.initial['nit']).zfill(9)
+            
+            # Añadir clase 'form-control' a todos los campos del formulario automáticamente
+            for field_name, field in self.fields.items():
+                if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select, forms.PasswordInput)):
+                    field.widget.attrs.update({'class': 'form-control'})
+                elif isinstance(field.widget, forms.CheckboxInput):
+                    field.widget.attrs.update({'class': 'form-check-input'})

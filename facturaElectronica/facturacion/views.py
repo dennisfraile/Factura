@@ -34,6 +34,8 @@ from django.utils.decorators import method_decorator
 from decimal import Decimal
 from uuid import UUID
 import datetime
+from django.http import HttpResponseRedirect
+import base64
 # Create your views here.
 
 @login_required(redirect_field_name='/ingresar')
@@ -69,7 +71,7 @@ class PaisCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
 
 class PaisUpdateView(LoginRequiredMixin, UpdateView):
@@ -81,7 +83,7 @@ class PaisUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
 
 class DepartamentoView(LoginRequiredMixin,View):
@@ -107,7 +109,7 @@ class DepartamentoCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
 
 class DepartamentoUpdateView(LoginRequiredMixin, UpdateView):
@@ -119,7 +121,7 @@ class DepartamentoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()    
+        return reverse_lazy('panel_facturas')   
 
     
 
@@ -146,7 +148,7 @@ class MunicipioCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_initial(self):
         initial = super().get_initial()
@@ -169,7 +171,7 @@ class MunicipioUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -201,7 +203,7 @@ class DireccionCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()    
+        return reverse_lazy('panel_facturas')    
     
     
     def get_initial(self):
@@ -216,8 +218,7 @@ class DireccionCreateView(LoginRequiredMixin,CreateView):
     
     def form_valid(self, form):
         direccion = form.save(commit=False) 
-        entidad = get_object_or_404(Entidad, razonSocial=self.request.user.entidad)
-        direccion.entidad = entidad       
+        direccion.entidad = self.request.user.entidad      
         direccion.save()
         messages.add_message(request=self.request, level=messages.SUCCESS, message= "Se a creado la direccion: con exito")
         return super().form_valid(form)
@@ -236,7 +237,7 @@ class DireccionUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     
     def get_context_data(self, **kwargs):
@@ -277,7 +278,7 @@ class UnidadMedidaCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
 
 class UnidadMedidaUpdateView(LoginRequiredMixin, UpdateView):
@@ -289,7 +290,7 @@ class UnidadMedidaUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
 
 class OperacionSujetoExcluidoView(LoginRequiredMixin,View):
@@ -315,7 +316,7 @@ class OperacionSujetoExcluidoCreateView(LoginRequiredMixin, CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -356,7 +357,7 @@ class OperacionSujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
         operacion = form.save(commit=False) 
@@ -381,7 +382,7 @@ class OperacionSujetoExcluidoDetailView(LoginRequiredMixin, DetailView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -402,9 +403,11 @@ class SujetoExcluidoMonthView(LoginRequiredMixin,MonthArchiveView):
 
     def get_context_data(self, **kwargs) :
         context = super().get_context_data(**kwargs)
-        sujeto = SujetoExcluido.objects.all(entidad=self.request.user.entidad)
+        sujeto = SujetoExcluido.objects.filter(entidad=self.request.user.entidad)
         context['registro'] = sujeto
         return context
+    
+    # # Devuelve el mes actual en formato MM
 
 class SujetoExcluidoDetailView(LoginRequiredMixin,DetailView):
     """Muestra los datos de un sujeto excluido en especifico"""
@@ -421,7 +424,7 @@ class SujetoExcluidoDetailView(LoginRequiredMixin,DetailView):
         
         try:
             # Intentamos obtener Identificador, OperacionesSujetoExcluido y Apendice si existen
-            identificador = Identificador.objects.filter(sujetoExcluido=sujetoExcluido)
+            identificador = Identificador.objects.get(sujetoExcluido=sujetoExcluido)
             operaciones_sujeto_excluido = OperacionesSujetoExcluido.objects.filter(sujetoExcluido=sujetoExcluido)
             apendice = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
             
@@ -430,7 +433,7 @@ class SujetoExcluidoDetailView(LoginRequiredMixin,DetailView):
             context['apendices'] = apendice
             context['show'] = True
         
-        except identificador.DoesNotExist:
+        except Identificador.DoesNotExist:
             #Si no hay Identificador, asignamos None al contexto
             context['identificador'] = None
             
@@ -454,7 +457,7 @@ class SujetoExcluidoCreateView(LoginRequiredMixin, CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     
     def get_initial(self):
@@ -490,11 +493,14 @@ class SujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     def form_valid(self, form):
         form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -526,7 +532,7 @@ class FormaPagoCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
 class FormaPagoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
@@ -538,8 +544,7 @@ class FormaPagoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
-
+        return reverse_lazy('panel_facturas')
 
 class PagoView(LoginRequiredMixin,View):
     
@@ -564,7 +569,7 @@ class PagoCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_initial(self):
         initial = super().get_initial()
@@ -592,7 +597,7 @@ class PagoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     def form_valid(self, form):
         # Asignar la entidad actual al formulario antes de guardarlo
@@ -634,7 +639,7 @@ class ApendiceCreateView(LoginRequiredMixin, CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_initial(self):
         initial = super().get_initial()
@@ -643,6 +648,20 @@ class ApendiceCreateView(LoginRequiredMixin, CreateView):
         return initial
     
     def form_valid(self, form):
+        origin = self.request.GET.get('origin')
+        print(origin)
+        id = self.kwargs.get('pk')
+        
+        if origin == 'sujetoExcluido':
+            sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
+            form.instance.sujetoExcluido = sujetoExcluido
+        elif origin == 'comprobanteDonacion':
+            comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+            form.instance.comprobanteDonacion = comprobanteDonacion
+        else:
+            # Genera un mensaje de error y redirige a la página de panel_facturas
+            messages.error(self.request, 'Origen del apedice no válido')
+            return HttpResponseRedirect(reverse_lazy('panel_facturas'))
         # Asignar la entidad actual al formulario antes de guardarlo
         form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
         return super().form_valid(form)
@@ -664,7 +683,7 @@ class ApendiceUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
         # Asignar la entidad actual al formulario antes de guardarlo
@@ -702,7 +721,7 @@ class TipoDocumentoCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
 class TipoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
@@ -713,7 +732,7 @@ class TipoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
 class IdentificadorView(LoginRequiredMixin,View):
     
@@ -739,18 +758,23 @@ class IdentificadorCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
-        origin = self.request.POST.get('origin')
+        origin = self.request.GET.get('origin')
+        print(origin)
         id = self.kwargs.get('pk')
         
         if origin == 'sujetoExcluido':
             sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
             form.instance.sujetoExcluido = sujetoExcluido
-        else:
+        elif origin == 'comprobanteDonacion':
             comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
             form.instance.comprobanteDonacion = comprobanteDonacion
+        else:
+            # Genera un mensaje de error y redirige a la página de panel_facturas
+            messages.error(self.request, 'Origen del identificador no válido')
+            return HttpResponseRedirect(reverse_lazy('panel_facturas'))
         # Asignar la entidad actual al formulario antes de guardarlo
         form.instance.entidad = self.request.user.entidad  # Ajusta esto según cómo obtienes la entidad actual del usuario
         return super().form_valid(form)
@@ -768,7 +792,7 @@ class IdentificadorUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     def form_valid(self, form):
         # Asegúrate de que la entidad no se modifique durante la actualización
@@ -801,7 +825,7 @@ class ReceptorCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_initial(self):
         initial = super().get_initial()
@@ -834,7 +858,7 @@ class ReceptorUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     def form_valid(self, form):
         # Asegúrate de que la entidad no se modifique durante la actualización
@@ -853,7 +877,7 @@ class ReceptorUpdateView(LoginRequiredMixin, UpdateView):
 class OtroDocumentoAsociadoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
-    template_name = 'otro_documento_asociado_view.html'
+    template_name = 'comprobante donacion/otro_documento_asociado_view.html'
     model = OtroDocumentoAsociado
     
     def get_context_data(self, **kwargs) :
@@ -865,18 +889,18 @@ class OtroDocumentoAsociadoView(LoginRequiredMixin,View):
 class OtroDocumentoAsociadoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'otro_documento_asociado_form.html'
+    template_name = 'comprobante donacion/otro_documento_asociado_form.html'
     form_class = OtroDocumentoAsociadoForm
     
     def get_success_url(self):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
         id=self.kwargs.get("id")
-        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, id=id)
+        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
         # Asegúrate de que la entidad no se modifique durante la actualización
         form.instance.entidad = self.request.user.entidad
         form.instance.comprobanteDonacion = comprobanteDonacion
@@ -889,14 +913,14 @@ class OtroDocumentoAsociadoCreateView(LoginRequiredMixin,CreateView):
 
 class OtroDocumentoAsociadoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'otro_documento_asociado_form.html'
+    template_name = 'comprobante donacion/otro_documento_asociado_form.html'
     form_class = OtroDocumentoAsociadoForm
     
     def get_success_url(self):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     def form_valid(self, form):
         # Asegúrate de que la entidad no se modifique durante la actualización
@@ -910,7 +934,7 @@ class OtroDocumentoAsociadoUpdateView(LoginRequiredMixin, UpdateView):
 class CuerpoDocumentoView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
-    template_name = 'cuerpo_documento_view.html'
+    template_name = 'comprobante donacion/cuerpo_documento_view.html'
     model = CuerpoDocumento
     
     def get_context_data(self, **kwargs) :
@@ -922,14 +946,14 @@ class CuerpoDocumentoView(LoginRequiredMixin,View):
 class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'cuerpo_documento_form.html'
+    template_name = 'comprobante donacion/cuerpo_documento_form.html'
     form_class = CuerpoDocumentoForm
     
     def get_success_url(self):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_initial(self):
         initial = super().get_initial()
@@ -937,8 +961,8 @@ class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
         return initial
     
     def form_valid(self, form):
-        id=self.kwargs.get("id")
-        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, id=id)
+        id=self.kwargs.get("pk")
+        comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
         # Asegúrate de que la entidad no se modifique durante la actualización
         form.instance.entidad = self.request.user.entidad
         form.instance.comprobanteDonacion = comprobanteDonacion
@@ -954,7 +978,7 @@ class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
     
 class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'cuerpo_documento_form.html'
+    template_name = 'comprobante donacion/cuerpo_documento_form.html'
     form_class = CuerpoDocumentoForm
     model = CuerpoDocumento
     
@@ -962,7 +986,7 @@ class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
         # Asegúrate de que la entidad no se modifique durante la actualización
@@ -980,7 +1004,7 @@ class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
 class PagoDonacionView(LoginRequiredMixin,View):
     
     login_url = '/ingresar/'
-    template_name = 'pago_donacion_view.html'
+    template_name = 'comprobante donacion/pago_donacion_view.html'
     model = PagoDonacion
     
     def get_context_data(self, **kwargs) :
@@ -992,7 +1016,7 @@ class PagoDonacionView(LoginRequiredMixin,View):
 class PagoDonacionCreateView(LoginRequiredMixin,CreateView):
     
     login_url = '/ingresar'
-    template_name = 'pago_donacion_form.html'
+    template_name = 'comprobante donacion/pago_donacion_form.html'
     form_class = PagoDonacionForm
     model = PagoDonacion
     
@@ -1000,7 +1024,7 @@ class PagoDonacionCreateView(LoginRequiredMixin,CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
         # Asegúrate de que la entidad no se modifique durante la actualización
@@ -1013,7 +1037,7 @@ class PagoDonacionCreateView(LoginRequiredMixin,CreateView):
 
 class PagoDonacionUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
-    template_name = 'pago_donacion_form.html'
+    template_name = 'comprobante donacion/pago_donacion_form.html'
     form_class = PagoDonacionForm
     model = PagoDonacion
     
@@ -1021,7 +1045,7 @@ class PagoDonacionUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def form_valid(self, form):
         # Asegúrate de que la entidad no se modifique durante la actualización
@@ -1035,17 +1059,23 @@ class ComprobanteDonacionMonthView(LoginRequiredMixin,MonthArchiveView):
     """Muestra la lista de sujetos excluidos por mes"""
 
     login_url='/ingresar/'
-    data_field = "fecha"
+    date_field = "fecha"
     queryset = ComprobanteDonacion.objects.all()
     template_name='comprobante donacion/comprobante_donacion_month.html'
     allow_empty = True
     allow_future = True
 
     def get_context_data(self, **kwargs) :
-        context = super().get_context(**kwargs)
-        comprobante = ComprobanteDonacion.objects.all(entidad=self.request.user.entidad)
+        context = super().get_context_data(**kwargs)
+        comprobante = ComprobanteDonacion.objects.filter(entidad=self.request.user.entidad)
         context['registro'] = comprobante
         return context
+    
+    def get_year(self):
+        return timezone.now().year
+
+    def get_month(self):
+        return timezone.now().strftime('%m')  # Devuelve el mes actual en formato MM
 
 class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
     """Muestra los datos de un comprobante de donacion en especifico"""
@@ -1062,9 +1092,9 @@ class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
         
         try:
             #intentamos obtener identificador, cuerpos de documento, otros documentos y apendices si exixten 
-            identificador = get_object_or_404(Identificador, comprobanteDonacion=comprobanteDonacion)
+            identificador = Identificador.objects.get(comprobanteDonacion=comprobanteDonacion)
             cuerpoDocumento = CuerpoDocumento.objects.filter(comprobanteDonacion=comprobanteDonacion)
-            otroDocumentoAsociado = OtroDocumentoAsociado.objets.filter(comprobanteDonacion=comprobanteDonacion)
+            otroDocumentoAsociado = OtroDocumentoAsociado.objects.filter(comprobanteDonacion=comprobanteDonacion)
             apendice = Apendice.objects.filter(comprobanteDonacion=comprobanteDonacion)
             context['identificador'] = identificador
             context['otroDocumentoAsociado'] = otroDocumentoAsociado
@@ -1073,7 +1103,7 @@ class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
             context['show'] = True
             return context   
         
-        except identificador.DoesNotExist:
+        except Identificador.DoesNotExist:
             context['identificador'] = None
         
         except CuerpoDocumento.DoesNotExist:
@@ -1090,7 +1120,7 @@ class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
 class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
     
     login_url = '/ingresar/'
-    template_name = 'comprobante donacion/comprobante_donacion_create_view.html'
+    template_name = 'comprobante donacion/comprobante_donacion_form.html'
     model = ComprobanteDonacion
     form_class = ComprobanteDonacionForm
     
@@ -1098,7 +1128,7 @@ class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
     
     def get_initial(self):
         initial = super().get_initial()
@@ -1127,14 +1157,14 @@ class ComprobanteDonacionUpdateView(LoginRequiredMixin, UpdateView):
     
     login_url = '/ingresar/'
     model = ComprobanteDonacion
-    template_name = 'comprobante donacion/comprobante_donacion_create_view.html'
+    template_name = 'comprobante donacion/comprobante_donacion_form.html'
     form_class = ComprobanteDonacionForm    
     
     def get_success_url(self):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_facturas')
 
     def form_valid(self, form):
         form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
@@ -1180,9 +1210,8 @@ class ResponseHaciendaByComprobanteDonacionListView(ListView):
 
 def sujetoExcluidoList(id):
     sujetoExcluido = SujetoExcluido.objects.get(id=id)
-    identificador = Identificador.objects.filter(sujetoExcluido=sujetoExcluido)
+    identificador = Identificador.objects.get(sujetoExcluido=sujetoExcluido)
     operacionesSujetoExcluido = OperacionesSujetoExcluido.objects.filter(sujetoExcluido=sujetoExcluido)
-    apendiceSujetoExcluido = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
     fechaEmi = sujetoExcluido.fechaTransmicion.date().isoformat()
     horaEmi = sujetoExcluido.fechaTransmicion.strftime("%H:%M:%S")
     
@@ -1201,20 +1230,20 @@ def sujetoExcluidoList(id):
     
     sujetoData = {
         'identificacion': {
-            'version': identificador.version,
+            'version': int(identificador.version),
             'ambiente': identificador.ambiente,
             'tipoDte': identificador.tipoDte.codigo,
             'numeroControl': identificador.numeroControl,
-            'codigoGeneracion': serialize(identificador.codigoGeneracion),
-            'tipoModelo': identificador.tipoModelo,
-            'tipoOperacion': identificador.tipoOperacion,
-            'tipoContingencia': identificador.tipoContingencia,
+            'codigoGeneracion': str(identificador.codigoGeneracion).upper(),
+            'tipoModelo': int(identificador.tipoModelo),
+            'tipoOperacion': int(identificador.tipoOperacion),
+            'tipoContingencia': int(identificador.tipoContingencia) if identificador.tipoContingencia else None,
             'motivoContin': identificador.motivoContin,
-            'fechaEmi': fechaEmi,
-            'horaEmi': horaEmi,
+            'fecEmi': fechaEmi,
+            'horEmi': horaEmi,
             'tipoMoneda': identificador.tipoMoneda
         },
-        'Emisor': {
+        'emisor': {
             "nit": sujetoExcluido.emisor.nit,
             "nrc": sujetoExcluido.emisor.nrc,
             "nombre": sujetoExcluido.emisor.razonSocial,
@@ -1252,16 +1281,14 @@ def sujetoExcluidoList(id):
             "descu" : serialize(sujetoExcluido.descu),
             "totalDescu" : serialize(sujetoExcluido.totalDescu),
             "subTotal" : serialize(sujetoExcluido.subTotal),
-            "retencionIVAMH": sujetoExcluido.retencionIVAMH,
             "ivaRete1" : serialize(sujetoExcluido.ivaRete1),
             "reteRenta" : serialize(sujetoExcluido.reteRenta),
             "totalPagar" : serialize(sujetoExcluido.totalPagar),
             "totalLetras" : sujetoExcluido.totalLetras,
-            "condicionOperacion" : sujetoExcluido.condicionOperacion,
+            "condicionOperacion" : int(sujetoExcluido.condicionOperacion),
             "pagos" : [
                 {
-                    "codigo" : sujetoExcluido.pago.codigo,
-                    "formaPago": sujetoExcluido.pago.formaPago.codigo,
+                    "codigo" : sujetoExcluido.pago.formaPago.codigo,
                     "montoPago" : serialize(sujetoExcluido.pago.montoPago),
                     "referencia" : sujetoExcluido.pago.referencia,
                     "plazo" : sujetoExcluido.pago.plazo,
@@ -1275,27 +1302,29 @@ def sujetoExcluidoList(id):
     for operacion in operacionesSujetoExcluido:
         operacionesData = {
             "numItem" : operacion.numItem,
-            "tipoItem" : operacion.tipoItem,
+            "tipoItem" : int(operacion.tipoItem),
             "codigo" : operacion.codigo,
-            "uniMedida": operacion.uniMedida.codigo,
-            "cantidad" : operacion.cantidad,
+            "uniMedida": int(operacion.uniMedida.codigo),
+            "cantidad" : serialize(operacion.cantidad),
             "montoDescu": serialize(operacion.montoDescu),
             "compra": serialize(operacion.compra),
-            "retencion": serialize(operacion.retencion),
             "descripcion" : operacion.descripccion,
             "precioUni": serialize(operacion.precioUni)
         }
         sujetoData['cuerpoDocumento'].append(operacionesData)
+    apendiceSujetoExcluido = Apendice.objects.filter(sujetoExcluido=sujetoExcluido)
+    if apendiceSujetoExcluido.exists():
+        for apendices in apendiceSujetoExcluido:
+            apendicesData = {
+                "campo": apendices.campo,
+                "etiqueta": apendices.etiqueta,
+                "valor": apendices.valor
+            }
+            sujetoData['apendice'].append(apendicesData)
+    else:
+        sujetoData['apendice'] = None
     
-    for apendices in apendiceSujetoExcluido:
-        apendicesData = {
-            "campo": apendices.campo,
-            "etiqueta": apendices.etiqueta,
-            "valor": apendices.valor
-        }
-        sujetoData['apendice'].append(apendicesData)
-    
-    return json.dumps(sujetoData, default=serialize)
+    return sujetoData
 
 
 def comprobanteDonacionList(id):
@@ -1322,14 +1351,14 @@ def comprobanteDonacionList(id):
     
     comprobanteData = {
         'identificacion': {
-            'version': identificador.version,
+            'version': int(identificador.version),
             'ambiente': identificador.ambiente,
             'tipoDte': identificador.tipoDte.codigo,
             'numeroControl': identificador.numeroControl,
-            'codigoGeneracion': serialize(identificador.codigoGeneracion),
-            'tipoModelo': identificador.tipoModelo,
-            'tipoOperacion': identificador.tipoOperacion,
-            'tipoContingencia': identificador.tipoContingencia,
+            'codigoGeneracion': str(identificador.codigoGeneracion).upper(),
+            'tipoModelo': int(identificador.tipoModelo),
+            'tipoOperacion': int(identificador.tipoOperacion),
+            'tipoContingencia': int(identificador.tipoContingencia) if identificador.tipoContingencia else None,
             'motivoContin': identificador.motivoContin,
             'fechaEmi': fechaEmi,
             'horaEmi': horaEmi,
@@ -1410,15 +1439,18 @@ def comprobanteDonacionList(id):
         }
         comprobanteData['cuerpoDocumento'].append(cuerpoDocumentoData)
     
-    for apendices in apendiceComprobanteDonacion:
-        apendicesData = {
-            "campo": apendices.campo,
-            "etiquta": apendices.etiquta,
-            "valor": apendices.valor
-        }
-        comprobanteData['apendice'].append(apendicesData)
+    if apendiceComprobanteDonacion.exists():
+        for apendices in apendiceComprobanteDonacion:
+            apendicesData = {
+                "campo": apendices.campo,
+                "etiquta": apendices.etiquta,
+                "valor": apendices.valor
+            }
+            comprobanteData['apendice'].append(apendicesData)
+    else:
+        comprobanteData['apendice'] = None
     
-    return json.dump(comprobanteData, default=serialize)
+    return comprobanteData
 
 #Creando los PDF's para cada Factura
 
@@ -1529,26 +1561,29 @@ def crearFacturaSujetoExcluido(datos):
         c.drawString(300, y, descripccion)
         
         y -= 20
+    if datos['apendice'] == None:
+        c.setFont("Helvetica-Bold", 15)
+        c.drawString(30, alto - 50, "No hay datos")
+    else:    
+        #Apendice
+        c.setFont("Helvetica-Bold", 15)
+        c.drawString(30, alto - 50, "Campo")
+        c.drawString(30, alto - 140, "Descripccion")
+        c.drawString(450, alto - 140, "Valor")
         
-    #Apendice
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Campo")
-    c.drawString(30, alto - 140, "Descripccion")
-    c.drawString(450, alto - 140, "Valor")
-    
-    z = alto - 170
-    
-    #Lista de Apendices
-    for apendice in datos["apendice"]:
-        campo = apendice["campo"]
-        etiqueta = apendice["etiqueta"]
-        valor = apendice["valor"]
+        z = alto - 170
         
-        c.drawString(100, y, campo)
-        c.drawString(100, y, etiqueta)
-        c.drawString(100, y, valor)
-        
-        z -= 20
+        #Lista de Apendices
+        for apendice in datos["apendice"]:
+            campo = apendice["campo"]
+            etiqueta = apendice["etiqueta"]
+            valor = apendice["valor"]
+            
+            c.drawString(100, y, campo)
+            c.drawString(100, y, etiqueta)
+            c.drawString(100, y, valor)
+            
+            z -= 20
     
     #Guardar el PDF
     c.save()
@@ -1557,7 +1592,6 @@ def crearFacturaSujetoExcluido(datos):
     return buffer.getvalue()
 
 
-@login_required(redirect_field_name='/ingresar')
 def crearComprobanteDonacion(datos):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
@@ -1670,26 +1704,29 @@ def crearComprobanteDonacion(datos):
         c.drawString(300, x, descripccion)
         
         x -= 20
-       
-    #Apendice
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Campo")
-    c.drawString(30, alto - 140, "Descripccion")
-    c.drawString(450, alto - 140, "Valor")
-    
-    z = alto - 170
-    
-    #Lista de Apendices
-    for apendice in datos["apendice"]:
-        campo = apendice["campo"]
-        etiqueta = apendice["etiqueta"]
-        valor = apendice["valor"]
+    if datos['apendice'] == None:
+        c.setFont("Helvetica-Bold", 15)
+        c.drawString(30, alto - 50, "No hay datos")
+    else:   
+        #Apendice
+        c.setFont("Helvetica-Bold", 15)
+        c.drawString(30, alto - 50, "Campo")
+        c.drawString(30, alto - 140, "Descripccion")
+        c.drawString(450, alto - 140, "Valor")
         
-        c.drawString(100, z, campo)
-        c.drawString(100, z, etiqueta)
-        c.drawString(100, z, valor)
+        z = alto - 170
         
-        z -= 20
+        #Lista de Apendices
+        for apendice in datos["apendice"]:
+            campo = apendice["campo"]
+            etiqueta = apendice["etiqueta"]
+            valor = apendice["valor"]
+            
+            c.drawString(100, z, campo)
+            c.drawString(100, z, etiqueta)
+            c.drawString(100, z, valor)
+            
+            z -= 20
     
     #Guardar El PDF
     c.save()
@@ -1704,7 +1741,7 @@ class Transmitir(LoginRequiredMixin,View):
     def post(self, request, *args, **kwargs):
         return self.transmitir(request, *args, **kwargs)
     
-    def obtenerFactura(self, request,*args, **kwargs):
+    def obtenerFactura(self,*args, **kwargs):
         origin = self.request.POST.get('origin')
         id = self.kwargs.get('pk')
         
@@ -1714,76 +1751,89 @@ class Transmitir(LoginRequiredMixin,View):
             factura = comprobanteDonacionList(id)
         return factura
     
+    def convert_base64_private_key_to_pem(self, base64_key):
+        # Decodificar la clave base64
+        key_der = base64_key.strip()
+        
+        # Encapsular la clave privada DER en formato PEM
+        pem_key = "-----BEGIN PRIVATE KEY-----\n"
+        pem_key += '\n'.join([key_der[i:i+64] for i in range(0, len(key_der), 64)])
+        pem_key += "\n-----END PRIVATE KEY-----\n"
+        
+        return pem_key
+    
     @csrf_exempt
     def transmitir(self, request,*args, **kwargs):
         id = self.kwargs.get('pk')
         
         #Generando el pdf a partir del json 
-        jsonData = self.obtenerFactura(request, *args, **kwargs)
+        jsonData = self.obtenerFactura(self, *args, **kwargs)
         jsonData = json.dumps(jsonData)  # Convierte el diccionario en JSON
        
         datosFactura = cargarDatosFactura(jsonData)
         origin = self.request.POST.get('origin')
         try:
-            if origin == 'sujetoExcluido':
-                sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
-                identificador = get_object_or_404(Identificador, pk=sujetoExcluido.identificador.id)
-            else:
-                comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
-                identificador = get_object_or_404(Identificador, pk=comprobanteDonacion.identificador.id)
-            
             entidad = self.request.user.entidad
-            print(entidad)
             authHacienda = get_object_or_404(ParametrosAuthHacienda,entidad=entidad)
-            privateKey = authHacienda.privateKey
-            print(privateKey)
+            privateKey = self.convert_base64_private_key_to_pem(authHacienda.privateKey)
             url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
-            
+                
             parametros_auth = {
                 'content_Type' : 'application/x-www-form-urlencoded',
                 'user_agent ': authHacienda.userAgent,
-                'user' : authHacienda.user,
+                'user' : authHacienda.nit,
                 'pwd' : authHacienda.pwd,
                 }
 
             acceso = requests.post(url_auth, params=parametros_auth).json()
-
-            responseHacienda = ResponseHacienda(
-                nombre="Auth de Hacienda",
-                datosJason=json.dumps(acceso),  # Corregido el nombre del campo y la serialización JSON
-                stastus_code=acceso['status']
-            )
-            responseHacienda.save()
-            
-            if acceso['status'] == "OK":
-                token = acceso['body']['token']
-                factura = self.obtenerFactura()
-                encoded = jwt.encode(factura, privateKey, algorithm="HS256")
-                url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
-
-                parametros_recepcion = {
-                    'Authorization': token,
-                    'User-Agent': authHacienda.userAgent,
-                    'content-Type': 'application/JSON',
-                    'ambiente': identificador.ambiente,
-                    'idEnvio': identificador.id,
-                    'version': identificador.version,
-                    'tipoDte': identificador.tipoDte.codigo,
-                    'documento': encoded,
-                    'codigoGeneracion': identificador.codigoGeneracion,
-                }
-
-                transmitir = requests.post(url_recepcion, params=parametros_recepcion).json()
-
+            if origin == 'sujetoExcluido':
+                sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
+                identificador = get_object_or_404(Identificador, sujetoExcluido=sujetoExcluido)               
                 responseHacienda = ResponseHacienda(
-                    nombre="Transmicion de factura a Hacienda",
-                    datosJason=json.dumps(transmitir),  # Corregido el nombre del campo y la serialización JSON
-                    stastus_code=transmitir['status']
+                    nombre="Auth de Hacienda",
+                    datosJson=acceso,  # Corregido el nombre del campo y la serialización JSON
+                    status=acceso['status'],
+                    sujetoExcluido=sujetoExcluido
                 )
                 responseHacienda.save()
-            
-                if transmitir['codigoMsg'] == "001":
-                    if origin == 'sujetoExcluido':
+                if acceso['status'] == 'OK':
+                    token = acceso['body']['token']
+                    
+                    factura = self.obtenerFactura()
+                    encoded = jwt.encode(factura, privateKey, algorithm="RS512")
+                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
+                    headers = {
+                        'Authorization':token,
+                        'User-Agent': authHacienda.userAgent,
+                        'content-Type': 'application/json',  # Asegúrate de que sea 'application/json'
+                    }
+                    
+                    data = {
+                        'ambiente': identificador.ambiente,
+                        'idEnvio': identificador.id,
+                        'version': identificador.version,
+                        'tipoDte': identificador.tipoDte.codigo,
+                        'documento': encoded,
+                        'codigoGeneracion': str(identificador.codigoGeneracion).upper(),
+                    }
+                    
+                    try:
+                        transmitir = requests.post(url_recepcion, headers=headers, json=data)
+                        print(transmitir)
+                        responseHacienda = ResponseHacienda(
+                            nombre="Transmicion de factura a Hacienda",
+                            datosJson=transmitir,  # Asegúrate de que los datos sean correctos
+                            status=transmitir['status'],
+                            sujetoExcluido=sujetoExcluido
+                        )
+                        responseHacienda.save()    
+                    except requests.exceptions.HTTPError as e:
+                        messages.error(self.request,f"Error en la solicitud: {e}")
+                    except ValueError as json_err:
+                        messages.error(self.request,f"Error al decodificar JSON: {json_err}")
+                        messages.error(self.request,f"Contenido de la respuesta: {transmitir.text}")
+                    
+                    if transmitir['codigoMsg'] == "001":
                         SujetoExcluido.objects.filter(pk=id).update(transmitido=True)  # Actualizar el campo transmitido
                         # Envía un correo electrónico con la factura electrónica
                         subject = 'Factura Sujeto Excluido'
@@ -1797,7 +1847,61 @@ class Transmitir(LoginRequiredMixin,View):
                         email.attach('data.json', jsonContent, 'application/json')
                         email.attach('data.pdf', pdf_sujeto_excluido, 'application/pdf')
                         email.send()
-                    else:
+                    messages.success(self.request, 'Se ha transmitido la factura correctamente.')
+                    return redirect('sujetoExcluidoDetailView', pk=id)
+                else:
+                    messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
+                    return redirect('authHacienda', pk=authHacienda.pk)
+            else:
+                comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
+                identificador = get_object_or_404(Identificador, comprobanteDonacion=comprobanteDonacion)
+                responseHacienda = ResponseHacienda(
+                    nombre="Auth de Hacienda",
+                    datosJson=acceso,  # Corregido el nombre del campo y la serialización JSON
+                    status=acceso['status'],
+                    comprobanteDonacion=ComprobanteDonacion
+                )
+                responseHacienda.save()
+
+                if acceso['status'] == "OK":
+                    token = acceso['body']['token']
+                    factura = self.obtenerFactura()
+                    encoded = jwt.encode(factura, privateKey, algorithm="HS256")
+                    print(encoded)
+                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
+
+                    headers = {
+                        'Authorization':token,
+                        'User-Agent': authHacienda.userAgent,
+                        'content-Type': 'application/json',  # Asegúrate de que sea 'application/json'
+                    }
+                    
+                    data = {
+                        'ambiente': identificador.ambiente,
+                        'idEnvio': identificador.id,
+                        'version': identificador.version,
+                        'tipoDte': identificador.tipoDte.codigo,
+                        'documento': encoded,
+                        'codigoGeneracion': str(identificador.codigoGeneracion).upper(),
+                    }
+                    try:
+                        transmitir = requests.post(url_recepcion, headers=headers, json=data).json()
+                        data_dict = json.loads(transmitir)
+                        print(transmitir)
+                        responseHacienda = ResponseHacienda(
+                            nombre="Transmicion de factura a Hacienda",
+                            datosJson=data_dict,  # Corregido el nombre del campo y la serialización JSON
+                            status=transmitir['status'],
+                            comprobanteDonacion=ComprobanteDonacion
+                        )
+                        responseHacienda.save()
+                    except requests.exceptions.HTTPError as e:
+                        messages.error(self.request,f"Error en la solicitud: {e}")
+                    except ValueError as json_err:
+                        messages.error(self.request,f"Error al decodificar JSON: {json_err}")
+                        messages.error(self.request,f"Contenido de la respuesta: {transmitir.text}")
+                    
+                    if transmitir['codigoMsg'] == "001":
                         ComprobanteDonacion.objects.filter(pk=id).update(transmitido=True)  # Actualizar el campo transmitido
                         # Envía un correo electrónico con el comprobante de donación
                         subject = 'Comprobante de Donación'
@@ -1811,16 +1915,11 @@ class Transmitir(LoginRequiredMixin,View):
                         email.attach('data.json', jsonContent, 'application/json')
                         email.attach('data.pdf', pdf_comprobante_donacion, 'application/pdf')
                         email.send()
-
-                messages.success(self.request, 'Se ha transmitido la factura correctamente.')
-                if origin == 'sujetoExcluido':
-                    return redirect('sujetoExcluidoDetailView', pk=id)
-                else:
+                    messages.success(self.request, 'Se ha transmitido el comprobante correctamente.')
                     return redirect('comprobanteDonacionDetailView', pk=id)
-
-            else:
-                messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
-                return redirect('authHacienda', pk=authHacienda.pk)
+                else:
+                    messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
+                    return redirect('authHacienda', pk=authHacienda.pk)
 
         except requests.exceptions.RequestException as e:
             messages.error(self.request, f'Ocurrió un error al hacer la solicitud a la API de Hacienda: {str(e)}')

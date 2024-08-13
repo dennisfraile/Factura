@@ -160,9 +160,8 @@ class PagoForm(forms.ModelForm):
             ],
             widget=forms.Select(attrs={'class': 'form-control'}) 
         )
-        fields = ['codigo', 'formaPago','montoPago','referencia','plazo','periodo']
+        fields = ['formaPago','montoPago','referencia','plazo','periodo']
         label = {
-            'codigo': 'Codigo',
             'formaPago': 'Forma de Pago',
             'montoPago': 'Monto por forma de Pago',
             'referencia': 'Referencia de la modalidad de pagos',
@@ -170,7 +169,6 @@ class PagoForm(forms.ModelForm):
             'periodo': 'Periodo de plazo',
         }
         widgets ={
-            'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'formaPago': forms.Select(attrs={'class': 'form-control'}),
             'referencia': forms.TextInput(attrs={'class': 'form-control'}),
             
@@ -189,13 +187,12 @@ class ApendiceForm(forms.ModelForm):
 
     class Meta:
         model = Apendice
-        fields =['campo','etiqueta','valor','sujetoExcluido','comprobanteDonacion']
+        fields =['campo','etiqueta','valor']
         widgets = {
             'campo': forms.TextInput(attrs={'class': 'form-control'}),
             'etiqueta': forms.TextInput(attrs={'class': 'form-control'}),
             'valor': forms.TextInput(attrs={'class': 'form-control'}),
-            'sujetoExcluido': forms.Select(attrs={'class': 'form-control'}),
-            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
+            
         }
     
     def __init__(self, *args, **kwargs):
@@ -216,7 +213,7 @@ class TipoDocumentoForm(forms.ModelForm):
 
     class Meta:
         model = TipoDocumento
-        fields =['codigo', 'valores']
+        fields ='__all__'
     
     def __init__(self, *args, **kwargs):
         super(TipoDocumentoForm, self).__init__(*args, **kwargs)
@@ -310,27 +307,36 @@ class ReceptorForm(forms.ModelForm):
     )
     class Meta:
         model = Receptor
-        fields = ['tipo', 'homologado','numero', 'nombre', 'actividadEconomica', 'direccionReceptor','cellphone', 'email']
+        fields = ['tipo', 'homologado','numero','nrc', 'nombre', 'actividadEconomica', 'direccionReceptor','cellphone', 'email']
         label ={
             'tipo': 'Tipo', 
             'homologado':'Homologado',
             'numero':'Numero',
+            'nrc':'NRC',
             'nombre':'Nombre',
             'actividadEconomica':'ActividadEconomica',
             'cellphone':'Numero de Telefono',
             'email':'Email',
             }
         widgets = {
-            'numero': forms.TextInput(attrs={'class':'form-control'}),
+            'numero': forms.TextInput(attrs={'class':'form-control','data-mask':'000000000'}),
             'nombre': forms.TextInput(attrs={'class':'form-control'}),
             'actividadEconomica': forms.Select(attrs={'class':'form-control'}),
             'cellphone': forms.TextInput(attrs={'class':'form-control'}),
             'email': forms.EmailInput(attrs={'class':'form-control'}),
         }
+        
+        class Media:
+            js = ['https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js']
+    
+            
     
     def __init__(self, *args, **kwargs):
         entidad = kwargs.pop('entidad',None)
         super(ReceptorForm, self).__init__(*args, **kwargs)
+        if self.initial:
+                if 'numero' in self.initial:
+                    self.initial['numero'] = str(self.initial['numero']).zfill(9)
         if entidad:
             self.fields['direccionReceptor'].queryset = Direccion.objects.filter(entidad=entidad)
         # Añadir clase 'form-control' a todos los campos del formulario automáticamente
@@ -363,15 +369,7 @@ class SujetoExcluidoForm(forms.ModelForm):
         label="Condición de Operación",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    retencionIVAMH = forms.ChoiceField(
-        choices=[
-            ("22", "Retención IVA 1%"),
-            ("C4", "Retención IVA 13%"),
-            ("C9", "Otras retenciones IVA casos especiales")
-        ],
-        label="Retención IVA MH",
-        widget=forms.Select(attrs={'class': 'form-control'}) 
-    )
+    
 
     class Meta:
         model = SujetoExcluido
@@ -431,12 +429,10 @@ class OtroDocumentoAsociadoForm(forms.ModelForm):
             'codDocAsociado': 'Documento Asociado',
             'descDocumento': 'Identificacion del Documento Asociado',
             'detalleDocumento': 'Descripccion de Documento Asociado',
-            'comprobanteDonacion': 'Comprobante de Donacion',
         }
         widgets = {
             'descDocumento': forms.TextInput(attrs={'class': 'form-control'}),
             'detalleDocumento': forms.TextInput(attrs={'class': 'form-control'}),
-            'comprobanteDonacion': forms.Select(attrs={'class': 'form-control'}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -471,12 +467,11 @@ class CuerpoDocumentoForm(forms.ModelForm):
             'montoDescu': 'Monto',
             'valorUni': 'Valor Unitario',
             'valor': 'Valor Donado',
-            'comprobanteDonacion': 'Comprobante de Donacion',
             
         }
         widgets = {
             'numItem': forms.NumberInput(attrs={'class': 'form-control'}),
-            'cantidad': forms.IntegerField(),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control'}),
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'uniMedida': forms.Select(attrs={'class': 'form-control'}),
             'descripccion': forms.TextInput(attrs={'class': 'form-control'}),
@@ -519,6 +514,11 @@ class ComprobanteDonacionForm(forms.ModelForm):
        
     class Meta:
         model = ComprobanteDonacion
+        receptor = forms.ModelChoiceField(
+            queryset=Receptor.objects.all(),
+            widget=forms.Select(attrs={'class': 'form-control'}),
+            label="Receptor"
+        )
         codDomiciliado = forms.ChoiceField(
             choices = {
                 ("1", "Domiciliado"),
@@ -528,16 +528,12 @@ class ComprobanteDonacionForm(forms.ModelForm):
         )
         fields = '__all__'
         label = {
-            'identificador': 'Identificador',
-            'emisor': 'Donatorio',
             'codDomiciliado': 'Domicilio Fiscal',
             'codPais': 'Codigo de Pais',
             'valorTotal': 'Total de la Donacion',
             'totalLetras': 'Total en Letras',
         }
         widgets = {
-            'identificador': forms.Select(attrs={'class': 'form-control'}),
-            'emisor':forms.Select(attrs={'class': 'form-control'}),
             'codPais': forms.Select(attrs={'class': 'form-control'}),
             'totalLetras': forms.TextInput(attrs={'class': 'form-control'}),
             

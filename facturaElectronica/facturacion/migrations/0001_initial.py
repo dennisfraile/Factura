@@ -239,7 +239,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('codigo', models.CharField(max_length=3, verbose_name='Codigo')),
-                ('valores', models.CharField(max_length=50, verbose_name='Valores')),
+                ('valor', models.CharField(max_length=50, verbose_name='Valor')),
             ],
             options={
                 'verbose_name_plural': 'Tipos de Documentos',

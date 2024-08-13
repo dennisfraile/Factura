@@ -45,13 +45,13 @@
                 {{ form.tipoOperacion }}
             </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row" id="tipoContingencia-group" style="display:none;">
             <label for="{{ form.tipoContingencia.id_for_label }}" class="col-md-2 control-label">{{ form.tipoContingencia.label }}</label>
             <div class="col-sm-8">
                 {{ form.tipoContingencia }}
             </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row" id="motivoContin-group" style="display:none;">
             <label for="{{ form.motivoContin.id_for_label }}" class="col-md-2 control-label">{{ form.motivoContin.label }}</label>
             <div class="col-sm-8">
                 {{ form.motivoContin }}
@@ -64,8 +64,30 @@
             </div>
         </div>
         <br>
-        <input type="hidden" name="origin" value="identificador">
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="{% url 'panel_facturas' %}" class="btn btn-danger">Cancelar</a>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoOperacionSelect = document.getElementById('{{ form.tipoOperacion.id_for_label }}');
+            const tipoContingenciaGroup = document.getElementById('tipoContingencia-group');
+            const motivoContinGroup = document.getElementById('motivoContin-group');
+
+            function toggleContingenciaFields() {
+                if (tipoOperacionSelect.value === '2') {
+                    tipoContingenciaGroup.style.display = '';
+                    motivoContinGroup.style.display = '';
+                } else {
+                    tipoContingenciaGroup.style.display = 'none';
+                    motivoContinGroup.style.display = 'none';
+                }
+            }
+
+            // Initial call to set the correct state on page load
+            toggleContingenciaFields();
+
+            // Add event listener to the tipoOperacion select field
+            tipoOperacionSelect.addEventListener('change', toggleContingenciaFields);
+        });
+    </script>
 {% endblock %}

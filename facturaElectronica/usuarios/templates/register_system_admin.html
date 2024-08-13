@@ -1,119 +1,97 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3>Registrar Administrador del Sistema</h3>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="container mt-7">
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.name.label_tag }}
-                    </div>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title">Registrar Administrador del Sistema</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <label for="{{ form.name.id_for_label }}" class="col-sm-2 col-form-label">{{ form.name.label }}</label>
                     <div class="col-sm-10">
                         {{ form.name }}
                     </div>
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.lastname.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.lastname.id_for_label }}" class="col-sm-2 col-form-label">{{ form.lastname.label }}</label>
                     <div class="col-sm-10">
                         {{ form.lastname }}
                     </div>  
                 </div>
                 <div class="form-group row">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.email.label_tag }}
-                    </div>
+                    <label for="{{ form.email.id_for_label }}" class="col-sm-2 col-form-label">{{ form.email.label }}</label>
                     <div class="col-sm-10">
                         {{ form.email }}
                     </div>
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.cellphone.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.cellphone.id_for_label }}" class="col-sm-2 col-form-label">{{ form.cellphone.label }}</label>
                     <div class="col-sm-10">
                         {{ form.cellphone }}
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.organizacion.label_tag }}
-                    </div>
+                    <label for="{{ form.organizacion.id_for_label }}" class="col-sm-2 col-form-label">{{ form.organizacion.label }}</label>
                     <div class="col-sm-10">
                         {{ form.organizacion }}
                     </div> 
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.nrc.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.nrc.id_for_label }}" class="col-sm-2 col-form-label">{{ form.nrc.label }}</label>
                     <div class="col-sm-10">
                         {{ form.nrc }}
                     </div>
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.actividadEconomica.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.actividadEconomica.id_for_label }}" class="col-sm-2 col-form-label">{{ form.actividadEconomica.label }}</label>
                     <div class="col-sm-10">
                         {{ form.actividadEconomica }}
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-sm-4 col-form-label">
-                    {{ form.is_entidad_superuser.label_tag }}
-                    </div>
+                    <label for="{{ form.is_entidad_superuser.id_for_label }}" class="col-sm-2 col-form-label">{{ form.is_entidad_superuser.label }}</label>
                     <div class="col-sm-10">
-                    {{ form.is_entidad_superuser }}
+                        {{ form.is_entidad_superuser }}
                     </div>   
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.is_system_superuser.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.is_system_superuser.id_for_label }}" class="col-sm-2 col-form-label">{{ form.is_system_superuser.label }}</label>
                     <div class="col-sm-10">
                         {{ form.is_system_superuser }}
                     </div>
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.is_staff.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.is_staff.id_for_label }}" class="col-sm-2 col-form-label">{{ form.is_staff.label }}</label>
                     <div class="col-sm-10">
                         {{ form.is_staff }}
                     </div>
                 </div>
-                <div class="form-group row ">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.is_active.label_tag }}
-                    </div>
+                <div class="form-group row">
+                    <label for="{{ form.is_active.id_for_label }}" class="col-sm-2 col-form-label">{{ form.is_active.label }}</label>
                     <div class="col-sm-10">
                         {{ form.is_active }}
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.password1.label_tag }}
-                    </div>
+                    <label for="{{ form.password1.id_for_label }}" class="col-sm-2 col-form-label">{{ form.password1.label }}</label>
                     <div class="col-sm-10">
                         {{ form.password1 }}
                     </div>
-                    <div class="col-sm-4 col-form-label">
-                        {{ form.password2.label_tag }}
-                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="{{ form.password2.id_for_label }}" class="col-sm-2 col-form-label">{{ form.password2.label }}</label>
                     <div class="col-sm-10">
                         {{ form.password2 }}
                     </div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Registrar</button>
-        </form>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

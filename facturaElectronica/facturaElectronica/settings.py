@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'facturaElectronica.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'factura3',
+        'NAME': 'factura',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',

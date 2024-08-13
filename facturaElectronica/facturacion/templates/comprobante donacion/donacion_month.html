@@ -12,7 +12,7 @@
     {% endif %}
     <div class="card-body ">
       <h4 class="display-5 fw-bold float-start">Listado de comprobantes de donacion mensuales - {{ month|date:"M Y" }}</h4>
-      <a id="donacion" href="{% url 'createComprobanteDonacion'%}" 
+      <a id="donacion" href="{% url 'comprobanteDonacionCreateView'%}" 
         class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nuevo Comprobante de Donacion">
         <span class="material-symbols-outlined">
           list_alt_add
@@ -23,46 +23,97 @@
       Esta vista despliega los datos de los Comprobantes de donacion.
       Haz clic sobre la que sea de tu interés para ver los datos concretos.
     </p>
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Version</th>
-            <th scope="col">Modelo de Facturacion</th>
-            <th scope="col">Tipo de Operacion</th>
-            <th scope="col">Donatorio</th>
-            <th scope="col">Donante</th>
-            <th scope="col">Valor totalr</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if object_list %}
-            {% for registro in object_list %}
-              {% if registro.usuario.id == user.id or user.is_superuser %}
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">Version</th>
+              <th scope="col">Modelo de Facturacion</th>
+              <th scope="col">Tipo de Operacion</th>
+              <th scope="col">Donatorio</th>
+              <th scope="col">Donante</th>
+              <th scope="col">Valor totalr</th>
+              <th scope="col">Transmitido</th>
+              <th scope="col" class="text-center">Responses</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if object_list %}
+              {% for registro in object_list %}
                 <tr>
-                  <th scope="row"><a href="{% url 'verComprobanteDonacion' pk=registro.pk %}">{{ registro.id }}</a></th>
+                  <th scope="row"><a href="{% url 'verComprobanteDonacion' pk=registro.pk %}?next={{ request.path }}">{{ registro.id }}</a></th>
                   <td>{{ registro.identificador.version }}</td>
                   <td>{{ registro.identificador.tipoModelo }}</td>
                   <td>{{ registro.identificador.tipoOperacion }}</td>
                   <td>{{ registro.emisor.emisor.name }}</td>
                   <td>{{ registro.receptor.receptor.name }}</td>
                   <td>{{ registro.valorTotal }}</td>
+                  <td class="text-center">
+                    <div class="transmitido-status {% if registro.transmitido %}transmitido{% else %}no-transmitido{% endif %}"></div>
+                  </td>
+                  <td class="text-center">
+                    <a id="sujeto" href="{% url 'response_hacienda_by_comprobante_donacion_list' registro.id %}" 
+                      class="btn btn-warning d-inline-flex align-items-center"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Responses">
+                      <span class="material-symbols-outlined me-2">
+                        description
+                      </span>
+                      <span>Ver Responses</span>
+                    </a>
+                  </td>
                 </tr>
-              {% else %}
-              {% endif %} 
-            {% endfor %}
-          {% else %}
-            <tr>
-              <th scope="row">No hay datos disponibles.</th>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    <a href="{% url 'comprobanteDonacionList' year=previous_month|date:'Y' month=previous_month|date:'m' %}" class="btn btn-dark" 
-        role="button" aria-pressed="true">Mes anterior</a>
-    <a href="{% url 'comprobanteDonacionList' year=next_month|date:'Y' month=next_month|date:'m' %}" class="btn btn-success" 
-        role="button" aria-pressed="true">Siguiente mes</a>
-    <a href="{% url 'panel_donacion' %}" class="btn btn-link" role="button" aria-pressed="true">Regresar al panel</a>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <th scope="row" colspan="9" class="text-center">No hay Comprobantes de Donacion.</th>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-4 text-start">
+        <a href="{% url 'comprobanteDonacionMonth' year=next_month|date:'Y' month=next_month|date:'m' %}" class="btn btn-primary d-inline-flex align-items-center" 
+          role="button" aria-pressed="true">
+          <span class="material-symbols-outlined me-2">arrow_back</span>
+          <span>Siguiente mes</span>
+        </a>
+      </div>
+      <div class="col-md-4 text-center">
+        <a href="{% url 'panel_facturas' %}" class="btn btn-danger d-inline-flex align-items-center" role="button" aria-pressed="true">
+          <span class="material-symbols-outlined me-2">
+            admin_panel_settings
+          </span>
+          <span>Regresar al panel</span>
+        </a>
+      </div> 
+      <div class="col-md-4 text-end">
+        <a href="{% url 'comprobanteDonacionMonth' year=previous_month|date:'Y' month=previous_month|date:'m' %}" class="btn btn-secondary d-inline-flex align-items-center" 
+            role="button" aria-pressed="true">
+            <span class="material-symbols-outlined me-2">
+              arrow_forward
+            </span>
+            <span>Mes anterior</span>
+        </a>
+      </div>
     </div>
   </div>
+  <style>
+    .transmitido-status {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        border-radius: 50%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 4px 6px rgba(255, 255, 255, 0.4);
+    }
+    
+    .transmitido {
+        background-color: green;
+    }
+    
+    .no-transmitido {
+        background-color: red;
+    }
+  </style>
 {% endblock %}

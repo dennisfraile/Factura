@@ -9,18 +9,26 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
+from django.core.validators import MinLengthValidator
+from django.core.validators import RegexValidator
 
 
 class ActividadEconomica(models.Model):
      
-     codigo = models.CharField(verbose_name="Codigo",max_length=10)
-     valor = models.CharField(verbose_name="Valores",max_length=100)
+     codigo = models.CharField(verbose_name="Codigo",max_length=10, validators=[
+            RegexValidator(
+                regex='^[0-9]{2,6}$',
+                message='El el codigo debe tener entre 1 y 6 dígitos.',
+                code='invalid_codigo'
+            )
+        ])
+     valor = models.CharField(verbose_name="Valores",max_length=150)
 
      class Meta:
         verbose_name_plural = "Actividades Economicas"
 
      def __str__(self):
-        return f'{self.codigo}'
+        return f'{self.valor}'
 
 class Entidad(models.Model):
     
@@ -29,13 +37,25 @@ class Entidad(models.Model):
     cellphone = models.CharField(verbose_name="Telefono movil del usuario", 
                                               help_text="Colocar el número sin identificador de país, sin espacios y sin guion." , 
                                               max_length=30)
-    codEstableMH = models.CharField(verbose_name="Codigo del establecimiento asignado por el MH", max_length=4, null=True)
-    codEstable = models.CharField(verbose_name="Codigo del establecimiento asignado por el contribuyente", max_length=10, null=True)
-    codPuntoVentaMH = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el MH", max_length=4, null=True)
-    codPuntoVenta = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el Contribuyente", max_length=15, null=True)
+    codEstableMH = models.CharField(verbose_name="Codigo del establecimiento asignado por el MH", max_length=4, blank=True, null=True, validators=[MinLengthValidator(4)])
+    codEstable = models.CharField(verbose_name="Codigo del establecimiento asignado por el contribuyente", max_length=10, blank=True, null=True, validators=[MinLengthValidator(1)])
+    codPuntoVentaMH = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el MH", max_length=4, blank=True, null=True, validators=[MinLengthValidator(4)])
+    codPuntoVenta = models.CharField(verbose_name="Codigo del punto de venta (Emisor) asignado por el Contribuyente", max_length=15, blank=True, null=True, validators=[MinLengthValidator(1)])
     email = models.EmailField(verbose_name="Correo electronico de la entidad", unique=True)
-    nit = models.CharField(verbose_name="Numero de NIT sin guiones",max_length=30, unique=True)
-    nrc = models.CharField(verbose_name="NRC", max_length=100, null=True)
+    nit = models.CharField(verbose_name="Numero de NIT sin guiones",max_length=30, unique=True, validators=[
+            RegexValidator(
+                regex='^([0-9]{14}|[0-9]{9})$',
+                message='El nit debe tener exactamente 14 o 9 dígitos.',
+                code='invalid_nit'
+            )
+        ])
+    nrc = models.CharField(verbose_name="NRC", max_length=100, null=True, blank=True, validators=[
+            RegexValidator(
+                regex='^[0-9]{1,8}$',
+                message='El nrc debe tener entre 1 y 8 dígitos.',
+                code='invalid_nrc'
+            )
+        ])
     actividadEconomica = models.ForeignKey(ActividadEconomica, on_delete=models.CASCADE, null=True)
     class Meta:
         verbose_name_plural = "Entidades"
@@ -64,7 +84,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                               help_text="Colocar el número sin identificador de país, sin espacios y sin guion." , 
                                               max_length=20)
     organizacion = models.CharField(verbose_name="Organizaciones a las que esta asociado", max_length=100)
-    nrc = models.CharField(verbose_name="NRC", max_length=100)
+    nrc = models.CharField(verbose_name="NRC", max_length=100, validators=[
+            RegexValidator(
+                regex='^[0-9]{1,8}$',
+                message='El nrc debe tener entre 1 y 8 dígitos.',
+                code='invalid_nrc'
+            )
+        ])
     actividadEconomica = models.ForeignKey(ActividadEconomica, on_delete=models.CASCADE, null=True, blank=True)
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE,null=True, related_name="usuarios")
     is_entidad_superuser = models.BooleanField(default=False)
@@ -135,7 +161,13 @@ def send_welcome_email(sender, instance, created, **kwargs):
 class ParametrosAuthHacienda(models.Model):
     
     userAgent = models.CharField(verbose_name="User Agent", max_length=50)
-    nit = models.CharField(verbose_name="NIT", max_length=50)
+    nit = models.CharField(verbose_name="NIT", max_length=100, validators=[
+            RegexValidator(
+                regex='^([0-9]{14}|[0-9]{9})$',
+                message='El nit debe tener exactamente 14 o 9 dígitos.',
+                code='invalid_nit'
+            )
+        ])
     pwd = models.CharField(verbose_name="Password", max_length=100)
     privateKey = models.TextField(verbose_name="Clave Privada de Hacienda")
     publicKey = models.TextField(verbose_name="Clave Publica de Hacienda")

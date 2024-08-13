@@ -66,11 +66,11 @@ urlpatterns = [
     path('facturaSujetoExcluido/transmitirSujetoExcluido/<int:pk>', views.Transmitir.as_view(), name='transmitirSujetoExcluido'),
     
     path('comprobanteDonacion/otroDocumentoAsociado', views.OtroDocumentoAsociadoView.as_view(), name='index_otroDocumentoAsociado'),
-    path('comprobanteDonacion/otroDocumentoAsociadoCreate', views.OtroDocumentoAsociadoCreateView.as_view(), name='otroDocumentoAsociadoCreate'),
+    path('comprobanteDonacion/otroDocumentoAsociadoCreate/<int:id>', views.OtroDocumentoAsociadoCreateView.as_view(), name='otroDocumentoAsociadoCreate'),
     path('comprobanteDonacion/otroDocumentoAsociadoUpdate/<int:pk>', views.OtroDocumentoAsociadoUpdateView.as_view(), name='otroDocumentoAsociadoUpdate'),
     
     path('comprobanteDonacion/cuerpoDocumento', views.CuerpoDocumentoView.as_view(), name='index_cuerpoDocumento'),
-    path('comprobanteDonacion/cuerpoDocumentoCreate', views.CuerpoDocumentoCreateView.as_view(), name='cuerpoDocumentoCreate'),
+    path('comprobanteDonacion/cuerpoDocumentoCreate/<int:id>', views.CuerpoDocumentoCreateView.as_view(), name='cuerpoDocumentoCreate'),
     path('comprobanteDonacion/cuerpoDocumentoUpdate/<int:pk>', views.CuerpoDocumentoUpdateView.as_view(), name='cuerpoDocumentoUpdate'),
     
     path('comprobanteDonacion/pagoDonacion', views.PagoDonacionView.as_view(), name='index_pagoDonacion'),

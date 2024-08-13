@@ -2,42 +2,62 @@
 
 {% block content %}
 <div class="container-fluid py-5">
-    <div class="container-fluid">
-        <a id="emisor" href="{% url 'createParametrosHacienda' %}?next={{ request.path }}" 
-            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Parametros de Hacienda">
-            <span class="material-symbols-outlined">
-              add
-            </span>
-        </a>
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="display-5 fw-bold">Parámetros de Auth Hacienda</h3>
+            {% if parametro %}
+                <a id="emisor" href="{% url 'updateParametrosHacienda' parametro.id %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Parámetros de Hacienda" aria-label="Actualizar Parámetros de Hacienda">
+                    <span class="material-symbols-outlined">edit</span>
+                </a>
+            {% else %}
+                <a id="emisor" href="{% url 'createParametrosHacienda' %}?next={{ request.path }}" 
+                    class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Parámetros de Hacienda" aria-label="Agregar Parámetros de Hacienda">
+                    <span class="material-symbols-outlined">add</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="border p-4 shadow-sm">
         {% if parametro %}
-            <<a id="emisor" href="{% url 'updateParametrosHacienda' parametro.pk %}?next={{ request.path }}" 
-                class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Parametros de Hacienda">
-                <span class="material-symbols-outlined">
-                edit
-                </span>
-            </a>>
-        {% endif %}
-    </div>
-    <div class="table-responsive">
-        {% if object %}
-            <div class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
-                <h1>Parametros de Auth Hacienda</h1>
-                <label for="userAgent">User Agent</label>
-                <input name="userAgent" type="text" readonly value="{{ parametro.userAgent }}">
-                <label for="nit">NIT</label>
-                <input name="nit" type="text" readonly value="{{ parametro.nit }}">
-                <h2>Private Key</h2>
-                <p>{{ parametro.privateKey }}
-                    
-                </P>
-                <h2>Public Key</h2>
-                <p>{{ parametro.publicKey }}</p>
-            </div>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>User Agent</th>
+                        <td>{{ parametro.userAgent|default:"No disponible" }}</td>
+                    </tr>
+                    <tr>
+                        <th>NIT</th>
+                        <td>{{ parametro.nit|default:"No disponible" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Private Key</th>
+                        <td><p class="col-md-8 fs-5 multi-column">{{ parametro.privateKey|default:"No disponible" }}</p></td>
+                    </tr>
+                    <tr>
+                        <th>Public Key</th>
+                        <td><p class="col-md-8 fs-5 multi-column">{{ parametro.publicKey|default:"No disponible" }}</p></td>
+                    </tr>
+                </tbody>
+            </table>
         {% else %}
-            <p> {{ parametro }} </p>
+            <p>No hay datos disponibles para estos parámetros.</p>
         {% endif %}
     </div>
-    <br>
-    <a href="{% url 'panel_administrativo' %}" class="btn btn-danger">Regresar</a>
+
+    <div class="mt-4">
+        <a href="{% url 'panel_administrativo' %}" class="btn btn-danger">Regresar</a>
+    </div>
 </div>
+<style>
+    .multi-column {
+        column-gap: 15px; /* Opcional: ajusta el espacio entre columnas */
+        word-break: break-all; /* Permite que las palabras largas se rompan */
+        overflow-wrap: break-word; /* Permite que las palabras largas se ajusten dentro del contenedor */
+        white-space: pre-wrap; /* Preserva los espacios y los saltos de línea */
+    }
+        
+</style>
 {% endblock %}
+

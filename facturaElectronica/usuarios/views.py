@@ -49,7 +49,7 @@ class ActividadEconomicaCreateView(LoginRequiredMixin, CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return reverse_lazy('panel_facturas')
+        return reverse_lazy('panel_administrativo')
     
     def form_valid(self, form):
         actividadEconomica = form.save(commit=False)        
@@ -68,7 +68,7 @@ class ActividadEconomicaUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return reverse_lazy('panel_facturas')
+        return reverse_lazy('panel_administrativo')
     
     def form_valid(self, form):
         actividadEconomica = form.save(commit=False)        
@@ -87,7 +87,7 @@ class EntidadDetailView(LoginRequiredMixin,DetailView):
     
     def get_object(self):       
         entidad = self.request.user.entidad
-        print(entidad)
+        
         
         if entidad is None:
             return "El ususario no esta asociado a ninguna Entidad"
@@ -159,11 +159,12 @@ class ParametrosHaciendaDetailView(LoginRequiredMixin,DetailView):
     def get_object(self) :
         entidad = self.request.user.entidad
         if entidad is None:
-            return  "No se han ingresado parametros para la conexion con hacienda"
-            
+            return  None    
         else:
-            
-            return get_object_or_404(ParametrosAuthHacienda, entidad=entidad)                
+            try:
+                return ParametrosAuthHacienda.objects.get(entidad=entidad)  
+            except ParametrosAuthHacienda.DoesNotExist:
+                return None                
 
 class ParametrosAuthHaciendaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'auth_hacienda_form.html'
@@ -174,7 +175,7 @@ class ParametrosAuthHaciendaCreateView(LoginRequiredMixin, CreateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_administrativo')
     
     def form_valid(self, form):
         
@@ -193,11 +194,11 @@ class ParametrosAuthHaciendaUpdateView(LoginRequiredMixin, UpdateView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return super().get_success_url()
+        return reverse_lazy('panel_administrativo')
     
     def form_valid(self, form):
-        
-        form.instance.entidad = self.request.user.entidad
+        parametros =  form.save(commit=False)
+        parametros.entidad = self.request.user.entidad
         return super().form_valid(form)
     
     def form_invalid(self, form):
@@ -283,7 +284,7 @@ class UserCreateView(CreateView):
 @method_decorator(user_passes_test(lambda u: u.is_superuser or u.has_permission('edit_user')), name='dispatch')
 class UserUpdateView(UpdateView):
     model = CustomUser
-    fields = ['name', 'lastname', 'email', 'groups', 'is_system_superuser','is_entidad_superuser', 'entidad','password']
+    fields = ['name', 'lastname', 'email', 'actividadEconomica','is_system_superuser','is_entidad_superuser', 'entidad','password']
     template_name = 'edit_user.html'
     success_url = reverse_lazy('index_user')
 

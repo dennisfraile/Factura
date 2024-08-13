@@ -2,55 +2,76 @@
 
 {% block content %}
 <div class="container-fluid py-5">
-    <div class="container-fluid">
-        <a id="entidad" href="{% url 'entidadCreate' %}" 
-            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Entidad">
-            <span class="material-symbols-outlined">
-              add
-            </span>
-        </a>
-        {% if entidad.pk  %}
-            <a id="entidad" href="{% url 'entidadUpdate' entidad.pk %}" 
-                class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Entidad">
-                <span class="material-symbols-outlined">
-                edit
-                </span>
+    <div class="container-fluid mb-3">
+        <h1 class="mb-4">Datos de la Entidad</h1>
+        {% if entidad.pk %}
+            <a id="entidad" href="{% url 'entidadUpdate' entidad.pk %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Entidad">
+                <span class="material-symbols-outlined">edit</span>
+            </a>
+        {% else %}
+            <a id="entidad" href="{% url 'entidadCreate' %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Entidad">
+                <span class="material-symbols-outlined">add</span>
             </a>
         {% endif %}
     </div>
-    <br>
-    <div class="table-responsive">
+
+    <div class="border p-4 shadow-sm">
         {% if entidad.pk %}
-            <div class="border-black shadow-sm table-wrapper table-responsive-sm pt-0">
-                <h1>Entidad</h1>
-                <label for="razonSocial">Razon Social</label>
-                <input name="razonSocial" type="text" readonly class="form-control" value="{{ entidad.razonSocial }}">
-                <label for="direccion">Direccion</label>
-                <input name="direccion" type="text" readonly class="form-control" value="{{ entidad.direccionEmisor.complementoDireccion }}">
-                <label for="email">Correo</label>
-                <input name="email" type="text" readonly class="form-control" value="{{ entidad.email }}">
-                <label for="cellphone">Telefono</label>
-                <input name="cellphone" type="text" readonly class="form-control" value="{{ entidad.cellphone }}">
-                <label for="nit">NIT</label>
-                <input name="nit" type="text" readonly class="form-control" value="{{ entidad.nit }}">
-                <label for="nrc">NRC</label>
-                <input name="nrc" type="text" readonly class="form-control" value="{{ entidad.nrc }}">
-                <label for="actividadeconomica">Actividad Economica</label>
-                <input name="actividadeconomica" type="text" readonly class="form-control" value="{{ entidad.actividadEconomica.valor }}">
-                <label for="codEstableMH">Codigo del Estableciomento asignado por el MH</label>
-                <input name="codEstableMH" type="text" readonly class="form-control" value="{{ entidad.codEstableMH }}">
-                <label for="codEstable">Codigo del Estableciomento asignado por el Contribuyente</label>
-                <input name="codEstable" type="text" readonly class="form-control" value="{{ entidad.codEstable }}">
-                <label for="codPuntoVentaMH">Codigo de putno de Venta Asignado por el MH</label>
-                <input name="codPuntoVentaMH" type="text" readonly class="form-control" value="{{ entidad.codPuntoVentaMH }}">
-                <label for="codPuntoVenta">Codigo punto de venta asignado por el Contribuyente</label>
-                <input name="codPuntoVenta" type="text" readonly class="form-control" value="{{ entidad.codPuntoVenta }}">
-            </div>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Razon Social</th>
+                        <td>{{ entidad.razonSocial }}</td>
+                    </tr>
+                    <tr>
+                        <th>Direccion</th>
+                        <td>{{ entidad.direccionEmisor.complementoDireccion }}</td>
+                    </tr>
+                    <tr>
+                        <th>Correo</th>
+                        <td>{{ entidad.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Telefono</th>
+                        <td>{{ entidad.cellphone }}</td>
+                    </tr>
+                    <tr>
+                        <th>NIT</th>
+                        <td>{{ entidad.nit }}</td>
+                    </tr>
+                    <tr>
+                        <th>NRC</th>
+                        <td>{{ entidad.nrc }}</td>
+                    </tr>
+                    <tr>
+                        <th>Actividad Economica</th>
+                        <td>{{ entidad.actividadEconomica.valor }}</td>
+                    </tr>
+                    <tr>
+                        <th>Codigo del Establecimiento (MH)</th>
+                        <td>{{ entidad.codEstableMH }}</td>
+                    </tr>
+                    <tr>
+                        <th>Codigo del Establecimiento (Contribuyente)</th>
+                        <td>{{ entidad.codEstable }}</td>
+                    </tr>
+                    <tr>
+                        <th>Codigo de Punto de Venta (MH)</th>
+                        <td>{{ entidad.codPuntoVentaMH }}</td>
+                    </tr>
+                    <tr>
+                        <th>Codigo de Punto de Venta (Contribuyente)</th>
+                        <td>{{ entidad.codPuntoVenta }}</td>
+                    </tr>
+                </tbody>
+            </table>
         {% else %}
-            <p> {{ entidad }} </p>
+            <p>No hay datos disponibles para esta entidad.</p>
         {% endif %}
     </div>
-    <br>
-    <a href="{% url 'panel_administrativo' %}" class="btn btn-primary">Regresar al Panel Principal</a>
+
+    <div class="mt-4">
+        <a href="{% url 'panel_administrativo' %}" class="btn btn-primary">Regresar al Panel Principal</a>
+    </div>
 </div>
 {% endblock %}

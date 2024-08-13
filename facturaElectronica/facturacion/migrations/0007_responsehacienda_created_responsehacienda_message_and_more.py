@@ -26,8 +26,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='responsehacienda',
-            name='status_code',
-            field=models.IntegerField(default=200),
+            name='status',
+            field=models.CharField(max_length=30),
             preserve_default=False,
         ),
         migrations.AlterField(

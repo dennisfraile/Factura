@@ -29,7 +29,6 @@
           <thead>
             <tr>
               <th scope="col">ID</th>
-              <th scope="col">Versión</th>
               <th scope="col">Fecha de emisión</th>
               <th scope="col">Emisor</th>
               <th scope="col">Receptor</th>
@@ -44,7 +43,6 @@
               {% for registro in object_list %}
                   <tr>
                     <th scope="row" class="text-center"><a href="{% url 'sujetoExcluidoDetailView' pk=registro.pk %}?next={{ request.path }}">{{ registro.id }}</a></th>
-                    <td class="text-center">{{ registro.identificador.version }}</td>
                     <td>{{ registro.fecha }}</td>
                     <td>{{ registro.emisor.razonSocial }}</td>
                     <td>{{ registro.receptor.nombre }}</td>

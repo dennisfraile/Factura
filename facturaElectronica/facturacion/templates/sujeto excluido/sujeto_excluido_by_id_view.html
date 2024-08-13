@@ -22,7 +22,14 @@
               edit
             </span>
         </a>
-      {% endif %}  
+      {% endif %}
+      <a id="sujeto" href="{% url 'response_hacienda_by_sujeto_excluido_list' object.id %}?next={{ request.path }}" 
+        class="btn btn-warning d-inline-flex align-items-center"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Responses">
+        <span class="material-symbols-outlined me-2">
+          description
+        </span>
+        <span>Ver Responses</span>
+      </a>  
       </h3>
     </div>
   </div>
@@ -48,7 +55,7 @@
               </tr>
               <tr>
                 <td><strong>Tipo de documento</strong></td>
-                <td>{{ identificador.tipoDte.valores }}</td>
+                <td>{{ identificador.tipoDte.valor }}</td>
                 <td><strong>Número de Control</strong></td>
                 <td>{{ identificador.numeroControl }}</td>
               </tr>
@@ -79,8 +86,8 @@
             </tbody>
           </table>
         {% endif %}
-        {% if not Identificador %}
-        <a id="identificador" href="{% url 'identificadorCreate' sujetoExcluido.id %}?next={{ request.path }}" 
+        {% if not identificador %}
+        <a id="identificador" href="{% url 'identificadorCreate' sujetoExcluido.id %}?next={{ request.path }}&origin=sujetoExcluido" 
           class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar el Identificador a la Factura">
             <span class="material-symbols-outlined">
               list_alt_add
@@ -284,7 +291,7 @@
     <div class="col-md-12">
       <h2>Apendices</h2>
       {% if not sujetoExcluido.transmitido %}
-        <a id="apendice" href="{% url 'apendiceCreate' sujetoExcluido.id %}?next={{ request.path }}" 
+        <a id="apendice" href="{% url 'apendiceCreate' sujetoExcluido.id %}?next={{ request.path }}&origin=sujetoExcluido" 
           class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Apendice a la Factura">
             <span class="material-symbols-outlined">
               list_alt_add

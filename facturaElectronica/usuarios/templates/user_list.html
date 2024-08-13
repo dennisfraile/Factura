@@ -4,94 +4,115 @@
 <div class="container">
     {% if messages %}
         {% for message in messages %}
-          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         {% endfor %}
     {% endif %}
 </div>
-  <div class="container-fluid py-5">
+<div class="container-fluid py-5">
     <h3 class="display-5 fw-bold">Lista de usuarios</h3>
     <p class="col-md-8 fs-4">Aquí puedes ver la lista de usuarios</p>
     <div class="table-responsive">
-      {% if user.is_superuser or user.is_entidad_superuser %}
-        <a id="addadminuserentidad" href="{% url 'register_entity_admin' %}" 
-          class="btn btn-success float-end" data-bs-toggle="tooltip" data-bs-placement="bottom" 
-          title="Nuevo Administrador de Entidad">
-          <span class="material-symbols-outlined">
-            admin_panel_settings 
-          </span>
-        </a>
-      {% endif %}
-      {% if user.is_superuser or user.is_entidad_superuser %}
-        <a id="adduser" href="{% url 'create_user' %}" 
-          class="btn btn-success float-end" data-bs-toggle="tooltip" data-bs-placement="bottom" 
-          title="Nuevo Usuario">
-          <span class="material-symbols-outlined">
-            person_add
-          </span>
-        </a>
-      {% endif %}
-      {% if user.is_superuser or user.is_entidad_superuser %}
-        <a id="addentidad" href="{% url 'entidadCreate' %}" 
-          class="btn btn-success float-end" data-bs-toggle="tooltip" data-bs-placement="bottom" 
-          title="Nueva Entidad">
-          <span class="material-symbols-outlined">
-            domain_add
-          </span>
-        </a>
-      {% endif %}
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Apellido</th>
-            <th scope="col">Telefono</th>
-            <th scope="col">Direccion</th>
-            <th scope="col">Fecha en que se unio</th>
-            <th scope="col">Roles</th>
-            <th scope="col">Accion</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if object_list %}
-            {% for registro in object_list %}
-              <tr>
-                <th>{{ registro.name }}</th>
-                <td>{{ registro.lastname }}</td>
-                <td>{{ registro.cellphone }}</td>
-                <td>{{ registro.direccion }}</td>
-                <td>{{ registro.date_joined }}</td>
-                <td>{{ registro.group|join:", " }}</td>
-                {% if user.is_superuser or user.is_entidad_superuser %}
-                  <td>
-                    <a id="veruser" href="{% url 'verUsuario'  registro.id %}" 
-                        class="btn btn-success btn-sm "  title="Ver Usuario">
-                        <span class="material-symbols-outlined">
-                          visibility
-                        </span>
-                      </a>
-                      <a id="veruser" href="{% url 'edit_user'  registro.id %}" 
-                        class="btn btn-success btn-sm "  title="Editar Usuario">
-                        <span class="material-symbols-outlined">
-                          edit
-                        </span>
-                      </a>
-                      <a id="veruser" href="{% url 'delete_user'  registro.id %}" 
-                        class="btn btn-danger btn-sm "  title="Eliminar Usuario">
-                        <span class="material-symbols-outlined">
-                          person_remove
-                        </span>
-                      </a>
-                  </td>
+        {% if user.is_superuser or user.is_entidad_superuser %}
+        <div class="mb-3 d-flex justify-content-start">
+            <a id="addadminuserentidad" href="{% url 'register_entity_admin' %}" 
+               class="btn btn-success me-2 d-inline-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+               title="Nuevo Administrador de Entidad">
+                <span class="material-symbols-outlined me-2">
+                    admin_panel_settings 
+                </span>
+                <span>Nuevo Administrador de Entidad</span>
+            </a>
+            <a id="adduser" href="{% url 'create_user' %}" 
+               class="btn btn-success d-inline-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+               title="Nuevo Usuario">
+                <span class="material-symbols-outlined me-2">
+                    person_add
+                </span>
+                <span>Nuevo Usuario</span>
+            </a>
+        </div>
+        {% endif %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Apellido</th>
+                    <th scope="col">Fecha en que se unió</th>
+                    <th class="text-center" scope="col">Staff/System</th>
+                    <th class="text-center" scope="col">Staff/Entidad</th>
+                    <th class="text-center" scope="col">Activo</th>
+                    <th class="text-center" scope="col">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if object_list %}
+                    {% for registro in object_list %}
+                        <tr>
+                            <td>{{ registro.name }}</td>
+                            <td>{{ registro.lastname }}</td>
+                            <td>{{ registro.date_joined }}</td>
+                            <td class="text-center">
+                                <span class="status-circle {% if registro.is_staff %}bg-success{% else %}bg-danger{% endif %}"></span>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-circle {% if registro.is_entidad_superuser %}bg-success{% else %}bg-danger{% endif %}"></span>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-circle {% if registro.is_active %}bg-success{% else %}bg-danger{% endif %}"></span>
+                            </td>
+                            <td class="text-center">
+                                {% if user.is_superuser or user.is_entidad_superuser %}
+                                    <a id="veruser" href="{% url 'verUsuario' registro.id %}" 
+                                       class="btn btn-info btn-sm" title="Ver Usuario">
+                                        <span class="material-symbols-outlined">
+                                            visibility
+                                        </span>
+                                    </a>
+                                    <a id="edituser" href="{% url 'edit_user' registro.id %}" 
+                                       class="btn btn-warning btn-sm" title="Editar Usuario">
+                                        <span class="material-symbols-outlined">
+                                            edit
+                                        </span>
+                                    </a>
+                                    <a id="deleteuser" href="{% url 'delete_user' registro.id %}" 
+                                       class="btn btn-danger btn-sm" title="Eliminar Usuario">
+                                        <span class="material-symbols-outlined">
+                                            person_remove
+                                        </span>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No hay usuarios disponibles</td>
+                    </tr>
                 {% endif %}
-              </tr>
-            {% endfor %}
-          {% endif %}
-        </tbody>
-      </table>
+            </tbody>
+        </table>
     </div>
-    <a href="{% url 'panel_administrativo' %}" class="btn btn-primary">Regresar al Panel Principal</a>
-  </div>
+    <a href="{% url 'panel_administrativo' %}" class="btn btn-primary d-inline-flex align-items-center">
+        <span class="material-symbols-outlined me-2">arrow_back</span>
+        <span>Regresar al Panel Principal</span>
+    </a>
+</div>
+<style>
+    .status-circle {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 4px 6px rgba(255, 255, 255, 0.4);
+    }
+    .bg-success {
+        background-color: #28a745;
+    }
+    .bg-danger {
+        background-color: #dc3545;
+    }
+</style>
 {% endblock %}

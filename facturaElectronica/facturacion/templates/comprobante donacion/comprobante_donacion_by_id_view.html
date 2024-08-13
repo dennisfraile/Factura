@@ -14,15 +14,22 @@
 <div class="container py-5">
   <div class="row">
     <div class="cold-md-12">
-      <h3 class="display-5 fw-bold">Detalle del Comprbante de Donacion {{identificador.version}}
+      <h3 class="display-5 fw-bold">Detalle del Comprobante de Donacion {{identificador.version}}
         {% if not comprobanteDonacion.transmitido %}
-          <a id="tramite" href="{% url 'updateComprbanteDonacion' object.id %}?next={{ request.path }}" 
+          <a id="tramite" href="{% url 'comprobanteDonacionUpdateView' object.id %}?next={{ request.path }}" 
               class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Comprbante de Donacion">
               <span class="material-symbols-outlined">
                 edit
               </span>
           </a>
         {% endif %}
+        <a id="sujeto" href="{% url 'response_hacienda_by_comprobante_donacion_list' object.id %}?next={{ request.path }}" 
+          class="btn btn-warning d-inline-flex align-items-center"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Responses">
+          <span class="material-symbols-outlined me-2">
+            description
+          </span>
+          <span>Ver Responses</span>
+        </a> 
       </h3>
     </div>
   </div>
@@ -33,7 +40,7 @@
         {% if identificador %}
           <h2>Identificador</h2>
           <a id="identificador" href="{% url 'identificadorUpdate' comprobanteDonacion.id %}?next={{ request.path }}" 
-            class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar el Identificador de la Factura">
+            class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar el Identificador del comprobante">
               <span class="material-symbols-outlined">
                 edit
               </span>
@@ -48,7 +55,7 @@
               </tr>
               <tr>
                 <td><strong>Tipo de documento</strong></td>
-                <td>{{ identificador.tipoDte.valores }}</td>
+                <td>{{ identificador.tipoDte.valor }}</td>
                 <td><strong>Número de Control</strong></td>
                 <td>{{ identificador.numeroControl }}</td>
               </tr>
@@ -79,14 +86,14 @@
             </tbody>
           </table>
         {% endif %}
-        {% if not Identificador %}
-          <a id="identificador" href="{% url 'identificadorCreate' comprobanteDonacion.id %}?next={{ request.path }}" 
+        {% if not identificador %}
+          <a id="identificador" href="{% url 'identificadorCreate' comprobanteDonacion.id %}?next={{ request.path }}&origin=comprobanteDonacion" 
             class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar el Identificador a la Factura">
               <span class="material-symbols-outlined">
                 list_alt_add
               </span>
           </a>
-          <p>No se a ingresado un identificador para este  sujeto excluido</p>
+          <p>No se a ingresado un identificador para este comprobante de donacion</p>
         {% endif %}
       </div>
     </div>
@@ -99,31 +106,31 @@
         <tbody>
           <tr>
             <td><strong>Emisor</strong></td>
-            <td>{{ sujetoExcluido.emisor.razonSocial }}</td>
+            <td>{{ comprobanteDonacion.emisor.razonSocial }}</td>
             <td><strong>Dirección del Emisor</strong></td>
-            <td>{{ sujetoExcluido.emisor.direccionEmisor.complementoDireccion }}</td>
+            <td>{{ comprobanteDonacion.emisor.direccionEmisor.complementoDireccion }}</td>
           </tr>
           <tr>
             <td><strong>Teléfono Móvil</strong></td>
-            <td>{{ sujetoExcluido.emisor.cellphone }}</td>
+            <td>{{ comprobanteDonacion.emisor.cellphone }}</td>
             <td><strong>Email</strong></td>
-            <td>{{ sujetoExcluido.emisor.email }}</td>
+            <td>{{ comprobanteDonacion.emisor.email }}</td>
           </tr>
           <tr>
             <td><strong>NIT</strong></td>
-            <td>{{ sujetoExcluido.emisor.nit }}</td>
+            <td>{{ comprobanteDonacion.emisor.nit }}</td>
             <td><strong>Código del establecimiento MH</strong></td>
-            <td>{{ sujetoExcluido.emisor.codEstableMH }}</td>
+            <td>{{ comprobanteDonacion.emisor.codEstableMH }}</td>
           </tr>
           <tr>
             <td><strong>Código del punto de venta MH</strong></td>
-            <td>{{ sujetoExcluido.emisor.codPuntoVentaMH }}</td>
+            <td>{{ comprobanteDonacion.emisor.codPuntoVentaMH }}</td>
             <td><strong>Código del establecimiento</strong></td>
-            <td>{{ sujetoExcluido.emisor.codEstable }}</td>
+            <td>{{ comprobanteDonacion.emisor.codEstable }}</td>
           </tr>
           <tr>
             <td><strong>Código del punto de venta</strong></td>
-            <td>{{ sujetoExcluido.emisor.codPuntoVenta }}</td>
+            <td>{{ comprobanteDonacion.emisor.codPuntoVenta }}</td>
           </tr>
         </tbody>
       </table>
@@ -153,7 +160,7 @@
           </tr>
           <tr>
             <td><strong>Codigo de Domicilio</strong></td>
-            <td>{{ comprobanteDonacion.codigoDomiciliado }}</td>
+            <td>{{ comprobanteDonacion.codDomiciliado }}</td>
             <td><strong>Pais</strong></td>
             <td>{{ comprobanteDonacion.pais }}</td>
           </tr>
@@ -166,7 +173,7 @@
     <div class="col-md-12">
       <h2>Otro Documento Asociado</h2>
       {% if not comprobanteDonacion.transmitido %}
-        <a id="operacion" href="{% url 'otrodocumentoAsociadoCreate' object.id %}?next={{ request.path }}" 
+        <a id="operacion" href="{% url 'otroDocumentoAsociadoCreate' object.id %}?next={{ request.path }}" 
           class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Otro Documento Asociado">
             <span class="material-symbols-outlined">
               list_alt_add
@@ -183,7 +190,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for otrosDocumentos in otrosDocumentosAsociados %}
+          {% for otrosDocumentos in otroDocumentoAsociado %}
             <tr>
               <td>{{otrosDocumentos.codDocAsociado}}</td>
               <td>{{otrosDocumentos.descDocumento}}</td>
@@ -235,7 +242,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for documentos in cuerpoDocumentos %}
+          {% for documentos in cuerpoDocumento %}
             <tr>
               <td>{{documentos.numItem}}</td>
               <td>{{documentos.tipoDonacion}}</td>
@@ -304,7 +311,7 @@
     <div class="col-md-12">
       <h2>Apendices</h2>
       {% if not comprobanteDonacion.transmitido %}
-        <a id="apendice" href="{% url 'apendiceCreate' comprobanteDonacion.id %}?next={{ request.path }}" 
+        <a id="apendice" href="{% url 'apendiceCreate' comprobanteDonacion.id %}?next={{ request.path }}&origin=comprobanteDonacion" 
           class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Apendice a la Factura">
             <span class="material-symbols-outlined">
               list_alt_add
