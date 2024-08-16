@@ -575,6 +575,18 @@ class FacturaElectronica(models.Model):
         ("2", "A credito"),
         ("3", "Otro")
     )
+    #tipo de factura
+    es_factura_electronica = models.BooleanField(
+        default=True,  # Por defecto, será una factura electrónica
+        verbose_name="¿Es Factura Electrónica?"
+    )
+    #Emisor
+    emisor = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    
+    #Receptor
+    receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE)
+    
+    #Resumen
     totalNoSuj = models.DecimalField(
         max_digits=14,       # Permite números hasta 999,999,999,999.99
         decimal_places=2,    # Precisión de dos decimales
@@ -711,7 +723,7 @@ class FacturaElectronica(models.Model):
         ],
         verbose_name="Total a Pagar"
     )
-    totalPagar = models.CharField(verbose_name="Valor en Letras",max_length=200)
+    totalLetras = models.CharField(verbose_name="Valor en Letras",max_length=200)
     totalIva = models.DecimalField(
         max_digits=14,       # Permite números hasta 999,999,999,999.99
         decimal_places=2,    # Precisión de dos decimales
@@ -742,6 +754,9 @@ class FacturaElectronica(models.Model):
     )
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="factura")
 
+    def es_credito_fiscal(self):
+        return not self.es_factura_electronica
+    
     def save(self, *args, **kwargs):
         # Validar que 'totalNoSuj' sea múltiplo de 0.01 antes de guardar
         if (self.totalNoSuj % 0.01) != 0:
@@ -858,7 +873,7 @@ class DocumentoRelacionado(models.Model):
     tipoDocumento = models.CharField(verbose_name="Tipo de Documento", max_length=20, choices=TIPO_DOCUMENTO)
     tipoGeneracion = models.CharField(verbose_name="Tipo de Generacion", max_length=20, choices=TIPO_GENERACION)
     numeroDocumento = models.Cahrfield(verbose_name="Numero de Documento Relacionados", max_length=36)
-    fechaEmsion = models.DateField(verbose_name="Fecha de Generacion del documento Relacionados")
+    fechaEmision = models.DateField(verbose_name="Fecha de Generacion del documento Relacionados")
     
     facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, related_name="documentoRelacionado")
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="documentos_relacionados") 
@@ -1077,6 +1092,9 @@ class Identificador(models.Model):
     #Comprobante de Donacion
     comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, on_delete=models.CASCADE, editable=False, null=True, blank=True)
     
+    #Factura Electronica 
+    facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, null=True, blank=True)
+    
     #Entidad a la que pertenece
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False) 
     
@@ -1096,7 +1114,8 @@ class Apendice(models.Model):
     #Facturas Asociadas
     sujetoExcluido = models.ForeignKey(SujetoExcluido, null=True, blank=True, editable=False,  on_delete=models.CASCADE, related_name="apendices")
     comprobanteDonacion = models.ForeignKey(ComprobanteDonacion, null=True, blank=True, editable=False,  on_delete=models.CASCADE, related_name="apendicesDonacion")
-
+    facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, null=True, blank=True, related_name="apendiceFacturaElectronica")
+    
     #Entidad a la que pertenece
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
     class Meta:
@@ -1112,9 +1131,9 @@ class ResponseHacienda(models.Model):
     status = models.CharField(max_length=30)
     message = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False, null=True, blank=True, related_name="responses")
-    comprobanteDonacion = models.ForeignKey(PagoDonacion, on_delete=models.CASCADE, editable=False, null=True, blank=True, related_name="responses")
-    
+    sujetoExcluido = models.ForeignKey(SujetoExcluido, on_delete=models.CASCADE, editable=False, null=True, blank=True, related_name="sujetoExcluidoResponse")
+    comprobanteDonacion = models.ForeignKey(PagoDonacion, on_delete=models.CASCADE, editable=False, null=True, blank=True, related_name="comprobanteDonacionResponse")
+    facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, null=True, blank=True, related_name="facturaElectronicaResponse")
     class Meta:
         verbose_name_plural = "Responses"
     
