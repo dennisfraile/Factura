@@ -234,10 +234,10 @@
             <th>Cantidad</th>
             <th>Codigo</th>
             <th>Unidad de Medida</th>
-            <th>Monto</th>
+            <th>Depeciacion</th>
             <th>Valor Unitario</th>
             <th>Valor Donado</th>
-            <th>Ver</th>
+            <th>Descripccion</th>
             <th>Editar</th>
           </tr>
         </thead>
@@ -249,17 +249,10 @@
               <td>{{documentos.cantidad}}</td>
               <td>{{documentos.codigo}}</td>
               <td>{{documentos.uniMedida.valor}}</td>
-              <td>{{documentos.montoDescu}}</td>
+              <td>{{documentos.depreciacion}}</td>
               <td>{{documentos.valorUni}}</td>
               <td>{{documentos.valor}}</td>
-              <td>
-                <a id="cuerpodocumentover" href="{% url 'cuerpoDocumentoVer' object.id %}?next={{ request.path }}" 
-                    class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Operacion">
-                    <span class="material-symbols-outlined">
-                    visibility 
-                    </span>
-                  </a>
-              </td>
+              <td>{{documentos.descripccion}}</td>
               <td>
                 {% if not comprobanteDonacion.transmitido %}
                   <a id="cuerpodocumentoupdate" href="{% url 'cuerpoDocumentoUpdate' object.id %}?next={{ request.path }}" 
@@ -335,7 +328,7 @@
               <td>{{ apendice.etiqueta }}</td>
               <td>
                 {% if not comprobanteDonacion.transmitido %}
-                  <a href="{% url 'apendiceUpdate' apendice.id %}?next={{ request.path }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Apendice">
+                  <a href="{% url 'apendiceUpdate' apendice.id %}?next={{ request.path }}" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Apendice">
                     <span class="material-symbols-outlined">edit</span>
                   </a>
                 {% endif %}

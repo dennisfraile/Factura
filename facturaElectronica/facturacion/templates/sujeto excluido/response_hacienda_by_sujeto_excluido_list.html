@@ -24,7 +24,6 @@
                 <td>
                     <div>
                         <strong>Código del Mensaje:</strong> {{ response.datosJson.codigoMsg|default:"N/A" }}<br>
-                        <strong>Descripción del Mensaje:</strong> {{ response.datosJson.descripcionMsg|default:"N/A" }}<br>
                         <strong>Observaciones:</strong>
                         <ul>
                             {% if response.datosJson.observaciones %}
@@ -38,7 +37,7 @@
                     </div>
                 </td>
                 <td>{{ response.status }}</td>
-                <td>{{ response.message }}</td>
+                <td>{{ response.datosJson.descripcionMsg|default:"N/A" }}</td>
                 <td>{{ response.created }}</td>
             </tr>
             {% endfor %}

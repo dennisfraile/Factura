@@ -370,12 +370,12 @@ class OperacionSujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['unidadMedida_id'] = self.get_object().unidadMedida.id if self.get_object().unidadMedida else None
+        context['uniMedida_id'] = self.get_object().uniMedida.id if self.get_object().uniMedida else None
         return context
 
 class OperacionSujetoExcluidoDetailView(LoginRequiredMixin, DetailView):
     login_url = '/ingresar/'
-    template_name = 'sujeto excluido/operacion_sujeto_excluido_by_id.html'
+    template_name = 'sujeto excluido/operacion_sujeto_excluido_by_id_view.html'
     model = OperacionesSujetoExcluido
     
     def get_success_url(self):
@@ -486,7 +486,7 @@ class SujetoExcluidoCreateView(LoginRequiredMixin, CreateView):
 class SujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar/'
     model = SujetoExcluido
-    template_name = 'sujeto excluido/sujeto_excluido_create_view.html'
+    template_name = 'sujeto excluido/sujeto_excluido_form.html'
     form_class = SujetoExcluidoForm
     
     def get_success_url(self):
@@ -504,7 +504,6 @@ class SujetoExcluidoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['identificador_id'] = self.object.identificador.id if self.object.identificador else None
         context['receptor_id'] = self.object.receptor.id if self.object.receptor else None
         context['pago_id'] = self.object.pago.id if self.object.pago else None
         return context
@@ -650,7 +649,7 @@ class ApendiceCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         origin = self.request.GET.get('origin')
         print(origin)
-        id = self.kwargs.get('pk')
+        id = self.kwargs.get('id')
         
         if origin == 'sujetoExcluido':
             sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
@@ -678,6 +677,7 @@ class ApendiceUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'formas comunes/apendice_form.html'
     form_class = ApendiceForm
+    model = Apendice
     
     def get_success_url(self):
         next_url = self.request.GET.get('next')
@@ -915,6 +915,7 @@ class OtroDocumentoAsociadoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = '/ingresar'
     template_name = 'comprobante donacion/otro_documento_asociado_form.html'
     form_class = OtroDocumentoAsociadoForm
+    model = OtroDocumentoAsociado
     
     def get_success_url(self):
         next_url = self.request.GET.get('next')
@@ -961,7 +962,7 @@ class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
         return initial
     
     def form_valid(self, form):
-        id=self.kwargs.get("pk")
+        id=self.kwargs.get("id")
         comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
         # Asegúrate de que la entidad no se modifique durante la actualización
         form.instance.entidad = self.request.user.entidad
@@ -973,7 +974,7 @@ class CuerpoDocumentoCreateView(LoginRequiredMixin,CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['unidadMedida_id'] = self.request.GET.get('unidadMedida_id')
+        context['uniMedida_id'] = self.request.GET.get('uniMedida_id')
         return context
     
 class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
@@ -998,7 +999,7 @@ class CuerpoDocumentoUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['unidadMedida_id'] = self.object.unidadMedida.id if self.object.unidadMedida else None
+        context['uniMedida_id'] = self.object.uniMedida.id if self.object.uniMedida else None
         return context
 
 class PagoDonacionView(LoginRequiredMixin,View):
@@ -1099,7 +1100,7 @@ class ComprobanteDonacionDetailView(LoginRequiredMixin,DetailView):
             context['identificador'] = identificador
             context['otroDocumentoAsociado'] = otroDocumentoAsociado
             context['cuerpoDocumento'] = cuerpoDocumento
-            context['apendice'] = apendice
+            context['apendices'] = apendice
             context['show'] = True
             return context   
         
@@ -1132,7 +1133,6 @@ class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
     
     def get_initial(self):
         initial = super().get_initial()
-        initial['identificador'] = self.request.GET.get('identificador')
         initial['receptor'] = self.request.GET.get('receptor')
         initial['pagoDonacion'] = self.request.GET.get('pagoDonacion')
         return initial
@@ -1148,9 +1148,8 @@ class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['identificador_id'] = self.request.GET.get('identificador_id')
         context['receptor_id'] = self.request.GET.get('receptor_id')
-        context['pagoDonacion_id'] = self.request.GET.get('pagoDonacion_id')
+        context['pago_id'] = self.request.GET.get('pago_id')
         return context   
         
 class ComprobanteDonacionUpdateView(LoginRequiredMixin, UpdateView):
@@ -1175,11 +1174,661 @@ class ComprobanteDonacionUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['identificador_id'] = self.object.identificador.id if self.object.identificador else None
         context['receptor_id'] = self.object.receptor.id if self.object.receptor else None
-        context['pagoDonacion_id'] = self.object.pagoDonacion.id if self.object.pagoDonacion else None
+        context['pago_id'] = self.object.pago.id if self.object.pago else None
         return context
 
+
+class FacturaElectronicaMonthView(LoginRequiredMixin,MonthArchiveView):
+    """Muestra la lista de facturas electronicas y credito fiscal por mes"""
+
+    login_url='/ingresar/'
+    date_field = "fecha"
+    queryset = FacturaElectronica.objects.all()
+    template_name='factura electronica/factura_electronica_month.html'
+    allow_empty = True
+    allow_future = True
+
+    def get_context_data(self, **kwargs) :
+        context = super().get_context_data(**kwargs)
+        factura = FacturaElectronica.objects.filter(entidad=self.request.user.entidad)
+        context['registro'] = factura
+        return context
+    
+    def get_year(self):
+        return timezone.now().year
+
+    def get_month(self):
+        return timezone.now().strftime('%m')  # Devuelve el mes actual en formato MM
+
+class FacturaElectronicaDetailView(LoginRequiredMixin,DetailView):
+    """Muestra los datos de una factura electronica o credito fiscal en especifico"""
+
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/factura_electronica_by_id_view.html'
+    model = FacturaElectronica
+    context_object_name = 'facturaElectronica'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        facturaElectronica = self.object #Obtenemos la factra eletronica o credito fiscal actual
+        
+        try:
+            #intentamos obtener identificador, cuerpos de documento, otros documentos y apendices si exixten 
+            identificador = Identificador.objects.get(facturaElectronica=facturaElectronica)
+            extencion = Extencion.objects.filter(facturaElectronica=facturaElectronica)
+            documentoRelacionado = DocumentoRelacionado.objects.filter(facturaElectronica=facturaElectronica)
+            otroDocumento = OtroDocumento.objects.filter(facturaElectronica=facturaElectronica)
+            ventaTercero = VentaTercero.objects.filter(facturaElectronica=facturaElectronica)
+            documento = Documento.objects.filter(facturaElectronica=facturaElectronica)
+            apendice = Apendice.objects.filter(facturaElectronica=facturaElectronica)
+            context['identificador'] = identificador
+            context['documentoRelacionado'] = documentoRelacionado
+            context['otroDocumento'] = otroDocumento
+            context['ventaTercero'] = ventaTercero
+            context['documento'] = documento
+            context['extencion'] = extencion
+            context['apendice'] = apendice
+            context['show'] = True
+            return context   
+        
+        except Identificador.DoesNotExist:
+            context['identificador'] = None
+        
+        except DocumentoRelacionado.DoesNotExist:
+            context['documentoRelacionado'] = None
+        
+        except OtroDocumento.DoesNotExist:
+            context['otroDocumento'] = None
+        
+        except VentaTercero.DoesNotExist:
+            context['ventaTercero'] = None
+        
+        except Documento.DoesNotExist:
+            context['documento'] = None
+        
+        except Extencion.DoesNotExist:
+            context['extencion'] = None
+        
+        except Apendice.DoesNotExist:
+            context['apendice'] = None
+        
+        return context
+
+class FacturaElectronicaCreateView(LoginRequiredMixin, CreateView):
+    
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/factura_electronica_form.html'
+    model = FacturaElectronica
+    form_class = FacturaElectronicaForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['receptor'] = self.request.GET.get('receptor')
+        initial['pago'] = self.request.GET.get('pago')
+        return initial
+    
+
+    def form_valid(self, form):
+        form.instance.emisor = self.request.user.entidad
+        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['receptor_id'] = self.request.GET.get('receptor_id')
+        context['pago_id'] = self.request.GET.get('pago_id')
+        return context   
+        
+class FacturaElectronicaUpdateView(LoginRequiredMixin, UpdateView):
+    
+    login_url = '/ingresar/'
+    model = FacturaElectronica
+    template_name = 'factura electronica/factura_electronica_form.html'
+    form_class = FacturaElectronicaForm    
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+
+    def form_valid(self, form):
+        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['receptor_id'] = self.object.receptor.id if self.object.receptor else None
+        context['pago_id'] = self.object.pago.id if self.object.pago else None
+        return context
+
+class TributoCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/tributo_form.html'
+    form_class = TributoForm
+    model = Tributo
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+
+class TributoUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/tributo_form.html'
+    form_class = TributoForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+
+class TributoResumenCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/tributo_resumen_form.html'
+    form_class = TributoResumenForm
+    model = TributoResumen
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+
+class TributoResumenUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/tributo_resumen_form.html'
+    form_class = TributoResumenForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+
+class PagoFacturaDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/pago_factura_by_id.html'
+    model = PagoFactura
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pagoFactura = get_object_or_404(PagoFactura, pk=context['object'].id)
+        context['pago'] = pagoFactura
+        context['show'] = True
+        return context
+
+class PagoFacturaCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/pago_factura_form.html'
+    form_class = PagoFacturaForm
+    model = PagoFactura
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+
+class PagoFacturaUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/pago_factura_form.html'
+    form_class = PagoFacturaForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+
+class ExtencionDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/extencion_by_id.html'
+    model = Extencion
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        extencion = get_object_or_404(Extencion, pk=context['object'].id)
+        context['extencion'] = extencion
+        context['show'] = True
+        return context
+
+class ExtencionCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/extencion_form.html'
+    form_class = ExtencionForm
+    model = Extencion
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        id=self.kwargs.get("pk")
+        facturaElectronica = get_object_or_404(FacturaElectronica, pk=id)
+        form.instance.entidad = self.request.user.entidad  
+        form.instance.facturaEletronica = facturaElectronica
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class ExtencionUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/extencion_form.html'
+    form_class = ExtencionForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class DocumentoRelacionadoDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/documento_relacionado_by_id.html'
+    model = DocumentoRelacionado
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        documentoRelacionado = get_object_or_404(DocumentoRelacionado, pk=context['object'].id)
+        context['documentoRelacionado'] = documentoRelacionado
+        context['show'] = True
+        return context
+
+class DocumentoRelacionadoCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/documento_relacionado_form.html'
+    form_class = DocumentoRelacionadoForm
+    model = DocumentoRelacionado
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        id=self.kwargs.get("pk")
+        facturaElectronica = get_object_or_404(FacturaElectronica, pk=id)
+        form.instance.entidad = self.request.user.entidad  
+        form.instance.facturaEletronica = facturaElectronica
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class DocumentoRelacionadoUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/documento_relacionado_form.html'
+    form_class = DocumentoRelacionadoForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class MedicoDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/medico_by_id.html'
+    model = Extencion
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        medico = get_object_or_404(Medico, pk=context['object'].id)
+        context['medico'] = medico
+        context['show'] = True
+        return context
+
+class MedicoCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/medico_form.html'
+    form_class = MedicoForm
+    model = Medico
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class MedicoUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/medico_form.html'
+    form_class = MedicoForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class OtroDocumentoDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/otro_documento_by_id.html'
+    model = OtroDocumento
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        otroDocumento = get_object_or_404(OtroDocumento, pk=context['object'].id)
+        context['otroDocumento'] = otroDocumento
+        context['show'] = True
+        return context
+
+class OtroDocumentoCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/otro_documento_form.html'
+    form_class = OtroDocumentoForm
+    model = OtroDocumento
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        id=self.kwargs.get("pk")
+        facturaElectronica = get_object_or_404(FacturaElectronica, pk=id)
+        form.instance.entidad = self.request.user.entidad  
+        form.instance.facturaEletronica = facturaElectronica
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class OtroDocumentoUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/otro_documento_form.html'
+    form_class = OtroDocumentoForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class VentaTerceroDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/venta_tercero_by_id.html'
+    model = VentaTercero
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ventaTercero = get_object_or_404(VentaTercero, pk=context['object'].id)
+        context['ventaTercero'] = ventaTercero
+        context['show'] = True
+        return context
+
+class VentaTerceroCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/venta_tercero_form.html'
+    form_class = VentaTerceroForm
+    model = VentaTercero
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        id=self.kwargs.get("pk")
+        facturaElectronica = get_object_or_404(FacturaElectronica, pk=id)
+        form.instance.entidad = self.request.user.entidad  
+        form.instance.facturaEletronica = facturaElectronica
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class VentaTerceroUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/venta_tercero_form.html'
+    form_class = VentaTerceroForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class DocumentoDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/documento_by_id.html'
+    model = Documento
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        documento = get_object_or_404(Documento, pk=context['object'].id)
+        context['documento'] = documento
+        context['show'] = True
+        return context
+
+class DocumentoCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/documento_form.html'
+    form_class = DocumentoForm
+    model = Documento
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        id=self.kwargs.get("pk")
+        facturaElectronica = get_object_or_404(FacturaElectronica, pk=id)
+        form.instance.entidad = self.request.user.entidad  
+        form.instance.facturaEletronica = facturaElectronica
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class DocumentoUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/documento_form.html'
+    form_class = DocumentoForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+
+class FacturaElectronicaDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/ingresar/'
+    template_name = 'factura electronica/factura_electronica_by_id.html'
+    model = FacturaElectronica
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        facturaElectronica = get_object_or_404(FacturaElectronica, pk=context['object'].id)
+        context['facturaElectronica'] = FacturaElectronica
+        context['show'] = True
+        return context
+
+class FacturaElectronicaCreateView(LoginRequiredMixin,CreateView):
+    
+    login_url = '/ingresar'
+    template_name = 'factura electronica/factura_electronica_form.html'
+    form_class = FacturaElectronicaForm
+    model = FacturaElectronica
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
+    
+
+class FacturaElectronicaUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/ingresar'
+    template_name = 'factura electronica/factura_electronica_form.html'
+    form_class = FacturaElectronicaForm
+    
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        return reverse_lazy('panel_facturas')
+    
+    def form_valid(self, form):
+
+        form.instance.entidad = self.request.user.entidad  
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return HttpResponse("Formulario no válido: {}".format(form.errors))
 
 class ResponseHaciendaBySujetoExcluidoListView(ListView):
     model = ResponseHacienda
@@ -1205,6 +1854,17 @@ class ResponseHaciendaByComprobanteDonacionListView(ListView):
             queryset = queryset.filter(comprobanteDonacion_id=comprobante_donacion_id)
         return queryset.order_by('-created')
 
+class ResponseHaciendaByFacturaElectronicaListView(ListView):
+    model = ResponseHacienda
+    template_name = 'factura electronica/response_hacienda_by_factura_electronica_list.html'
+    context_object_name = 'responses'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        factura_electronica_id= self.kwargs['pk']
+        if factura_electronica_id:
+            queryset = queryset.filter(factura_electronica_id=factura_electronica_id)
+        return queryset.order_by('-created')
 #Creando los Json correspondiente a cada factura
 
 
@@ -1371,6 +2031,8 @@ def comprobanteDonacionList(id):
             "nombre": comprobanteDonacion.emisor.razonSocial,
             "codActividad": comprobanteDonacion.emisor.actividadEconomica.codigo,
             "descActividad": comprobanteDonacion.emisor.actividadEconomica.valor,
+            "nombreComercial": comprobanteDonacion.emisor.razonSocial,
+            "tipoEstablecimiento": comprobanteDonacion.tipoEstablecimiento,
             "direccion": {
                 "departamento": comprobanteDonacion.emisor.direccionEmisor.municipio.departamento.codigo,
                 "municipio": comprobanteDonacion.emisor.direccionEmisor.municipio.codigo,
@@ -1406,13 +2068,7 @@ def comprobanteDonacionList(id):
         "resumen": {
             "valorTotal" : serialize(comprobanteDonacion.valorTotal),
             "totalLetras" : comprobanteDonacion.totalLetras,
-            "pagos" : [
-                {
-                    "codigo" : comprobanteDonacion.pago.codigo,
-                    "montoPago" : serialize(comprobanteDonacion.pago.montoPago),
-                    "referencia" : comprobanteDonacion.pago.referencia,
-                }
-            ],
+            "pagos" : [],
         },
         "apendice": []
     }
@@ -1427,7 +2083,7 @@ def comprobanteDonacionList(id):
     for cuerpoDoc in cuerpoDocumento:
         cuerpoDocumentoData = {
             "numItem": serialize(cuerpoDoc.numItem),
-            "tipoDonacion": cuerpoDoc.tipoDonacion,
+            "tipoDonacion": int(cuerpoDoc.tipoDonacion),
             "cantidad": serialize(cuerpoDoc.cantidad),
             "codigo": cuerpoDoc.codigo,
             "uniMedida": cuerpoDoc.uniMedida.codigo,
@@ -1449,6 +2105,16 @@ def comprobanteDonacionList(id):
             comprobanteData['apendice'].append(apendicesData)
     else:
         comprobanteData['apendice'] = None
+    
+    if comprobanteDonacion.pago.exists():
+        pagoData ={
+            "codigo" : comprobanteDonacion.pago.codigo,
+            "montoPago" : serialize(comprobanteDonacion.pago.montoPago),
+            "referencia" : comprobanteDonacion.pago.referencia,
+        }
+        comprobanteData["resumen"]["pagos"].append(pagoData)
+    else:
+        comprobanteData["resumen"]["pagos"] = None
     
     return comprobanteData
 
@@ -1472,214 +2138,261 @@ def cargarDatosFactura(factura):
 def crearFacturaSujetoExcluido(datos):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
-    ancho, alto =letter
-    
+    ancho, alto = letter
+    margen = 50
+    espaciado = 15
+    y_pos = alto - margen
+
     # Encabezado de la factura
     c.setFont("Helvetica-Bold", 20)
-    c.drawString(30, alto - 50, "Factura de Sujeto Excluido")
-    
+    c.drawString(margen, y_pos, "Factura de Sujeto Excluido")
+    y_pos -= 2 * espaciado
+
     # Identificador
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Identificador")
-    identificador = datos["identiificacion"]
-    info_identificador1 = f'Version: {identificador["version"]}   Tipo: {identificador["tipoDte"]}   Numero de Control: {identificador["numeroControl"]}'
-    info_identificador2 = f'Codigo de Generacion: {identificador["codigoGeneracion"]}   Fecha: {identificador["fechaEmi"]}   Hora: {identificador["horaEmi"]}'
-    info_identificador3 = f'Modelo de Facturacion: {identificador["tipoModelo"]}  Tipo de Transmicion: {identificador["tipoOpreacion"]}  Tipo de Contingencion: {identificador["tipoContingencia"]}'
-    info_identificador4 = f'Tipo de Contingencion: {identificador["tipoContingencia"]}  Motivo de Contingencia: {identificador["motivoContin"]}  Tipo de moneda: {identificador["tipoMoneda"]}'
-    c.setFont("Helvetica-Bold",12)
-    c.drawString(30, alto - 80, info_identificador2)
-    c.drawString(30, alto - 80, info_identificador1)  
-    c.drawString(30, alto - 80, info_identificador3)
-    c.drawString(30, alto - 80, info_identificador4)
-    
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Identificador")
+    y_pos -= 2 * espaciado
+
+    identificador = datos["identificacion"]
+    c.setFont("Helvetica", 10)
+    info_identificador = [
+        f'Version: {identificador["version"]}, Tipo: {identificador["tipoDte"]}, Numero de Control: {identificador["numeroControl"]}',
+        f'Codigo de Generacion: {identificador["codigoGeneracion"]}, Fecha: {identificador["fecEmi"]}, Hora: {identificador["horEmi"]}',
+        f'Modelo de Facturacion: {identificador["tipoModelo"]}, Tipo de Transmision: {identificador["tipoOperacion"]}',
+        f'Tipo de Contingencia: {identificador["tipoContingencia"]}, Motivo: {identificador["motivoContin"]}, Moneda: {identificador["tipoMoneda"]}'
+    ]
+    for info in info_identificador:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
     # Información del Emisor
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Datos del Emisor de la Factura")
-    emisor = datos["Emisor"]
-    info_emisor = f'NIT: {emisor["nit"]}  NRC: {emisor["nrc"]}  Razon Social: {emisor["razonSocial"]}  Actividad Economica: {emisor["descActividad"]}  Email: {emisor["email"]}'
-    info_emisor2 = f'Codigo del establecimiento por MH: {emisor["codEstableMH"]}  Codigo del establecimiento por el contribuyente: {emisor["codEstable"]}'
-    info_emisor3 = f'Codigo del punto de venta por MH: {emisor["codPuntoVentaMH"]}  Codigo del punto de venta por el contribuyente: {emisor["codPuntoVenta"]}'
-    direccion = datos["direccion"]
-    direccion_emisor = f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}  Telefono: {info_emisor["telefono"]}'
-    c.setFont("Helvetica-Bold",12)
-    c.drawString(30, alto - 80, info_emisor)
-    c.drawString(30, alto - 80, direccion_emisor)
-    c.drawString(30, alto - 80, info_emisor2)
-    c.drawString(30, alto - 80, info_emisor3)
-    
-    # Informacion del Sujeto Excluido 
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Datos del Sujeto Excluido")
-    sujetoExcluido = datos["sujetoExcluido"]
-    info_sujeto = f'Nombre: {sujetoExcluido["nombre"]}  Documento: {sujetoExcluido["numDocumento"]}  NRC: {sujetoExcluido["nrc"]}'
-    info_sujeto2 = f' Actividad Economica: {sujetoExcluido["descActividad"]}, Email: {sujetoExcluido["email"]}  Telefono: {sujetoExcluido["telefono"]}'
-    direccionS = datos["direccion"]
-    direccion_sujeto = f'Direccion: {direccionS["complemento"]}, {direccionS["municipio"]}, {direccionS["departamento"]} '
-    c.setFont("Helvetica-Bold",12)
-    c.drawString(30, alto - 80, info_sujeto)
-    c.drawString(30, alto - 80, info_sujeto2)
-    c.drawString(30, alto - 80, direccion_sujeto)
-    
-    #Operaciones
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Operaciones")
-    c.drawString(30, alto - 140, "Numero de Item")
-    c.drawString(450, alto - 140, "Tipo de Item")
-    c.drawString(250, alto - 140, "Codigo")
-    c.drawString(450, alto - 140, "Unidad de Medida")
-    c.drawString(350, alto - 140, "Cantidad")
-    c.drawString(450, alto - 140, "Monto")
-    c.drawString(450, alto - 140, "Compra")
-    c.drawString(450, alto - 140, "Retencion")
-    c.drawString(450, alto - 140, "Precio Unitario")
-    c.drawString(450, alto - 140, "Descripccion")
-    
-    y = alto - 170
-    
-    #Lista de productos/servicios
-    for operaciones in datos["cuerpoDocumento"]:
-        numItem = operaciones["numItem"]
-        tipoItem = operaciones["tipoItem"]
-        codigo = operaciones["codigo"]
-        uniMedida = operaciones["uniMedida"]
-        cantidad = operaciones["cantidad"]
-        montoDescu = operaciones["montoDescu"]
-        compra = operaciones["compra"]
-        retencion = operaciones["retencion"]
-        precioUni = operaciones["precioUni"]
-        descripccion = operaciones["descripccion"]
-        
-        c.drawString(100, y, numItem)
-        c.drawString(100, y, tipoItem)
-        c.drawString(100, y, codigo)
-        c.drawString(150, y, uniMedida)
-        c.drawString(150, y, cantidad)
-        c.drawString(200, y, f"${montoDescu:.2f}")
-        c.drawString(200, y, f"${compra:.2f}")
-        c.drawString(200, y, f"${retencion:.2f}")
-        c.drawString(200, y, f"${precioUni:.2f}")
-        c.drawString(300, y, descripccion)
-        
-        y -= 20
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Datos del Emisor de la Factura")
+    y_pos -= 2 * espaciado
+
+    emisor = datos["emisor"]
+    direccion = emisor["direccion"]
+    c.setFont("Helvetica", 10)
+    info_emisor = [
+        f'NIT: {emisor["nit"]}, NRC: {emisor["nrc"]}',
+        f'Razon Social: {emisor["nombre"]}',
+        f'Actividad Economica: {emisor["descActividad"]}, Email: {emisor["correo"]}',
+        f'Codigo Establecimiento MH: {emisor["codEstableMH"]}, Contribuyente: {emisor["codEstable"]}',
+        f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}, Telefono: {emisor["telefono"]}'
+    ]
+    for info in info_emisor:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Información del Sujeto Excluido
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Datos del Sujeto Excluido")
+    y_pos -= 2 * espaciado
+
+    sujeto_excluido = datos["sujetoExcluido"]
+    direccion_s = sujeto_excluido["direccion"]
+    c.setFont("Helvetica", 10)
+    info_sujeto = [
+        f'Nombre: {sujeto_excluido["nombre"]}, Tipo Documento: {sujeto_excluido["tipoDocumento"]}, Documento: {sujeto_excluido["numDocumento"]}',
+        f'Actividad Economica: {sujeto_excluido["descActividad"]}',
+        f'Email: {sujeto_excluido["correo"]}, Telefono: {sujeto_excluido["telefono"]}',
+        f'Direccion: {direccion_s["complemento"]}, {direccion_s["municipio"]}, {direccion_s["departamento"]}'
+    ]
+    for info in info_sujeto:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Operaciones (Tabla)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Operaciones")
+    y_pos -= 2 * espaciado
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen, y_pos, "Item")
+    c.drawString(margen + 50, y_pos, "Tipo")
+    c.drawString(margen + 100, y_pos, "Codigo")
+    c.drawString(margen + 150, y_pos, "Cantidad")
+    c.drawString(margen + 200, y_pos, "Compra")
+    c.drawString(margen + 250, y_pos, "Precio Unitario")
+    y_pos -= espaciado
+
+    c.setFont("Helvetica", 10)
+    for operacion in datos["cuerpoDocumento"]:
+        c.drawString(margen, y_pos, str(operacion["numItem"]))
+        c.drawString(margen + 50, y_pos, str(operacion["tipoItem"]))
+        c.drawString(margen + 100, y_pos, str(operacion["codigo"]))
+        c.drawString(margen + 150, y_pos, str(operacion["cantidad"]))
+        c.drawString(margen + 200, y_pos, f'{operacion["compra"]:.2f}')
+        c.drawString(margen + 250, y_pos, f'{operacion["precioUni"]:.2f}')
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Resumen
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Resumen")
+    y_pos -= 2 * espaciado
+
+    resumen = datos["resumen"]
+    c.setFont("Helvetica", 10)
+    resumen_info = [
+        f'Condicion de operacion: {resumen["condicionOperacion"]}, Compra: {resumen["totalCompra"]}, Descuento: {resumen["descu"]}',
+        f'Total Descuento: {resumen["totalDescu"]}, Subtotal: {resumen["subTotal"]}, Total a pagar: {resumen["totalPagar"]}',
+        f'Total en letras: {resumen["totalLetras"]}'
+    ]
+    for info in resumen_info:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
     if datos['apendice'] == None:
-        c.setFont("Helvetica-Bold", 15)
-        c.drawString(30, alto - 50, "No hay datos")
-    else:    
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(margen, y_pos, "No hay datos")
+    else:   
         #Apendice
-        c.setFont("Helvetica-Bold", 15)
-        c.drawString(30, alto - 50, "Campo")
-        c.drawString(30, alto - 140, "Descripccion")
-        c.drawString(450, alto - 140, "Valor")
-        
-        z = alto - 170
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(margen + 50, y_pos, "Campo")
+        c.drawString(margen + 100, y_pos, "Descripccion")
+        c.drawString(margen + 150, y_pos, "Valor")
+        y_pos -= espaciado
         
         #Lista de Apendices
         for apendice in datos["apendice"]:
-            campo = apendice["campo"]
-            etiqueta = apendice["etiqueta"]
-            valor = apendice["valor"]
-            
-            c.drawString(100, y, campo)
-            c.drawString(100, y, etiqueta)
-            c.drawString(100, y, valor)
-            
-            z -= 20
+            c.drawString(margen + 50, y_pos, apendice["campo"])
+            c.drawString(margen + 100, y_pos, apendice["etiqueta"])
+            c.drawString(margen + 150, y_pos, apendice["valor"])
+            y_pos -= espaciado
+        
+        y_pos -= 2 * espaciado
     
-    #Guardar el PDF
+    # Guardar el PDF
     c.save()
     buffer.seek(0)
+
+    # Devolver el PDF como una respuesta HTTP
+    #response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="factura_sujeto_excluido.pdf"'
     
+    #return response
     return buffer.getvalue()
 
+def generar_pdf_view(request, id):
+    # Aquí obtienes los datos necesarios para generar el PDF
+    datos = sujetoExcluidoList(id)  # Usas la función que ya tienes para obtener los datos
+    
+    # Generas el PDF y lo devuelves como respuesta
+    return crearFacturaSujetoExcluido(datos)
 
 def crearComprobanteDonacion(datos):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
     ancho, alto =letter
+    margen = 50
+    espaciado = 15
+    y_pos = alto - margen
     
     # Encabezado de la factura
     c.setFont("Helvetica-Bold", 20)
     c.drawString(30, alto - 50, "Comprobante de Donacion")
+    y_pos -= 2 * espaciado
     
     # Identificador
     c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Identificador")
+    c.drawString(margen, y_pos, "Identificador")
+    y_pos -= 2 * espaciado
+    
     identificador = datos["identiificacion"]
-    info_identificador1 = f'Version: {identificador["version"]}   Tipo: {identificador["tipoDte"]}   Numero de Control: {identificador["numeroControl"]}'
-    info_identificador2 = f'Codigo de Generacion: {identificador["codigoGeneracion"]}   Fecha: {identificador["fechaEmi"]}   Hora: {identificador["horaEmi"]}'
-    info_identificador3 = f'Modelo de Facturacion: {identificador["tipoModelo"]}  Tipo de Transmicion: {identificador["tipoOpreacion"]}  Tipo de Contingencion: {identificador["tipoContingencia"]}'
-    info_identificador4 = f'Tipo de Contingencion: {identificador["tipoContingencia"]}  Motivo de Contingencia: {identificador["motivoContin"]}  Tipo de moneda: {identificador["tipoMoneda"]}'
-    c.setFont("Helvetica-Bold",12)
-    c.drawString(30, alto - 80, info_identificador2)
-    c.drawString(30, alto - 80, info_identificador1)  
-    c.drawString(30, alto - 80, info_identificador3)
-    c.drawString(30, alto - 80, info_identificador4)
+    c.setFont("Helvetica", 10)
+    info_identificador = [
+        f'Version: {identificador["version"]}, Tipo: {identificador["tipoDte"]}, Numero de Control: {identificador["numeroControl"]}',
+        f'Codigo de Generacion: {identificador["codigoGeneracion"]}, Fecha: {identificador["fecEmi"]}, Hora: {identificador["horEmi"]}',
+        f'Modelo de Facturacion: {identificador["tipoModelo"]}, Tipo de Transmision: {identificador["tipoOperacion"]}',
+        f'Tipo de Contingencia: {identificador["tipoContingencia"]}, Motivo: {identificador["motivoContin"]}, Moneda: {identificador["tipoMoneda"]}'
+    ]
+    for info in info_identificador:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
     
     # Información del Donatorio
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Datos del Donatorio del Comprobante de Donacion")
-    emisor = datos["Emisor"]
-    info_emisor = f'NIT: {emisor["nit"]}  NRC: {emisor["nrc"]}  Razon Social: {emisor["razonSocial"]}  Actividad Economica: {emisor["descActividad"]}  Email: {emisor["email"]}'
-    info_emisor2 = f'Codigo del establecimiento por MH: {emisor["codEstableMH"]}  Codigo del establecimiento por el contribuyente: {emisor["codEstable"]}'
-    info_emisor3 = f'Codigo del punto de venta por MH: {emisor["codPuntoVentaMH"]}  Codigo del punto de venta por el contribuyente: {emisor["codPuntoVenta"]}'
-    direccion = datos["direccion"]
-    direccion_emisor = f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}  Telefono: {info_emisor["telefono"]}'
-    c.setFont("Helvetica-Bold",12)
-    c.drawString(30, alto - 80, info_emisor)
-    c.drawString(30, alto - 80, direccion_emisor)
-    c.drawString(30, alto - 80, info_emisor2)
-    c.drawString(30, alto - 80, info_emisor3)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Datos del Donatorio del Comprobante de Donacion")
+    y_pos -= 2 * espaciado
+    
+    emisor = datos["donatorio"]
+    direccion = emisor["direccion"]
+    c.setFont("Helvetica-Bold",10)
+    info_emisor = [
+        f'NIT: {emisor["nit"]}, NRC: {emisor["nrc"]}',
+        f'Razon Social: {emisor["nombre"]}, Tipo de establecimiento: {emisor["tipoEstablecimiento"]}',
+        f'Actividad Economica: {emisor["descActividad"]}, Nombre Comercial: {emisor["nombreComercial"]}, Email: {emisor["correo"]}',
+        f'Codigo Establecimiento MH: {emisor["codEstableMH"]}, Contribuyente: {emisor["codEstable"]}',
+        f'Codigo del punto de venta por MH: {emisor["codPuntoVentaMH"]}  Codigo del punto de venta por el contribuyente: {emisor["codPuntoVenta"]}',
+        f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}, Telefono: {emisor["telefono"]}'
+    ]
+    for info in info_emisor:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
     
     # Informacion del Donante 
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Datos del Donante")
-    sujetoExcluido = datos["sujetoExcluido"]
-    info_sujeto = f'Nombre: {sujetoExcluido["nombre"]}  Documento: {sujetoExcluido["numDocumento"]}  NRC: {sujetoExcluido["nrc"]}'
-    info_sujeto2 = f' Actividad Economica: {sujetoExcluido["descActividad"]}, Email: {sujetoExcluido["email"]}  Telefono: {sujetoExcluido["telefono"]}'
-    direccionS = datos["direccion"]
-    direccion_sujeto = f'Direccion: {direccionS["complemento"]}, {direccionS["municipio"]}, {direccionS["departamento"]} '
-    c.setFont("Helvetica-Bold",12)
-    c.drawString(30, alto - 80, info_sujeto)
-    c.drawString(30, alto - 80, info_sujeto2)
-    c.drawString(30, alto - 80, direccion_sujeto)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Datos del Donante")
+    y_pos -= 2 * espaciado
+    
+    donante = datos["donante"]
+    direccionD = datos["direccion"]
+    c.setFont("Helvetica-Bold",10)
+    info_donante = [
+        f'Nombre: {donante["nombre"]}, Tipo Documento: {donante["tipoDocumento"]}, Documento: {donante["numDocumento"]}',
+        f'Actividad Economica: {donante["descActividad"]}, NRC: {donante["nrc"]}',
+        f'Email: {donante["correo"]}, Telefono: {donante["telefono"]}',
+        f'Direccion: {direccionD["complemento"]}, {direccionD["municipio"]}, {direccionD["departamento"]}'
+    ]
+    for info in info_donante:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
     
     #Otros documentos Asociados
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Documento Asociado")
-    c.drawString(30, alto - 140, "Identificador del Documento Asociado")
-    c.drawString(450, alto - 140, "Descripccion del Documento Asociado")
-    
-    y = alto - 170
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen, y_pos, "Item")
+    c.drawString(margen + 50, y_pos, "Documento Asociado")
+    c.drawString(margen + 100, y_pos, "Identificador del Documento Asociado")
+    c.drawString(margen + 150, y_pos, "Descripccion del Documento Asociado")
+    y_pos -= espaciado
     
     #Lista de otros Documentos Asociados
+    c.setFont("Helvetica", 10)
     for otroDocumento in datos["otrosDocumentos"]:
-        codDocAsociado = otroDocumento["codDocAsociado"]
-        descDocumento = otroDocumento["descDocumento"]
-        detalleDocumento = otroDocumento["detalleDocumento"]
-        
-        c.drawString(100, y, codDocAsociado)
-        c.drawString(100, y, descDocumento)
-        c.drawString(100, y, detalleDocumento)
-        
-        y -= 20
+        c.drawString(margen + 50, y_pos, otroDocumento["codDocAsociado"])
+        c.drawString(margen + 100, y_pos,  otroDocumento["descDocumento"])
+        c.drawString(margen + 150, y_pos, otroDocumento["detalleDocumento"])
+        y_pos -= espaciado
+    
+    y_pos -= 2 * espaciado
      
     #Cuerpo del Documento
-    c.setFont("Helvetica-Bold", 15)
-    c.drawString(30, alto - 50, "Operaciones")
-    c.drawString(30, alto - 140, "Numero de Item")
-    c.drawString(450, alto - 140, "Tipo de Donacion")
-    c.drawString(250, alto - 140, "Codigo")
-    c.drawString(450, alto - 140, "Unidad de Medida")
-    c.drawString(350, alto - 140, "Cantidad")
-    c.drawString(450, alto - 140, "Monto")
-    c.drawString(450, alto - 140, "Valor Unitario")
-    c.drawString(450, alto - 140, "Valor")
-    c.drawString(450, alto - 140, "Depreciacion")
-    c.drawString(450, alto - 140, "Descripccion")
-    
-    x = alto - 170
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen, y_pos, "Operaciones")
+    c.drawString(margen + 50, y_pos, "Numero de Item")
+    c.drawString(margen + 100, y_pos, "Tipo de Donacion")
+    c.drawString(margen + 150, y_pos, "Codigo")
+    c.drawString(margen + 200, y_pos, "Unidad de Medida")
+    c.drawString(margen + 250, y_pos, "Cantidad")
+    c.drawString(margen + 300, y_pos, "Monto")
+    c.drawString(margen + 350, y_pos, "Valor Unitario")
+    c.drawString(margen + 400, y_pos, "Valor")
+    c.drawString(margen + 450, y_pos, "Depreciacion")
+    c.drawString(margen + 500, y_pos, "Descripccion")
+    y_pos -= espaciado
     
     #Lista de Donaciones
+    c.setFont("Helvetica", 10)
     for operaciones in datos["cuerpoDocumento"]:
         numItem = operaciones["numItem"]
         tipoItem = operaciones["tipoDonacion"]
@@ -1692,41 +2405,63 @@ def crearComprobanteDonacion(datos):
         depreciacion = operaciones["depreciacion"]
         descripccion = operaciones["descripccion"]
         
-        c.drawString(100, x, numItem)
-        c.drawString(100, x, tipoItem)
-        c.drawString(100, x, codigo)
-        c.drawString(150, x, uniMedida)
-        c.drawString(150, x, cantidad)
-        c.drawString(200, x, f"${montoDescu:.2f}")
-        c.drawString(200, x, f"${valorUni:.2f}")
-        c.drawString(200, x, f"${valor:.2f}")
-        c.drawString(200, x, depreciacion)
-        c.drawString(300, x, descripccion)
-        
-        x -= 20
+        c.drawString(margen + 50, y_pos, numItem)
+        c.drawString(margen + 100, y_pos, tipoItem)
+        c.drawString(margen + 150, y_pos, codigo)
+        c.drawString(margen + 200, y_pos, uniMedida)
+        c.drawString(margen + 250, y_pos, cantidad)
+        c.drawString(margen + 300, y_pos, f"${montoDescu:.2f}")
+        c.drawString(margen + 350, y_pos, f"${valorUni:.2f}")
+        c.drawString(margen + 400, y_pos, f"${valor:.2f}")
+        c.drawString(margen + 450, y_pos, depreciacion)
+        c.drawString(margen + 500, y_pos, descripccion)
+        y_pos -= espaciado
+    
+    y_pos -= 2 * espaciado
+    
+    #Resumen
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Resumen")
+    y_pos -= 2 * espaciado
+    
+    resumen = datos["resumen"]
+    pagos = resumen["pagos"]
+    if pagos == None:
+        p = f'No hay pagos',
+    else:
+        p = f'Codigo: {pagos["codigo"]}, Monto del pago: {pagos["montoPagos"]}, Referencia: {pagos["referencia"]}' 
+    c.setFont("Helvetica", 10)
+    resumen_info = [
+       f'Valor total: {resumen["valorTotal"]}, Total en letras: {resumen["totalLetras"]}',
+       p,
+           
+    ]
+    for info in resumen_info:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+    
+    y_pos -= 2 * espaciado
+    
+    #Apendice
     if datos['apendice'] == None:
-        c.setFont("Helvetica-Bold", 15)
-        c.drawString(30, alto - 50, "No hay datos")
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(margen, y_pos, "No hay datos")
     else:   
         #Apendice
-        c.setFont("Helvetica-Bold", 15)
-        c.drawString(30, alto - 50, "Campo")
-        c.drawString(30, alto - 140, "Descripccion")
-        c.drawString(450, alto - 140, "Valor")
-        
-        z = alto - 170
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(margen + 50, y_pos, "Campo")
+        c.drawString(margen + 100, y_pos, "Descripccion")
+        c.drawString(margen + 150, y_pos, "Valor")
+        y_pos -= espaciado
         
         #Lista de Apendices
         for apendice in datos["apendice"]:
-            campo = apendice["campo"]
-            etiqueta = apendice["etiqueta"]
-            valor = apendice["valor"]
-            
-            c.drawString(100, z, campo)
-            c.drawString(100, z, etiqueta)
-            c.drawString(100, z, valor)
-            
-            z -= 20
+            c.drawString(margen + 50, y_pos, apendice["campo"])
+            c.drawString(margen + 100, y_pos, apendice["etiqueta"])
+            c.drawString(margen + 150, y_pos, apendice["valor"])
+            y_pos -= espaciado
+        
+        y_pos -= 2 * espaciado
     
     #Guardar El PDF
     c.save()
@@ -1768,24 +2503,26 @@ class Transmitir(LoginRequiredMixin,View):
         
         #Generando el pdf a partir del json 
         jsonData = self.obtenerFactura(self, *args, **kwargs)
-        jsonData = json.dumps(jsonData)  # Convierte el diccionario en JSON
+        #jsonData = json.loads(jsonData)  # Convierte el diccionario en JSON
        
         datosFactura = cargarDatosFactura(jsonData)
+        print(datosFactura)
         origin = self.request.POST.get('origin')
         try:
             entidad = self.request.user.entidad
             authHacienda = get_object_or_404(ParametrosAuthHacienda,entidad=entidad)
             privateKey = self.convert_base64_private_key_to_pem(authHacienda.privateKey)
             url_auth = 'https://apitest.dtes.mh.gob.sv/seguridad/auth'
-                
+               
             parametros_auth = {
                 'content_Type' : 'application/x-www-form-urlencoded',
-                'user_agent ': authHacienda.userAgent,
+                'User-Agent ': authHacienda.userAgent,
                 'user' : authHacienda.nit,
                 'pwd' : authHacienda.pwd,
                 }
 
             acceso = requests.post(url_auth, params=parametros_auth).json()
+            
             if origin == 'sujetoExcluido':
                 sujetoExcluido = get_object_or_404(SujetoExcluido, pk=id)
                 identificador = get_object_or_404(Identificador, sujetoExcluido=sujetoExcluido)               
@@ -1800,12 +2537,13 @@ class Transmitir(LoginRequiredMixin,View):
                     token = acceso['body']['token']
                     
                     factura = self.obtenerFactura()
+                    print(factura)
                     encoded = jwt.encode(factura, privateKey, algorithm="RS512")
                     url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
                     headers = {
                         'Authorization':token,
-                        'User-Agent': authHacienda.userAgent,
-                        'content-Type': 'application/json',  # Asegúrate de que sea 'application/json'
+                        'User-Agent': "Piraña3000",
+                        'content-Type': 'application/JSON',  # Asegúrate de que sea 'application/json'
                     }
                     
                     data = {
@@ -1818,12 +2556,12 @@ class Transmitir(LoginRequiredMixin,View):
                     }
                     
                     try:
-                        transmitir = requests.post(url_recepcion, headers=headers, json=data)
+                        transmitir = requests.post(url_recepcion, headers=headers, json=data).json()
                         print(transmitir)
                         responseHacienda = ResponseHacienda(
                             nombre="Transmicion de factura a Hacienda",
                             datosJson=transmitir,  # Asegúrate de que los datos sean correctos
-                            status=transmitir['status'],
+                            status=transmitir['codigoMsg'],
                             sujetoExcluido=sujetoExcluido
                         )
                         responseHacienda.save()    
@@ -1845,13 +2583,16 @@ class Transmitir(LoginRequiredMixin,View):
                         pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
                         pdf_sujeto_excluido = MIMEApplication(pdf_bytes, _subtype='pdf')
                         email.attach('data.json', jsonContent, 'application/json')
-                        email.attach('data.pdf', pdf_sujeto_excluido, 'application/pdf')
+                        email.attach('data.pdf', pdf_bytes, 'application/pdf')
                         email.send()
-                    messages.success(self.request, 'Se ha transmitido la factura correctamente.')
-                    return redirect('sujetoExcluidoDetailView', pk=id)
+                        messages.success(self.request, 'Se ha transmitido la factura correctamente.')
+                        return redirect('sujetoExcluidoDetailView', pk=id)
+                    else:
+                       messages.warning(self.request, 'No se pudo transmitir la factura correctamente.')
+                       return redirect('sujetoExcluidoDetailView', pk=id)  
                 else:
                     messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
-                    return redirect('authHacienda', pk=authHacienda.pk)
+                    return redirect('updateParametrosHacienda', pk=authHacienda.pk)
             else:
                 comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
                 identificador = get_object_or_404(Identificador, comprobanteDonacion=comprobanteDonacion)
@@ -1886,11 +2627,9 @@ class Transmitir(LoginRequiredMixin,View):
                     }
                     try:
                         transmitir = requests.post(url_recepcion, headers=headers, json=data).json()
-                        data_dict = json.loads(transmitir)
-                        print(transmitir)
                         responseHacienda = ResponseHacienda(
                             nombre="Transmicion de factura a Hacienda",
-                            datosJson=data_dict,  # Corregido el nombre del campo y la serialización JSON
+                            datosJson=transmitir,  # Corregido el nombre del campo y la serialización JSON
                             status=transmitir['status'],
                             comprobanteDonacion=ComprobanteDonacion
                         )
@@ -1913,7 +2652,7 @@ class Transmitir(LoginRequiredMixin,View):
                         pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
                         pdf_comprobante_donacion = MIMEApplication(pdf_bytes, _subtype='pdf')
                         email.attach('data.json', jsonContent, 'application/json')
-                        email.attach('data.pdf', pdf_comprobante_donacion, 'application/pdf')
+                        email.attach('data.pdf', pdf_bytes, 'application/pdf')
                         email.send()
                     messages.success(self.request, 'Se ha transmitido el comprobante correctamente.')
                     return redirect('comprobanteDonacionDetailView', pk=id)

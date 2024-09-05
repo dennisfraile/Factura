@@ -131,7 +131,7 @@ class Pago(models.Model):
         verbose_name_plural = "Pagos"
 
     def __str__(self):
-        return f'{self.formaPago}'
+        return f'{self.formaPago}{", "}{"Monto:"}{self.montoPago}'
 
 class TipoDocumento(models.Model):
 
@@ -289,7 +289,7 @@ def validate_exclusive_min(value):
         raise ValidationError('El valor debe ser mayor que 0.')
 
 def validate_multiple_of(value):
-    if value % Decimal('0.00000001') != 0:
+     if (value * Decimal('100000000')) % 1 != 0:
         raise ValidationError('El valor debe ser múltiplo de 0.00000001.')
 
 class OperacionesSujetoExcluido(models.Model):
@@ -310,20 +310,20 @@ class OperacionesSujetoExcluido(models.Model):
     codigo = models.CharField(verbose_name = "Codigo", max_length=25, null=True, blank=True)
     uniMedida = models.ForeignKey(UnidadMedida,  on_delete=models.CASCADE)
     cantidad = models.DecimalField(verbose_name = "Cantidad",max_digits=22,
-        decimal_places=8,
+        decimal_places=2,
         validators=[
             validate_exclusive_min,
             validate_exclusive_max,
             validate_multiple_of,
         ],
         help_text="Cantidad debe ser mayor que 0, menor que 100000000000 y múltiplo de 0.00000001")
-    montoDescu = models.DecimalField(verbose_name = "Monto", max_digits=22, decimal_places=8, validators=[
+    montoDescu = models.DecimalField(verbose_name = "Monto", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
         help_text="Descuento, Bonificación, Rebajas por ítem. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
-    compra = models.DecimalField(verbose_name = "Ventas", max_digits=22, decimal_places=8, validators=[
+    compra = models.DecimalField(verbose_name = "Ventas", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
@@ -331,7 +331,7 @@ class OperacionesSujetoExcluido(models.Model):
         help_text="Ventas. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
     retencion = models.DecimalField(verbose_name="Retencion", max_digits=12, decimal_places=2)
     descripccion = models.TextField(verbose_name="Descripccion", max_length=1000)
-    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=22, decimal_places=8, validators=[
+    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
@@ -351,13 +351,13 @@ class OperacionesSujetoExcluido(models.Model):
 class PagoDonacion(models.Model):
 
     codigo = models.CharField(verbose_name="Codigo de Forma de pago", max_length=2, null=True,blank=True)
-    montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=22, decimal_places=8,validators=[
+    montoPago = models.DecimalField(verbose_name="Monto por Forma de pago", max_digits=22, decimal_places=2,validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],)
     referencia = models.CharField(verbose_name="Referencia de la modalidad de pago", max_length=50, null=True, blank=True)
-    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="pagos")
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="pagos_donacion")
 
     class Meta:
         verbose_name_plural = "Pagos de donacion"
@@ -370,9 +370,16 @@ class ComprobanteDonacion(models.Model):
         ("1", "Domiciliado"),
         ("2", "No Domiciliado"),
     )
-
+    TIPO_ESTABLECIMIENTO = (
+        ("01", "Sucursal/Agencia"),
+        ("02", "Casa Matriz"),
+        ("04", "Bodega"),
+        ("07", "Predio y/o patio"),
+        ("20", "Otro")
+    )
     #Donatorio
     emisor = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False)
+    tipoEstblacimiento = models.CharField(verbose_name="Tipo de Establecimiento",max_length=25, choices=TIPO_ESTABLECIMIENTO)
     
     #Donante
     receptor = models.ForeignKey(Receptor, on_delete=models.CASCADE)
@@ -380,7 +387,7 @@ class ComprobanteDonacion(models.Model):
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE)
 
     #Resumen
-    valorTotal = models.DecimalField(verbose_name="Total de la donacion", max_digits=22, decimal_places=8,validators=[
+    valorTotal = models.DecimalField(verbose_name="Total de la donacion", max_digits=22, decimal_places=2,validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
@@ -455,17 +462,15 @@ class CuerpoDocumento(models.Model):
         ],
         help_text="N° ítem, debe estar entre 1 y 2000")
     tipoDonacion = models.CharField(verbose_name="Tipo de donacion",  max_length=20, choices=TIPO_DONACION)
-    cantidad = models.DecimalField(verbose_name="Cantidad", max_digits=22, decimal_places=8, validators=[
+    cantidad = models.DecimalField(verbose_name="Cantidad", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],)
-    codigo = models.CharField(verbose_name="Codigo", max_length=25, validators=[
-        MinValueValidator(1)
-    ])
+    codigo = models.CharField(verbose_name="Codigo", max_length=25, null=True, blank=True)
     uniMedida = models.ForeignKey(UnidadMedida,  on_delete=models.CASCADE)
     descripccion = models.CharField(verbose_name="Descripccion", max_length=1000)
-    depreciacion = models.DecimalField(verbose_name="Depreciacion", max_digits=22, decimal_places=8,validators=[
+    depreciacion = models.DecimalField(verbose_name="Depreciacion", max_digits=22, decimal_places=2,validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
@@ -752,6 +757,9 @@ class FacturaElectronica(models.Model):
         blank=True,         # Permite que el campo sea opcional en los formularios
         verbose_name="Número de pago Electrónico"
     )
+    fecha = models.DateField(verbose_name="Fecha", auto_now=True)
+    fechaTransmicion = models.DateTimeField(verbose_name="Fecha de Transmicion",auto_now=True)
+    
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="factura")
 
     def es_credito_fiscal(self):
@@ -817,28 +825,24 @@ class FacturaElectronica(models.Model):
 class Extencion(models.Model):
     nombEntrega = models.CharField(
         max_length=100,     # Longitud máxima de 100 caracteres
-        min_length=5,       # Longitud mínima de 5 caracteres
         null=True,          # Permite valores nulos en la base de datos
         blank=True,         # Permite que el campo sea opcional en los formularios
         verbose_name="Nombre del responsable que Genera el DTE"
     )
     docuEntrega = models.CharField(
         max_length=25,      # Longitud máxima de 25 caracteres
-        min_length=5,       # Longitud mínima de 5 caracteres
         null=True,          # Permite valores nulos en la base de datos
         blank=True,         # Permite que el campo sea opcional en los formularios
         verbose_name="Documento de identificación de quien genera el DTE"
     )
     nombRecibe = models.CharField(
         max_length=100,     # Longitud máxima de 100 caracteres
-        min_length=5,       # Longitud mínima de 5 caracteres
         null=True,          # Permite valores nulos en la base de datos
         blank=True,         # Permite que el campo sea opcional en los formularios
         verbose_name="Nombre del responsable de la operación por parte del receptor"
     )
     docuRecibe = models.CharField(
         max_length=25,      # Longitud máxima de 25 caracteres
-        min_length=5,       # Longitud mínima de 5 caracteres
         null=True,          # Permite valores nulos en la base de datos
         blank=True,         # Permite que el campo sea opcional en los formularios
         verbose_name="Documento de identificación del responsable de la operación por parte del receptor"
@@ -872,7 +876,7 @@ class DocumentoRelacionado(models.Model):
     )
     tipoDocumento = models.CharField(verbose_name="Tipo de Documento", max_length=20, choices=TIPO_DOCUMENTO)
     tipoGeneracion = models.CharField(verbose_name="Tipo de Generacion", max_length=20, choices=TIPO_GENERACION)
-    numeroDocumento = models.Cahrfield(verbose_name="Numero de Documento Relacionados", max_length=36)
+    numeroDocumento = models.CharField(verbose_name="Numero de Documento Relacionados", max_length=36)
     fechaEmision = models.DateField(verbose_name="Fecha de Generacion del documento Relacionados")
     
     facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, related_name="documentoRelacionado")
@@ -901,6 +905,8 @@ class Medico(models.Model):
             ])
     docIdentificacion = models.CharField(verbose_name="Documento de identificacion de medico no domiciliados", max_length=25, null=True, blank=True)
     tipoServicio = models.CharField(verbose_name="Codigo del Sevicio Realizado", max_length=6, choices=CODIGO_SERVICIO)
+    
+    entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="medicos")
     class Meta:
         verbose_name_plural = "Medicos"
 
@@ -909,7 +915,7 @@ class OtroDocumento(models.Model):
     codDocAsociado = models.IntegerField(verbose_name="Documento Asociado", max_length=4)
     descDocumento = models.CharField(verbose_name="Identificacion del documento asociado", max_length=100, null=True, blank=True)
     detalleDocumento = models.CharField(verbose_name="Detalle de documento asociado", max_length=300, null=True, blank=True)
-    medico = models.ForeignKey(Medico, null=True, blank=True)
+    medico = models.ForeignKey(Medico, on_delete=models.CASCADE, null=True, blank=True)
     
     facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, related_name="otroDocumento")
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="otros_documentos")
@@ -957,10 +963,10 @@ class Documento(models.Model):
     numeroDocumento = models.CharField(verbose_name="Numero de Documento Relacionado",max_length=36, null=True, blank=True)
     cantidad = models.DecimalField(
         max_digits=20,       # Número máximo de dígitos en total (antes y después del punto decimal)
-        decimal_places=8,    # Número de dígitos después del punto decimal (precisión)
+        decimal_places=2,    # Número de dígitos después del punto decimal (precisión)
         validators=[
-            models.validators.MinValueValidator(1e-08),  # Valor mínimo excluido
-            models.validators.MaxValueValidator(100000000000 - 1e-08)  # Valor máximo excluido
+            MinValueValidator(1e-08),  # Valor mínimo excluido
+            MaxValueValidator(100000000000 - 1e-08)  # Valor máximo excluido
         ]
     )
     codigo = models.CharField(verbose_name="Codigo",max_length=25, null=True, blank=True)
@@ -973,38 +979,38 @@ class Documento(models.Model):
     )
     uniMedida = models.ForeignKey(UnidadMedida,  on_delete=models.CASCADE)
     descripccion = models.CharField(verbose_name="Descripccion", max_length=1000)
-    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=22, decimal_places=8, validators=[
+    precioUni = models.DecimalField(verbose_name="Precio Unitario", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
         help_text="Precio Unitario debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
-    montoDescu = models.DecimalField(verbose_name = "Descuento, Bonificacion, Rebajas por Item", max_digits=22, decimal_places=8, validators=[
+    montoDescu = models.DecimalField(verbose_name = "Descuento, Bonificacion, Rebajas por Item", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
         help_text="Descuento, Bonificación, Rebajas por ítem. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
-    ventaNoSuj = models.DecimalField(verbose_name = "Ventas no Sujetas", max_digits=22, decimal_places=8, validators=[
+    ventaNoSuj = models.DecimalField(verbose_name = "Ventas no Sujetas", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
         help_text="Ventas no Sujetas. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
-    ventaExenta = models.DecimalField(verbose_name = "Ventas Exentas", max_digits=22, decimal_places=8, validators=[
+    ventaExenta = models.DecimalField(verbose_name = "Ventas Exentas", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
         help_text="Ventas Exentas. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
-    ventaGrabada = models.DecimalField(verbose_name = "Ventas Gravadas", max_digits=22, decimal_places=8, validators=[
+    ventaGrabada = models.DecimalField(verbose_name = "Ventas Gravadas", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
         help_text="Ventas Gravadas. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
     tributos = models.CharField(verbose_name="Codigo del Tributo", max_length=2, null=True, blank=True) #consultar sobre este item
-    psv = models.DecimalField(verbose_name = "Precio Sujerido de Venta", max_digits=22, decimal_places=8, validators=[
+    psv = models.DecimalField(verbose_name = "Precio Sujerido de Venta", max_digits=22, decimal_places=2, validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
@@ -1012,7 +1018,7 @@ class Documento(models.Model):
         help_text="Precio Sujerido de Venta. Debe ser mayor o igual a 0, menor que 100000000000 y múltiplo de 0.00000001")
     noGravado = models.DecimalField(
         max_digits=20,       # Número máximo de dígitos en total (incluyendo decimales)
-        decimal_places=8,    # Número de dígitos después del punto decimal
+        decimal_places=2,    # Número de dígitos después del punto decimal
         validators=[
             MinValueValidator(-100000000000 + 0.00000001),  # Valor mínimo excluido
             MaxValueValidator(100000000000 - 0.00000001)    # Valor máximo excluido
@@ -1021,7 +1027,7 @@ class Documento(models.Model):
     )
     ivaItem = models.DecimalField(
         max_digits=20,       # Número máximo de dígitos en total (incluyendo decimales)
-        decimal_places=8,    # Número de dígitos después del punto decimal
+        decimal_places=2,    # Número de dígitos después del punto decimal
         validators=[
             MinValueValidator(0),  # Valor mínimo inclusivo de 0
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000

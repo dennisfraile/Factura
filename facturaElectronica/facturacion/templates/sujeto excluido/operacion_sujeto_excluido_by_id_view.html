@@ -14,7 +14,7 @@
   <div class="container-fluid py-5">
     <div class="container-fluid">
       <h3 class="display-5 fw-bold">Detalle de la operacion de sujeto excluido {{object.numItem}}
-        <a id="operacionsujetoexcluido" href="{% url 'updateOperacionSujetoExcluido' object.id %}" 
+        <a id="operacionsujetoexcluido" href="{% url 'operacionSujetoExcluidoUpdate' object.id %}" 
             class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Operacion Sujeto Excluido">
             <span class="material-symbols-outlined">
               edit
@@ -49,7 +49,7 @@
                 </td>
                 <td>
                   <label for="unidadMedida">Unidad de Medida</label>
-                  <input name="unidadMedida" type="text" readonly class="form-control" value="{{ operacion.unidadMedida.valor }}">
+                  <input name="unidadMedida" type="text" readonly class="form-control" value="{{ operacion.uniMedida.valor }}">
                 </td>
               </tr>
               <tr>

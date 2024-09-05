@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path('', views.IndexView.as_view(), name='panel_facturas'),
+    path('panelFacturas/', views.IndexView.as_view(), name='panel_facturas'),
     
     path('responses/sujeto_excluido/<int:pk>', views.ResponseHaciendaBySujetoExcluidoListView.as_view(), name='response_hacienda_by_sujeto_excluido_list'),
     path('responses/comprobante_donacion/<int:pk>', views.ResponseHaciendaByComprobanteDonacionListView.as_view(), name='response_hacienda_by_comprobante_donacion_list'),
@@ -82,5 +82,7 @@ urlpatterns = [
     path('facturaComprobanteDonacion/comprobanteDonacionVer/<int:pk>', views.ComprobanteDonacionDetailView.as_view(), name='comprobanteDonacionDetailView'),
     path('facturaComprobanteDonacion/comprobanteDonacionUpdate/<int:pk>', views.ComprobanteDonacionUpdateView.as_view(), name='comprobanteDonacionUpdateView'),
     path('facturaComprobanteDonacion/transmitirComprobanteDonacion/<int:pk>', views.Transmitir.as_view(), name='transmitirComprobanteDonacion'),
+    
+     path('generar-pdf/<int:id>/', views.generar_pdf_view, name='generar_pdf'),
     
 ]

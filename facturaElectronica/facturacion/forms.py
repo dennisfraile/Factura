@@ -724,7 +724,7 @@ class DocumentoForm(forms.ModelForm):
         )
         fields =['numItem','tipoItem','numeroDocumento','cantidad','codigo','codTributo','uniMedida',
                  'descripccion','precioUni','montoDescu','ventaNoSuj','ventaExenta','ventaGrabada',
-                 'tributos','psv','noGravado','ivaIem'
+                 'tributos','psv','noGravado','ivaItem'
                 ]
     
     def __init__(self, *args, **kwargs):
@@ -748,8 +748,8 @@ class FacturaElectronicaForm(forms.ModelForm):
             },
             widget=forms.Select(attrs={'class': 'form-control'})
         )
-        fields = ['es_factura_electronica','receptor','totalNosuj','totalExenta','totalGravada','subTotalVentas',
-                  'descuNoSuj','descuExcenta','descuGravada','procentajeDescuento','totalDescu','tributo','subTotal',
+        fields = ['es_factura_electronica','receptor','totalNoSuj','totalExenta','totalGravada','subTotalVentas',
+                  'descuNoSuj','descuExenta','descuGravada','porcentajeDescuento','totalDescu','tributo','subTotal',
                   'ivaRete1','reteRenta','montoTotalOperacion','totalNoGravado','totalPagar','totalLetras','totalIva',
                   'saldoFavor','condicionOperacion','pago','numPagoElectronico'
                  ]
