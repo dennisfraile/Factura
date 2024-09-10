@@ -1,0 +1,95 @@
+{% extends "../index.html" %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<div class="container py-5">
+  <div class="row">
+    <div class="col-md-12">
+      <h3 class="display-5 fw-bold">Detalle de Extencion {{object.id}}
+      {% if not facturaElectronica.transmitido %}
+        <a id="tramite" href="{% url 'extencionUpdateView' object.id %}?next={{ request.path }}" 
+            class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Extencion">
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+        </a>
+      {% endif %}  
+      </h3>
+    </div>
+  </div>
+  
+  <div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Extencion</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <th>Responsable que genera el DTE
+                </thead>
+                <tbody>
+                    <tr>
+                    <td><strong>Nombre del responsable:</strong></td>
+                    <td>{{ object.nombEntrega }}</td>
+                    <td><strong>Documento de identificacion</strong></td>
+                    <td>{{ object.docuEntrega }}</td>
+                    </tr>
+                    <tr>
+                    <td><strong>Nombre del responsable de la operacion por parte del receptor </strong></td>
+                    <td>{{ object.nombRecibe }}</td>
+                    <td><strong>Documento de identificacion del responsable de la opercion por parte del receptor</strong></td>
+                    <td>{{ object.docuRecibe }}</td>
+                    </tr>
+                    <tr>
+                    <td><strong>Observaciones</strong></td>
+                    <td>{{ object.observaciones }}</td>
+                    <td><strong>Placa de vehiculo</strong></td>
+                    <td>{{ object.placaVehiculo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <th>Responsable del receptor
+                </thead>
+                <tbody>
+                    <tr>
+                    <td><strong>Nombre del receptor </strong></td>
+                    <td>{{ object.nombRecibe }}</td>
+                    <td><strong>Documento de identificacion del receptor</strong></td>
+                    <td>{{ object.docuRecibe }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <th>Otros Datos
+                </thead>
+                <tbody>
+                    <tr>
+                    <td><strong>Observaciones</strong></td>
+                    <td>{{ object.observaciones }}</td>
+                    <td><strong>Placa de vehiculo</strong></td>
+                    <td>{{ object.placaVehiculo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+  <br>
+  <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+</div>
+{% endblock %}

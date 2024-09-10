@@ -1,0 +1,50 @@
+{% extends "../base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if responses %}
+        <h1 class="mb-4">Responses de Comprobante Donacion: {{ responses.0.sujetoExcluido.id }}</h1>
+    {% else %}
+        <h1 class="mb-4">No hay responses para este Comprobante de Donacion.</h1>
+    {% endif %}
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Datos JSON</th>
+                <th>Status</th>
+                <th>Mensaje</th>
+                <th>Fecha y Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td>{{ response.nombre }}</td>
+                <td>
+                    <div>
+                        <strong>Código del Mensaje:</strong> {{ response.datosJson.codigoMsg|default:"N/A" }}<br>
+                        <strong>Descripción del Mensaje:</strong> {{ response.datosJson.descripcionMsg|default:"N/A" }}<br>
+                        <strong>Observaciones:</strong>
+                        <ul>
+                            {% if response.datosJson.observaciones %}
+                                {% for observacion in response.datosJson.observaciones %}
+                                <li>{{ observacion }}</li>
+                                {% endfor %}
+                            {% else %}
+                                <li>No hay observaciones.</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </td>
+                <td>{{ response.status }}</td>
+                <td>{{ response.message }}</td>
+                <td>{{ response.created }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="javascript:history.back()" class="btn btn-danger">Regresar</a>
+</div>
+{% endblock %}

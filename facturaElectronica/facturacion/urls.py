@@ -7,6 +7,7 @@ urlpatterns = [
     
     path('responses/sujeto_excluido/<int:pk>', views.ResponseHaciendaBySujetoExcluidoListView.as_view(), name='response_hacienda_by_sujeto_excluido_list'),
     path('responses/comprobante_donacion/<int:pk>', views.ResponseHaciendaByComprobanteDonacionListView.as_view(), name='response_hacienda_by_comprobante_donacion_list'),
+    path('responses/factura_electronica/<int:pk>', views.ResponseHaciendaByFacturaElectronicaListView.as_view(), name='response_hacienda_by_factura_electronica_list'),
   
     path('get_operacioneSujetoExcluido', views.get_opercionSujetoExcluido, name='getoperacionesSujetoExcluido'),
     

@@ -759,7 +759,8 @@ class FacturaElectronica(models.Model):
     )
     fecha = models.DateField(verbose_name="Fecha", auto_now=True)
     fechaTransmicion = models.DateTimeField(verbose_name="Fecha de Transmicion",auto_now=True)
-    
+    #Si ya fue transmitido el comprobante de donacion
+    transmitido = models.BooleanField(default=False, editable=False)
     entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE, editable=False, related_name="factura")
 
     def es_credito_fiscal(self):
