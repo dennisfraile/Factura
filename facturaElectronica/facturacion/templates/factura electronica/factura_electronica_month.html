@@ -35,6 +35,7 @@
               <th scope="col">Total a pagar</th>
               <th scope="col">Saldo a Favor</th>
               <th scope="col">Periodo</th>
+              <th scope="col">Tipo de Factura</th>
               <th scope="col">Transmitido</th>
               <th scope="col" class="text-center">Responses</th>
             </tr>
@@ -50,6 +51,13 @@
                     <td class="text-center">{{ registro.totalPagar }}</td>
                     <td class="text-center">{{ registro.saldoFavor }}</td>
                     <td class="text-center">{{ registro.pago.periodo }}</td>
+                    <td class="text-center">
+                      {% if registro.es_factura_electronica %}
+                        Factura Electrónica
+                      {% else %}
+                        Crédito Fiscal
+                      {% endif %}
+                    </td>
                     <td class="text-center">
                       <div class="transmitido-status {% if registro.transmitido %}transmitido{% else %}no-transmitido{% endif %}"></div>
                     </td>
