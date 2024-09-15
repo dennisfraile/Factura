@@ -683,6 +683,17 @@ class FacturaElectronica(models.Model):
         ],
         verbose_name="Sub-Total"
     )
+    ivaPerci1 = models.DecimalField(
+        max_digits=14,       # Permite números hasta 999,999,999,999.99
+        decimal_places=2,    # Precisión de dos decimales
+        validators=[
+            MinValueValidator(0),                      # El valor debe ser 0 o mayor
+            MaxValueValidator(100000000000 - 0.01)     # El valor debe ser menor que 100,000,000,000
+        ],
+        verbose_name="IVA Percibido",
+        null=True,
+        blank=True
+    )#Solo Para credito Fiscal
     ivaRete1 = models.DecimalField(
         max_digits=14,       # Permite números hasta 999,999,999,999.99
         decimal_places=2,    # Precisión de dos decimales
@@ -897,7 +908,7 @@ class Medico(models.Model):
     )
     
     nombre = models.CharField(verbose_name="Nombre del medico que presta el servicio", max_length=100)
-    nit = models.CharField(verbose_name="NIT del medico que presta el servicio", max_length=30, unique=True, validators=[
+    nit = models.CharField(verbose_name="NIT del medico que presta el servicio", max_length=30, null=True, blank=True, validators=[
             RegexValidator(
                 regex='^([0-9]{14}|[0-9]{9})$',
                 message='El nit debe tener exactamente 14 o 9 dígitos.',
@@ -1034,7 +1045,9 @@ class Documento(models.Model):
             validate_exclusive_max,  # Valor máximo exclusivo de 100000000000
             validate_multiple_of,  # Debe ser múltiplo de 0.00000001
         ],
-        verbose_name="IVA por Item"
+        verbose_name="IVA por Item",
+        null=True, 
+        blank=True
     ) # Solo para Factura Electronica
     
     facturaElectronica = models.ForeignKey(FacturaElectronica, on_delete=models.CASCADE, editable=False, related_name="document")
