@@ -735,6 +735,12 @@ class DocumentoForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'form-control'})
             elif isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs.update({'class': 'form-check-input'})
+        
+        # Solo mostrar el campo ivaItem si es Factura Electrónica
+        if self.instance.facturaElectronica.es_factura_electronica:
+            self.fields['ivaItem'].required = True
+        else:
+            self.fields['ivaItem'].widget = forms.HiddenInput()
 
 class FacturaElectronicaForm(forms.ModelForm):
     
@@ -762,3 +768,9 @@ class FacturaElectronicaForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'form-control'})
             elif isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs.update({'class': 'form-check-input'})
+        
+        if self.instance.es_factura_electronica:
+            
+            self.fields['ivaRete1'].widget.attrs.update({'style': 'display:none;'})
+        else:
+            self.fields['totalIva'].widget.attrs.update({'style': 'display:none;'})

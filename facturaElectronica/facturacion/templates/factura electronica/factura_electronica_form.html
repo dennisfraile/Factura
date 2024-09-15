@@ -8,5 +8,38 @@
         <br>
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
+
+        <style>
+            /* Estilo para ocultar inicialmente los campos */
+            .field-ivaPerci1, .field-totalIva {
+                display: none;
+            }
+        </style>
+
+        <script>
+            // Función para ocultar/mostrar los campos específicos de cada tipo de factura
+            function toggleFields() {
+                var isFacturaElectronica = document.getElementById('id_es_factura_electronica').checked;
+                var ivaPerci1Field = document.querySelector('.field-ivaPerci1');
+                var totalIvaField = document.querySelector('.field-totalIva');
+    
+                if (isFacturaElectronica) {
+                    // Si es factura electrónica, mostrar totalIva y ocultar ivaPerci1
+                    ivaPerci1Field.style.display = 'none';
+                    totalIvaField.style.display = 'block';
+                } else {
+                    // Si es crédito fiscal, mostrar ivaPerci1 y ocultar totalIva
+                    ivaPerci1Field.style.display = 'block';
+                    totalIvaField.style.display = 'none';
+                }
+            }
+    
+            // Ejecutar la función al cargar la página y al cambiar el checkbox
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleFields();
+                document.getElementById('id_es_factura_electronica').addEventListener('change', toggleFields);
+            });
+        </script>
+
     </form>
 {% endblock %}

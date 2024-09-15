@@ -5,8 +5,24 @@
     <form method= "post">
         {% csrf_token %}
         {{ form.as_p }}
+
+        <div id="ivaItem-container" style="display: none;">
+            {{ form.ivaItem.label_tag }}
+            {{ form.ivaItem }}
+        </div>
+
         <br>
         <input class="btn btn-success" type="submit" value="Guardar">
         <a href="javascript:history.back()" class="btn btn-danger">Cancelar</a>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const esFacturaElectronica = {{ form.instance.facturaElectronica.es_factura_electronica|yesno:"true,false" }};
+            const ivaItemContainer = document.getElementById('ivaItem-container');
+            
+            if (esFacturaElectronica) {
+                ivaItemContainer.style.display = 'block';
+            }
+        });
+    </script>
 {% endblock %}
