@@ -2118,6 +2118,175 @@ def comprobanteDonacionList(id):
     
     return comprobanteData
 
+def facturaElectronicaList(id):
+    facturaElectronica = ComprobanteDonacion.objects.get(id=id)
+    identificador = Identificador.objects.filter(facturaElectronica=facturaElectronica)
+    extencion = Extencion.objects.filter(facturaElectronica=facturaElectronica)
+    documentoRelacionado = DocumentoRelacionado.objects.filter(facturaElectronica=facturaElectronica)
+    otroDocumento = OtroDocumento.objects.filter(facturaElectronica=facturaElectronica)
+    ventaTercero = VentaTercero.objects.filter(facturaElectronica=facturaElectronica)
+    documento = Documento.objects.filter(facturaElectronica=facturaElectronica)
+    apendiceFacturaElectronica = Apendice.objects.filter(facturaElectronica=facturaElectronica)
+    fechaEmi = facturaElectronica.fechaTransmicion.date().isoformat()
+    horaEmi = facturaElectronica.fechaTransmicion.strftime("%H:%M:%S")
+    
+    def serialize(obj):
+        if isinstance(obj,(datetime.date, datetime.datetime)):
+            return obj.isoformat()
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, UUID):
+            return str(obj)
+        if isinstance(obj, TipoDocumento):
+            return str(obj)
+        if isinstance(obj, FormaPago):
+            return str(obj)
+        raise TypeError("Type not serializable")
+    
+    facturaData = {
+        'identificacion': {
+            'version': int(identificador.version),
+            'ambiente': identificador.ambiente,
+            'tipoDte': identificador.tipoDte.codigo,
+            'numeroControl': identificador.numeroControl,
+            'codigoGeneracion': str(identificador.codigoGeneracion).upper(),
+            'tipoModelo': int(identificador.tipoModelo),
+            'tipoOperacion': int(identificador.tipoOperacion),
+            'tipoContingencia': int(identificador.tipoContingencia) if identificador.tipoContingencia else None,
+            'motivoContin': identificador.motivoContin,
+            'fechaEmi': fechaEmi,
+            'horaEmi': horaEmi,
+            'tipoMoneda': identificador.tipoMoneda
+        },
+        "documentoRelacionado":[],
+        'emisor': {
+            "nit": facturaElectronica.emisor.nit,
+            "nrc": facturaElectronica.emisor.nrc,
+            "nombre": facturaElectronica.emisor.razonSocial,
+            "codActividad": facturaElectronica.emisor.actividadEconomica.codigo,
+            "descActividad": facturaElectronica.emisor.actividadEconomica.valor,
+            "nombreComercial": facturaElectronica.emisor.razonSocial,
+            "tipoEstablecimiento": facturaElectronica.tipoEstablecimiento,
+            "direccion": {
+                "departamento": facturaElectronica.emisor.direccionEmisor.municipio.departamento.codigo,
+                "municipio": facturaElectronica.emisor.direccionEmisor.municipio.codigo,
+                "complemento": facturaElectronica.emisor.direccionEmisor.complementoDireccion,
+            },
+            "telefono": facturaElectronica.emisor.cellphone,
+            "correo": facturaElectronica.emisor.email,
+            "codEstableMH": facturaElectronica.emisor.codEstableMH,
+            "codEstable": facturaElectronica.emisor.codEstable,
+            "codPuntoVentaMH": facturaElectronica.emisor.codPuntoVentaMH,
+            "codPuntoVenta": facturaElectronica.emisor.codPuntoVenta,
+            
+        },
+        "receptor": {
+            "tipoDocumento": facturaElectronica.receptor.tipo,
+            "numDocumento": facturaElectronica.receptor.numero,
+            "nrc": facturaElectronica.receptor.nrc,
+            "nombre": facturaElectronica.receptor.receptor.nombre,
+            "codActividad": facturaElectronica.receptor.actividadEconomica.codigo,
+            "descActividad": facturaElectronica.receptor.actividadEconomica.valor,
+            "direccion": {
+                "departamento": facturaElectronica.receptor.direccionReceptor.municipio.departamento.codigo,
+                "municipio": facturaElectronica.receptor.direccionReceptor.municipio.codigo,
+                "complemento": facturaElectronica.receptor.direccionReceptor.complementoDireccion
+            },
+            "telefono": facturaElectronica.receptor.cellphone,
+            "correo": facturaElectronica.receptor.email,
+        },
+        "otrosDocumentos":[],
+        "ventaTercero": {
+            "nit": ventaTercero.nit,
+            "nombre": ventaTercero.nombre
+        },
+        "cuerpoDocumento":[],
+        "resumen": {
+            "totalNoSuj" : serialize(facturaElectronica.totalNoSuj),
+            "totalExenta" : serialize(facturaElectronica.totalExenta),
+            "totalGravada" : serialize(facturaElectronica.totalGravada),
+            "subTotalVentas" : serialize(facturaElectronica.subTotalVentas),
+            "descuNoSuj" : serialize(facturaElectronica.descuNoSuj),
+            "descuExenta" : serialize(facturaElectronica.descuExenta),
+            "descuGravada" : serialize(facturaElectronica.descuGravada),
+            "porcentajeDescuento" : serialize(facturaElectronica.porcentajeDescuento),
+            "totalDescu" : serialize(facturaElectronica.totalDescu),
+            "tributos" : {
+                "codigo" : facturaElectronica.tributo.codigo,
+                "descripcion" : facturaElectronica.tributo.descripcion,
+                "valor" : serialize(facturaElectronica.tributo.valor), 
+            },
+            "subtotal" : serialize(facturaElectronica.subtotal),
+            "ivaRete1" : serialize(facturaElectronica.ivaRete1),
+            "reteRenta" : serialize(facturaElectronica.reteRenta),
+            "montoTotalOperacion" : serialize(facturaElectronica.montoTotalOperacion),
+            "totalNoGravado" : serialize(facturaElectronica.totalNoGravado),
+            "totalPagar" : serialize(facturaElectronica.totalPagar),
+            "totalLetras" : facturaElectronica.totalLetras,
+            "totalIva" : serialize(facturaElectronica.totalIva),
+            "saldoFavor" : serialize(facturaElectronica.saldoFavor),
+            "condicionOperacion" : facturaElectronica.condicionOperacion,
+            "pagos" : [],
+            "numPagoElectronica" : facturaElectronica.numPagoElectronica,
+        },
+        "Extencion" : {
+            "nombEntrega" : extencion.nombEntrega,
+            "docuEntrega" : extencion.docuEntrega,
+            "nombRecibe" : extencion.nombRecibe,
+            "docuRecibe" : extencion.docuRecibe,
+            "observaciones" : extencion.observaciones,
+            "placaVehiculo" : extencion.placaVehiculo,
+        },
+        "apendice": []
+    }
+    for documento in documentoRelacionado:
+        documentoRelacionadoData = {
+            "tipoDocumento" : documento.tipoDocumento,
+            "tipoGeneracion" : documento.tipoGeneracion,
+            "numeroDocumento" : documento.numeroDocumento,
+            "fechaEmision" : documento.fechaEmision.date().isoformat(),
+        }
+        facturaData['otrosDocumentos'].append(documentoRelacionadoData)
+    
+    for otroDoc in otroDocumento:
+        otroDocumentoData = {
+            "codDocAsociado": otroDoc.codDocAsociado,
+            "descDocumento": otroDoc.descDocumento,
+            "detalleDocumento": otroDoc.detalleDocumento,
+            "medico": {
+                "nombre" : otroDoc.medico.nombre,
+                "nit" : otroDoc.medico.nit,
+                "docIdentificacion" : otroDoc.medico.docIdentificacion,
+                "tipoServicio" : otroDoc.medico.tipoServicio,
+            },
+        }
+        facturaData['cuerpoDocumento'].append(otroDocumentoData)
+    
+    if apendiceFacturaElectronica.exists():
+        for apendices in apendiceFacturaElectronica:
+            apendicesData = {
+                "campo": apendices.campo,
+                "etiquta": apendices.etiquta,
+                "valor": apendices.valor
+            }
+            facturaData['apendice'].append(apendicesData)
+    else:
+        facturaData['apendice'] = None
+    
+    if facturaElectronica.pago.exists():
+        pagoData ={
+            "codigo" : facturaElectronica.pago.codigo,
+            "montoPago" : serialize(facturaElectronica.pago.montoPago),
+            "referencia" : facturaElectronica.pago.referencia,
+            "plazo" : facturaElectronica.pago.plazo,
+            "periodo" : serialize(facturaElectronica.pago.periodo),
+        }
+        facturaData["resumen"]["pagos"].append(pagoData)
+    else:
+        facturaData["resumen"]["pagos"] = None
+    
+    return facturaData
+
 #Creando los PDF's para cada Factura
 
 
