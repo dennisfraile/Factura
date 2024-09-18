@@ -2637,6 +2637,299 @@ def crearComprobanteDonacion(datos):
     buffer.seek(0)
     
     return buffer.getvalue()
+
+def crearFacturaElectronica(datos):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    ancho, alto = letter
+    margen = 50
+    espaciado = 15
+    y_pos = alto - margen
+
+    # Encabezado de la factura
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(margen, y_pos, "Factura Electronica")
+    y_pos -= 2 * espaciado
+
+    # Identificador
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Identificador")
+    y_pos -= 2 * espaciado
+
+    identificador = datos["identificacion"]
+    c.setFont("Helvetica", 10)
+    info_identificador = [
+        f'Version: {identificador["version"]}, Tipo: {identificador["tipoDte"]}, Numero de Control: {identificador["numeroControl"]}',
+        f'Codigo de Generacion: {identificador["codigoGeneracion"]}, Fecha: {identificador["fecEmi"]}, Hora: {identificador["horEmi"]}',
+        f'Modelo de Facturacion: {identificador["tipoModelo"]}, Tipo de Transmision: {identificador["tipoOperacion"]}',
+        f'Tipo de Contingencia: {identificador["tipoContingencia"]}, Motivo: {identificador["motivoContin"]}, Moneda: {identificador["tipoMoneda"]}'
+    ]
+    for info in info_identificador:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Información del Emisor
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Datos del Emisor de la Factura")
+    y_pos -= 2 * espaciado
+
+    emisor = datos["emisor"]
+    direccion = emisor["direccion"]
+    c.setFont("Helvetica", 10)
+    info_emisor = [
+        f'NIT: {emisor["nit"]}, NRC: {emisor["nrc"]}',
+        f'Razon Social: {emisor["nombre"]}, Nombre Comercial: {emisor["nombreComercial"]}',
+        f'Actividad Economica: {emisor["descActividad"]}, Email: {emisor["correo"]}',
+        f'Codigo Establecimiento MH: {emisor["codEstableMH"]}, Contribuyente: {emisor["codEstable"]}',
+        f'Codigo Punto de Venta MH: {emisor["codPuntoVentaMH"]}, Codigo Punto de Venta: {emisor["codPuntoVenta"]}',
+        f'Direccion: {direccion["complemento"]}, {direccion["municipio"]}, {direccion["departamento"]}, Telefono: {emisor["telefono"]}'
+    ]
+    for info in info_emisor:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Información del Sujeto Excluido
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Datos del Receptor de la Factura")
+    y_pos -= 2 * espaciado
+
+    receptor = datos["receptor"]
+    direccion_s = receptor["direccion"]
+    c.setFont("Helvetica", 10)
+    info_sujeto = [
+        f'Nombre: {receptor["nombre"]}, Tipo Documento: {receptor["tipoDocumento"]}, Documento: {receptor["numDocumento"]}',
+        f'Actividad Economica: {receptor["descActividad"]}, NRC: {receptor["nrc"]}',
+        f'Email: {receptor["correo"]}, Telefono: {receptor["telefono"]}',
+        f'Direccion: {direccion_s["complemento"]}, {direccion_s["municipio"]}, {direccion_s["departamento"]}'
+    ]
+    for info in info_sujeto:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Documentos Relacionados
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Documento Relacionado")
+    y_pos -= 2 * espaciado
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen, y_pos, "Item")
+    c.drawString(margen + 50, y_pos, "Tipo de Documento")
+    c.drawString(margen + 100, y_pos, "Tipo de Generacion del Documento")
+    c.drawString(margen + 150, y_pos, "Numero de documento")
+    c.drawString(margen + 200, y_pos, "Fecha de Emision")
+    y_pos -= espaciado
+
+    c.setFont("Helvetica", 10)
+    for docRelacionado in datos["documentoRelacionado"]:
+        c.drawString(margen, y_pos, str(docRelacionado["tipoDocumento"]))
+        c.drawString(margen + 50, y_pos, str(docRelacionado["tipoGeneracion"]))
+        c.drawString(margen + 100, y_pos, str(docRelacionado["numeroDocumento"]))
+        c.drawString(margen + 150, y_pos, str(docRelacionado["fechaEmision"]))
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Otros Documentos
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Documentos Asociados")
+    y_pos -= 2 * espaciado
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen, y_pos, "Item")
+    c.drawString(margen + 50, y_pos, "Documento Asociado")
+    c.drawString(margen + 100, y_pos, "Identificacion del Documento")
+    c.drawString(margen + 150, y_pos, "Descripción del Documento")
+    c.drawString(margen + 200, y_pos, "Nombre del Medico")
+    c.drawString(margen + 200, y_pos, "NIT del Medico")
+    c.drawString(margen + 200, y_pos, "Identificacion del Medico")
+    c.drawString(margen + 200, y_pos, "Tipo de Servicio")
+    y_pos -= espaciado
+
+    c.setFont("Helvetica", 10)
+    for otroDocumento in datos["otrosDocumentos"]:
+        medico = otroDocumento["medico"]
+        c.drawString(margen, y_pos, str(otroDocumento["codDocAsociado"]))
+        c.drawString(margen + 50, y_pos, str(otroDocumento["descDocumento"]))
+        c.drawString(margen + 100, y_pos, str(otroDocumento["detalleDocumento"]))
+        c.drawString(margen + 150, y_pos, str(otroDocumento["fechaEmision"]))
+        c.drawString(margen + 150, y_pos, str(medico["nombre"]))
+        c.drawString(margen + 150, y_pos, str(medico["nit"]))
+        c.drawString(margen + 150, y_pos, str(medico["docIdentificacion"]))
+        c.drawString(margen + 150, y_pos, str(medico["tipoServicio"]))
+        y_pos -= espaciado
+    
+    y_pos -= 2 * espaciado
+    
+    #Venta por Cuenta de Terceros
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Venta por Cuenta de Terceros")
+    y_pos -= 2 * espaciado
+    
+    venta = datos["ventaTercero"]
+    c.setFont("Helvetica", 10)
+    info_venta_tercero = [
+        f'NIT: {venta["nit"]}, Nombre: {venta["nombre"]}' 
+    ]
+    for info in info_venta_tercero:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+    y_pos -= 2 * espaciado
+    
+    # Cuerpo del Documento (Tabla)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Cuerpo del Documento")
+    y_pos -= 2 * espaciado
+
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen, y_pos, "N° de Item")
+    c.drawString(margen + 50, y_pos, "Tipo de Item")
+    c.drawString(margen + 100, y_pos, "Numero de Documento")
+    c.drawString(margen + 150, y_pos, "Cantidad")
+    c.drawString(margen + 200, y_pos, "Codigo")
+    c.drawString(margen + 250, y_pos, "Codigo Tributario")
+    c.drawString(margen + 250, y_pos, "Unidad de Medida")
+    c.drawString(margen + 250, y_pos, "Descripccion")
+    c.drawString(margen + 250, y_pos, "Precio Unitario")
+    c.drawString(margen + 250, y_pos, "Monto de Descuento")
+    c.drawString(margen + 250, y_pos, "Venta no Sujeta")
+    c.drawString(margen + 250, y_pos, "Venta Exenta")
+    c.drawString(margen + 250, y_pos, "Venta Gravada")
+    c.drawString(margen + 250, y_pos, "Tributos")
+    c.drawString(margen + 250, y_pos, "PSV")
+    c.drawString(margen + 250, y_pos, "No Gravado")
+    c.drawString(margen + 250, y_pos, "IVA por Item")
+    y_pos -= espaciado
+
+    c.setFont("Helvetica", 10)
+    for cuerpo in datos["cuerpoDocumento"]:
+        c.drawString(margen, y_pos, str(cuerpo["numItem"]))
+        c.drawString(margen + 50, y_pos, str(cuerpo["tipoItem"]))
+        c.drawString(margen + 100, y_pos, str(cuerpo["numeroDocumento"]))
+        c.drawString(margen + 150, y_pos, str(cuerpo["cantidad"]))
+        c.drawString(margen + 150, y_pos, str(cuerpo["codTributo"]))
+        c.drawString(margen + 150, y_pos, str(cuerpo["uniMedida"]))
+        c.drawString(margen + 150, y_pos, str(cuerpo["descripccion"]))
+        c.drawString(margen + 250, y_pos, f'{cuerpo["precioUni"]:.2f}')
+        c.drawString(margen + 200, y_pos, f'{cuerpo["montoDescu"]:.2f}')
+        c.drawString(margen + 200, y_pos, f'{cuerpo["ventaNoSuj"]:.2f}')
+        c.drawString(margen + 200, y_pos, f'{cuerpo["ventaExenta"]:.2f}')
+        c.drawString(margen + 200, y_pos, f'{cuerpo["ventaGravada"]:.2f}')
+        c.drawString(margen + 150, y_pos, str(cuerpo["tributos"]))
+        c.drawString(margen + 200, y_pos, f'{cuerpo["psv"]:.2f}')
+        c.drawString(margen + 200, y_pos, f'{cuerpo["noGravado"]:.2f}')
+        c.drawString(margen + 200, y_pos, f'{cuerpo["ivaItem"]:.2f}')
+        y_pos -= espaciado
+
+    y_pos -= 2 * espaciado
+    # Resumen
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Resumen")
+    y_pos -= 2 * espaciado
+
+    resumen = datos["resumen"]
+    c.setFont("Helvetica", 10)
+    resumen_info = [
+        f'Total de Operaciones no sujetas: {resumen["totalNoSuj"]}, Total de Operaciones Excentas: {resumen["totalExenta"]}, Total de Operaciones Gravadas: {resumen["totalGravada"]}',
+        f'Suma de Operaciones sin impuestos: {resumen["subTotalVentas"]}, Monto Global de Descuento a ventas no sujetas: {resumen["descuNoSuj"]}, Total a pagar: {resumen["totalPagar"]}',
+        f'Monto Global de Descuento a ventas exentas: {resumen["descuExenta"]}, Monto Global de Descuento a ventas gravadas: {resumen["descuGravada"]}',
+        f'Porcentaje delMonto Global de Descuento: {resumen["porcentajeDescuento"]}, Total del monto de Descuento: {resumen["totalDescu"]}',
+        f'Subtotal: {resumen["subtotal"]}, IVA Retenido: {resumen["ivaRete1"]}, Retencion Renta: {resumen["reteRenta"]}, Monto Total de la Operacion: {resumen["montoTotalOperacion"]}',
+        f'Total Cargos/Abonos: {resumen["totalNoGravado"]}, Total a Pagar: {resumen["totalPagar"]}, Valor en Letras: {resumen["valorLetras"]}',
+        f'IVA 13%: {resumen["totalIva"]}, Saldo a Favor: {resumen["saldoFavor"]}, Condicion de Operacion: {resumen["condicionOperacion"]}, Numero de Pago Electronico: {resumen["numeroPagoElectronico"]}',
+    ]
+    for info in resumen_info:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Tributos")
+    y_pos -= 2 * espaciado
+    
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen + 50, y_pos, "Resumen Codigo Tributario")
+    c.drawString(margen + 100, y_pos, "Nombre del Tributo")
+    c.drawString(margen + 150, y_pos, "Valor del Tributo")
+    y_pos -= espaciado
+        
+    #Lista de Tributos
+    for tributo in datos["tributos"]:
+        c.drawString(margen + 50, y_pos, tributo["codigo"])
+        c.drawString(margen + 100, y_pos, tributo["descripcion"])
+        c.drawString(margen + 150, y_pos, tributo["valor"])
+        y_pos -= espaciado
+    y_pos -= 2 * espaciado
+    
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Pagos")
+    y_pos -= 2 * espaciado
+    
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(margen + 50, y_pos, "Codigo de la forma de Pago")
+    c.drawString(margen + 100, y_pos, "Monto de la forma de Pago")
+    c.drawString(margen + 150, y_pos, "Referencia de la modalidade de Pago")
+    c.drawString(margen + 200, y_pos, "Plazo")
+    c.drawString(margen + 250, y_pos, "Periodo")
+    y_pos -= espaciado
+        
+    #Lista de Pagos
+    for pago in datos["pagos"]:
+        c.drawString(margen + 50, y_pos, pago["codigo"])
+        c.drawString(margen + 100, y_pos, pago["montoPago"])
+        c.drawString(margen + 150, y_pos, pago["referencia"])
+        c.drawString(margen + 200, y_pos, pago["plazo"])
+        c.drawString(margen + 250, y_pos, pago["periodo"])
+        y_pos -= espaciado
+    y_pos -= 2 * espaciado
+    
+    # Extencion
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margen, y_pos, "Extencion")
+    y_pos -= 2 * espaciado
+
+    extencion = datos["extencion"]
+    c.setFont("Helvetica", 10)
+    resumen_info = [
+        f'Nombre del responsable que genera el DTE: {resumen["nombEntrega"]}, Documento de Identificacion: {resumen["docuEntrega"]}',
+        f'Nombre del responsable  por parte del receptor: {resumen["nombRecibe"]}, Documento de Identificacion: {resumen["docuRecibe"]}',
+        f'Observaciones: {resumen["observaciones"]}, Placa del vehiculo: {resumen["placaVehiculo"]}',
+    ]
+    for info in resumen_info:
+        c.drawString(margen, y_pos, info)
+        y_pos -= espaciado
+    y_pos -= 2 * espaciado
+     
+    if datos['apendice'] == None:
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(margen, y_pos, "No hay datos")
+    else:   
+        #Apendice
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(margen + 50, y_pos, "Campo")
+        c.drawString(margen + 100, y_pos, "Descripccion")
+        c.drawString(margen + 150, y_pos, "Valor")
+        y_pos -= espaciado
+        
+        #Lista de Apendices
+        for apendice in datos["apendice"]:
+            c.drawString(margen + 50, y_pos, apendice["campo"])
+            c.drawString(margen + 100, y_pos, apendice["etiqueta"])
+            c.drawString(margen + 150, y_pos, apendice["valor"])
+            y_pos -= espaciado
+        
+        y_pos -= 2 * espaciado
+    
+    # Guardar el PDF
+    c.save()
+    buffer.seek(0)
+
+    # Devolver el PDF como una respuesta HTTP
+    #response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="factura_sujeto_excluido.pdf"'
+    
+    #return response
+    return buffer.getvalue()
     
 class Transmitir(LoginRequiredMixin,View):
     
@@ -2651,8 +2944,10 @@ class Transmitir(LoginRequiredMixin,View):
         
         if origin == 'sujetoExcluido':
             factura = sujetoExcluidoList(id)
-        else:
+        elif origin == 'comprobanteDonacion':
             factura = comprobanteDonacionList(id)
+        else:
+            factura = facturaElectronicaList(id)
         return factura
     
     def convert_base64_private_key_to_pem(self, base64_key):
@@ -2762,14 +3057,14 @@ class Transmitir(LoginRequiredMixin,View):
                 else:
                     messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
                     return redirect('updateParametrosHacienda', pk=authHacienda.pk)
-            else:
+            elif origin == 'comprobanteDonacion':
                 comprobanteDonacion = get_object_or_404(ComprobanteDonacion, pk=id)
                 identificador = get_object_or_404(Identificador, comprobanteDonacion=comprobanteDonacion)
                 responseHacienda = ResponseHacienda(
                     nombre="Auth de Hacienda",
                     datosJson=acceso,  # Corregido el nombre del campo y la serialización JSON
                     status=acceso['status'],
-                    comprobanteDonacion=ComprobanteDonacion
+                    comprobanteDonacion=comprobanteDonacion
                 )
                 responseHacienda.save()
 
@@ -2818,7 +3113,7 @@ class Transmitir(LoginRequiredMixin,View):
                         to_email = comprobanteDonacion.receptor.email
                         email = EmailMessage(subject, body, from_email, [to_email])
                         jsonContent = json.dumps(jsonData, indent=4)
-                        pdf_bytes = crearFacturaSujetoExcluido(datosFactura)
+                        pdf_bytes = crearComprobanteDonacion(datosFactura)
                         pdf_comprobante_donacion = MIMEApplication(pdf_bytes, _subtype='pdf')
                         email.attach('data.json', jsonContent, 'application/json')
                         email.attach('data.pdf', pdf_bytes, 'application/pdf')
@@ -2829,17 +3124,88 @@ class Transmitir(LoginRequiredMixin,View):
                     messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
                     return redirect('authHacienda', pk=authHacienda.pk)
 
+            else:
+                facturaElectronica = get_object_or_404(FacturaElectronica, pk=id)
+                identificador = get_object_or_404(Identificador, facturaElectronica=facturaElectronica)
+                responseHacienda = ResponseHacienda(
+                    nombre="Auth de Hacienda",
+                    datosJson=acceso,  # Corregido el nombre del campo y la serialización JSON
+                    status=acceso['status'],
+                    facturaElectronica=facturaElectronica
+                )
+                responseHacienda.save()
+
+                if acceso['status'] == "OK":
+                    token = acceso['body']['token']
+                    factura = self.obtenerFactura()
+                    encoded = jwt.encode(factura, privateKey, algorithm="HS256")
+                    print(encoded)
+                    url_recepcion = 'https://apitest.dtes.mh.gob.sv/fesv/recepciondte'
+
+                    headers = {
+                        'Authorization':token,
+                        'User-Agent': authHacienda.userAgent,
+                        'content-Type': 'application/json',  # Asegúrate de que sea 'application/json'
+                    }
+                    
+                    data = {
+                        'ambiente': identificador.ambiente,
+                        'idEnvio': identificador.id,
+                        'version': identificador.version,
+                        'tipoDte': identificador.tipoDte.codigo,
+                        'documento': encoded,
+                        'codigoGeneracion': str(identificador.codigoGeneracion).upper(),
+                    }
+                    try:
+                        transmitir = requests.post(url_recepcion, headers=headers, json=data).json()
+                        responseHacienda = ResponseHacienda(
+                            nombre="Transmicion de factura a Hacienda",
+                            datosJson=transmitir,  # Corregido el nombre del campo y la serialización JSON
+                            status=transmitir['status'],
+                            facturaElectronica=facturaElectronica
+                        )
+                        responseHacienda.save()
+                    except requests.exceptions.HTTPError as e:
+                        messages.error(self.request,f"Error en la solicitud: {e}")
+                    except ValueError as json_err:
+                        messages.error(self.request,f"Error al decodificar JSON: {json_err}")
+                        messages.error(self.request,f"Contenido de la respuesta: {transmitir.text}")
+                    
+                    if transmitir['codigoMsg'] == "001":
+                        FacturaElectronica.objects.filter(pk=id).update(transmitido=True)  # Actualizar el campo transmitido
+                        # Envía un correo electrónico con la factura electronica
+                        subject = 'Factura Electronica'
+                        body = f'Hola {facturaElectronica.receptor.nombre},\n\nse le ha emitido una factura electronica.'
+                        from_email = facturaElectronica.emisor.email  
+                        to_email = facturaElectronica.receptor.email
+                        email = EmailMessage(subject, body, from_email, [to_email])
+                        jsonContent = json.dumps(jsonData, indent=4)
+                        pdf_bytes = crearFacturaElectronica(datosFactura)
+                        pdf_factura_electronica = MIMEApplication(pdf_bytes, _subtype='pdf')
+                        email.attach('data.json', jsonContent, 'application/json')
+                        email.attach('data.pdf', pdf_bytes, 'application/pdf')
+                        email.send()
+                    messages.success(self.request, 'Se ha transmitido la factura correctamente.')
+                    return redirect('facturaElectronicaDetailView', pk=id)
+                else:
+                    messages.error(self.request, f'Ocurrió un error con las credenciales: {acceso["status"]}')
+                    return redirect('authHacienda', pk=authHacienda.pk)
+            
         except requests.exceptions.RequestException as e:
             messages.error(self.request, f'Ocurrió un error al hacer la solicitud a la API de Hacienda: {str(e)}')
             if origin == 'sujetoExcluido':
                 return redirect('sujetoExcluidoDetailView', pk=id)
-            else:
+            elif origin == 'comprobanteDonacion':
                 return redirect('comprobanteDonacionDetailView', pk=id)
+            else: 
+                return redirect('facturaElectronicaDetailView', pk=id)
 
         except Exception as e:
             messages.error(self.request, f'Ocurrió un error inesperado: {str(e)}')
             if origin == 'sujetoExcluido':
                 return redirect('sujetoExcluidoDetailView', pk=id)
-            else:
+            elif origin == 'comprobanteDonacion':
                 return redirect('comprobanteDonacionDetailView', pk=id)
+            else:
+                return redirect('facturaElectonicaDetailView', pk=id)
             
