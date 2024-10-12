@@ -2223,7 +2223,6 @@ def facturaElectronicaList(id):
             "totalNoGravado" : serialize(facturaElectronica.totalNoGravado),
             "totalPagar" : serialize(facturaElectronica.totalPagar),
             "totalLetras" : facturaElectronica.totalLetras,
-            "totalIva" : serialize(facturaElectronica.totalIva),
             "saldoFavor" : serialize(facturaElectronica.saldoFavor),
             "condicionOperacion" : facturaElectronica.condicionOperacion,
             "pagos" : [],
@@ -2239,6 +2238,15 @@ def facturaElectronicaList(id):
         },
         "apendice": []
     }
+    
+    # Diferenciación entre Factura Electrónica y Crédito Fiscal
+    if facturaElectronica.es_factura_electronica:
+        # Campo específico de Factura Electrónica
+        facturaData['resumen']["totalIva"] = serialize(facturaElectronica.totalIva)
+    else:
+        # Campo específico de Crédito Fiscal
+        facturaData['resumen']["ivaPerci1"] = serialize(facturaElectronica.ivaPerci1)
+    
     for documento in documentoRelacionado:
         documentoRelacionadoData = {
             "tipoDocumento" : documento.tipoDocumento,
@@ -2690,7 +2698,8 @@ def crearFacturaElectronica(datos):
         y_pos -= espaciado
 
     y_pos -= 2 * espaciado
-    # Información del Sujeto Excluido
+    
+    # Información del Receptor
     c.setFont("Helvetica-Bold", 14)
     c.drawString(margen, y_pos, "Datos del Receptor de la Factura")
     y_pos -= 2 * espaciado
