@@ -470,7 +470,20 @@ class SujetoExcluidoCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.emisor = self.request.user.entidad
-        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        form.instance.entidad = self.request.user.entidad 
+        factura = form.save()
+        
+        #Obteniendo el tipo de documento
+        tipoDte = TipoDocumento.objects.get(codigo = "14")
+        
+        #Crear el identificador relacionado a la factura 
+        Identificador.objects.create(
+            version = "1.0",
+            ambiente = "00",
+            tipoDte = tipoDte,
+            sujetoExcluido = factura,
+            entidad = self.request.user.entidad,
+        )
         return super().form_valid(form)
     
     def form_invalid(self, form):
@@ -1140,7 +1153,20 @@ class ComprobanteDonacionCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.emisor = self.request.user.entidad
-        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        form.instance.entidad = self.request.user.entidad 
+        factura = form.save()
+        
+        #Obteniendo el tipo de documento
+        tipoDte = TipoDocumento.objects.get(codigo = "15")
+        
+        #Crear el identificador relacionado a la factura 
+        Identificador.objects.create(
+            version = "1.0",
+            ambiente = "00",
+            tipoDte = tipoDte,
+            comprobanteDonacion = factura,
+            entidad = self.request.user.entidad,
+        )
         return super().form_valid(form)
     
     def form_invalid(self, form):
@@ -1278,7 +1304,24 @@ class FacturaElectronicaCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.emisor = self.request.user.entidad
-        form.instance.entidad = self.request.user.entidad  # Assuming you want to assign the first entity related to the user
+        form.instance.entidad = self.request.user.entidad  
+        factura = form.save()
+        
+        if(factura.es_factura_electronica):
+            #Obteniendo el tipo de documento Factura Electronica
+            tipoDte = TipoDocumento.objects.get(codigo = "01")
+        else:
+            #Obteniendo el tipo de documento Comnprobante de Credito Fiscal
+            tipoDte = TipoDocumento.objects.get(codigo = "03")
+        
+        #Crear el identificador relacionado a la factura 
+        Identificador.objects.create(
+            version = "1.0",
+            ambiente = "00",
+            tipoDte = tipoDte,
+            facturaElectronica = factura,
+            entidad = self.request.user.entidad,
+        )
         return super().form_valid(form)
     
     def form_invalid(self, form):

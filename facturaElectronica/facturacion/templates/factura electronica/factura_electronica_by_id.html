@@ -1,0 +1,577 @@
+{% extends "../index.html" %}
+
+{% block content %}
+<div class="container">
+  {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" m-2" id="msg" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+  {% endif %}
+</div>
+<div class="container py-5">
+  <div class="row">
+    <div class="cold-md-12">
+      <h3 class="display-5 fw-bold">Detalle de la Factura Electronica {{identificador.version}}
+        {% if not facturaElectronica.transmitido %}
+          <a id="tramite" href="{% url 'facturaElectronicaUpdateView' object.id %}?next={{ request.path }}" 
+              class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Factura Electronica ">
+              <span class="material-symbols-outlined">
+                edit
+              </span>
+          </a>
+        {% endif %}
+        <a id="factura" href="{% url 'response_hacienda_by_factura_electronica_list' object.id %}?next={{ request.path }}" 
+          class="btn btn-warning d-inline-flex align-items-center"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver Responses">
+          <span class="material-symbols-outlined me-2">
+            description
+          </span>
+          <span>Ver Responses</span>
+        </a> 
+      </h3>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="table-responsive">
+        {% if identificador %}
+          <h2>Identificador</h2>
+          <a id="identificador" href="{% url 'identificadorUpdate' facturaElectronica.id %}?next={{ request.path }}" 
+            class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar el Identificador de la factura electronica">
+              <span class="material-symbols-outlined">
+                edit
+              </span>
+          </a>
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td><strong>Versión</strong></td>
+                <td>{{ identificador.version }}</td>
+                <td><strong>Ambiente de destino</strong></td>
+                <td>{{ identificador.ambiente }}</td>
+              </tr>
+              <tr>
+                <td><strong>Tipo de documento</strong></td>
+                <td>{{ identificador.tipoDte.valor }}</td>
+                <td><strong>Número de Control</strong></td>
+                <td>{{ identificador.numeroControl }}</td>
+              </tr>
+              <tr>
+                <td><strong>Código de Generación</strong></td>
+                <td>{{ identificador.codigoGeneracion }}</td>
+                <td><strong>Modelo de Facturación</strong></td>
+                <td>{{ identificador.tipoModelo }}</td>
+              </tr>
+              <tr>
+                <td><strong>Tipo de Transmisión</strong></td>
+                <td>{{ identificador.tipoOperacion }}</td>
+                <td><strong>Tipo de Contingencia</strong></td>
+                <td>{{ identificador.tipoContingencia }}</td>
+              </tr>
+              <tr>
+                <td><strong>Motivo de Contingencia</strong></td>
+                <td>{{ identificador.motivoContin }}</td>
+                <td><strong>Fecha de Generación</strong></td>
+                <td>{{ facturaElectronica.fecha }}</td>
+              </tr>
+              <tr>
+                <td><strong>Tipo de Moneda</strong></td>
+                <td>{{ identificador.tipoMoneda }}</td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        {% endif %}
+        {% if not identificador %}
+          <a id="identificador" href="{% url 'identificadorCreate' facturaElectronica.id %}?next={{ request.path }}&origin=facturaElectronica" 
+            class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar el Identificador a la Factura">
+              <span class="material-symbols-outlined">
+                list_alt_add
+              </span>
+          </a>
+          <p>No se a ingresado un identificador para esta factura</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Documento Relacionado</h2>
+      {% if not facturaElectronica.transmitido %}
+        <a id="operacion" href="{% url 'documentoRelacionadoCreate' object.id %}?next={{ request.path }}" 
+          class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Otro Documento Relacionado">
+            <span class="material-symbols-outlined">
+              list_alt_add
+            </span>
+        </a>
+      {% endif %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Tipo de Documento Tributario Asociado</th>
+            <th>Tipo de Generacion del Documento Tributario</th>
+            <th>Numero del Documento Relacionado</th>
+            <th>Fecha de Generacion del Documento</th>
+            <th>Editar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for documentosRelacionados in documentoRelacionado %}
+            <tr>
+              <td>{{documentosRelacionados.tipoDocumento}}</td>
+              <td>{{documentosRelacionados.tipoGeneracion}}</td>
+              <td>{{documentosRelacionados.numeroDocumento}}</td>
+              <td>{{documentosRelacionados.fechaEmision}}</td>
+              <td id="col">
+                {% if not facturaElectronica.transmitido %}
+                  <a id="otrodocumentoupdate" href="{% url 'documentoRelacionadoUpdate' object.id %}?next={{ request.path }}" 
+                      class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Documento Relacionado">
+                      <span class="material-symbols-outlined">
+                      edit 
+                      </span>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not documentosRelacionados %}
+        <p>No hay otros documentos relacionados a la factura electronica</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Datos del Emisor</h2>
+      <table class="table table-bordered">
+        <tbody>
+          <tr>
+            <td><strong>NIT</strong></td>
+            <td>{{ facturaElectronica.emisor.nit }}</td>
+            <td><strong>NRC</strong></td>
+            <td>{{ facturaElectronica.emisor.nrc }}</td>
+          </tr>  
+          <tr>
+            <td><strong>Razon Social</strong></td>
+            <td>{{ facturaElectronica.emisor.razonSocial }}</td>
+            <td><strong>Nombre Comercial</strong></td>
+            <td>{{ facturaElectronica.emisor.direccionEmisor.nombreComercial }}</td>
+          </tr>
+          <tr>
+            <td><strong>Codigo de Actividad Economica</strong></td>
+            <td>{{ facturaElectronica.emisor.actividadEconomica.codigo }}</td>
+            <td><strong>Actividad Economica</strong></td>
+            <td>{{ facturaElectroncia.emisor.actividadEconomica.valor }}</td>
+          </tr>
+          <tr>
+            <td><strong>Correo</strong></td>
+            <td>{{ facturaElectronica.emisor.correo }}</td>
+            <td><strong>Tipo de Establecimiento</strong></td>
+            <td>{{ facturaElectronica.emisor.tipoEstablecimiento }}</td>
+          </tr>
+          <tr>
+            <td><strong>Telefono</strong></td>
+            <td>{{ facturaElectronica.emisor.direccionEmisor.telefono }}</td>
+            <td><strong>Dirección del Emisor</strong></td>
+            <td>{{ facturaElectronica.emisor.direccionEmisor.complementoDireccion }}</td>
+          </tr>
+          <tr>
+            <td><strong>Código del establecimiento asignado por MH</strong></td>
+            <td>{{ facturaElectronica.emisor.codEstableMH }}</td>
+            <td><strong>Código del establecimiento asignado por Contribuyente</strong></td>
+            <td>{{ facturaElectronica.emisor.codEstable }}</td>
+          </tr>
+          <tr>
+            <td><strong>Código del punto de venta asignado por MH</strong></td>
+            <td>{{ facturaElectronica.emisor.codPuntoVentaMH }}</td>
+            <td><strong>Código del punto de venta asignado por Contribuyente</strong></td>
+            <td>{{ facturaElectronica.emisor.codPuntoVenta }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Datos del Receptor</h2>
+      <table class="table table-bordered">
+        <tbody>
+          <tr> 
+            <td><strong>Tipo de Documento de Identificacion (Receptor)</strong></td>
+            <td>{{ facturaElectronica.receptor.tipoDocumento }}</td>
+            <td><strong>Numero de Documento de Identificacion (Receptor)</strong></td>
+            <td>{{ facturaElectronica.receptor.numDocumento }}</td>
+          </tr>
+          <tr>
+            <td><strong>Nombre o Razón Social</strong></td>
+            <td>{{ facturaElectronica.receptor.nombre }}</td>
+            <td><strong>Direccion</strong></td>
+            <td>{{ facturaElectronica.receptor.direccionReceptor.complementoDireccion }}</td>
+          </tr>
+          <tr>
+            <td><strong>NRC</strong></td>
+            <td>{{ facturaElectronica.receptor.nrc }}</td>
+          </tr>
+          <tr>
+            <td><strong>Codigo de Actividad Económica</strong></td>
+            <td>{{ facturaElectronica.receptor.actividadEconomica.codigo }}</td>
+            <td><strong>Actividad Económica</strong></td>
+            <td>{{ facturaElectronica.receptor.actividadEconomica.valor }}</td>
+          </tr>
+          <tr>
+            <td><strong>Telefono</strong></td>
+            <td>{{ facturaElectronica.receptor.telefono }}</td>
+            <td><strong>Correo</strong></td>
+            <td>{{ facturaElectronica.receptor.email }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+       
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Otro Documento Asociado</h2>
+      {% if not facturaElectronica.transmitido %}
+        <a id="operacion" href="{% url 'otroDocumentoCreate' object.id %}?next={{ request.path }}" 
+          class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Otro Documento Asociado">
+            <span class="material-symbols-outlined">
+              list_alt_add
+            </span>
+        </a>
+      {% endif %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Documento Asociado</th>
+            <th>Descripccion del Documento Asociado</th>
+            <th>Detalle del Documento</th>
+            <th>Nombre del Medico</th>
+            <th>NIT de Medico</th>
+            <th>Identificacion de medico no domiciliado</th>
+            <th>Codigo de Servicio realizado</th>
+            <th>Editar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for otrosDocumentos in otroDocumentoAsociado %}
+            <tr>
+              <td>{{otrosDocumentos.codDocAsociado}}</td>
+              <td>{{otrosDocumentos.descDocumento}}</td>
+              <td>{{otrosDocumentos.detalleDocumento}}</td>
+              <td>{{otrosDocumentos.medico.nombre}}</td>
+              <td>{{otrosDocumentos.medico.nit}}</td>
+              <td>{{otrosDocumentos.medico.docIdentificacion}}</td>
+              <td>{{otrosDocumentos.medico.tipoServicio}}</td>
+              <td id="col">
+                {% if not facturaElectronica.transmitido %}
+                  <a id="otrodocumentoupdate" href="{% url 'otroDocumentoAsociadoUpdate' object.id %}?next={{ request.path }}" 
+                      class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Otro Documento Asociado">
+                      <span class="material-symbols-outlined">
+                      edit 
+                      </span>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not otrosDocumentosAsociados %}
+        <p>No hay otros documentos asociados al comprobante de donacion</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Venta por Cuenta de Terceros</h2>
+      <table class="table table-bordered">
+        <tbody>
+          <tr> 
+            <td><strong>Nit</strong></td>
+            <td>{{ ventaTercero.nit }}</td>
+            <td><strong>Nombre, Denominacion o Razon Social</strong></td>
+            <td>{{ ventaTercero.nombre }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Cuerpo del  Documento</h2>
+      {% if not facturaElectronica.transmitido %}
+        <a id="cuerpodocumento" href="{% url 'cuerpoDocumentoCreate' object.id %}?next={{ request.path }}" 
+          class="btn btn-success  "  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Operaciones al Documento">
+            <span class="material-symbols-outlined">
+              list_alt_add
+            </span>
+        </a>
+      {% endif %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>N° Item</th>
+            <th>Tipo de Item</th>
+            <th>Numero de Documento Relacionado</th>
+            <th>Cantidad</th>
+            <th>Codigo</th>
+            <th>Tributo sujeto a IVA</th>
+            <th>Unidad de Medida</th>
+            <th>Precio Unitario</th>
+            <th>Descuento, Bonificacion o Rebajas</th>
+            <th>Ventas no Sujetas</th>
+            <th>Ventas Exentas</th>
+            <th>Ventas Gravadas</th>
+            <th>Tributo</th>
+            <th>Precio Sugerido de Venta</th>
+            <th>Cargos/Abonos</th>
+            <th>IVA por item</th>
+            <th>Descripccion</th>
+            <th>Editar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for documentos in cuerpoDocumento %}
+            <tr>
+              <td>{{documentos.numItem}}</td>
+              <td>{{documentos.tipoItem}}</td>
+              <td>{{documentos.numeroDocumento}}</td>
+              <td>{{documentos.cantidad}}</td>
+              <td>{{documentos.codigo}}</td>
+              <td>{{documentos.codTributo}}</td>
+              <td>{{documentos.precioUni}}</td>
+              <td>{{documentos.montoDescu}}</td>
+              <td>{{documentos.ventaNoSuj}}</td>
+              <td>{{documentos.ventaExenta}}</td>
+              <td>{{documentos.ventaGrabada}}</td>
+              <td>{{documentos.montoDescu}}</td>
+              <td>{{documentos.tributos}}</td>
+              <td>{{documentos.psv}}</td>
+              <td>{{documentos.noGravado}}</td>
+              <td>{{documentos.ivaItem}}</td>
+              <td>{{documentos.descripccion}}</td>
+              <td>
+                {% if not facturaElectronica.transmitido %}
+                  <a id="cuerpodocumentoupdate" href="{% url 'cuerpoDocumentoUpdate' object.id %}?next={{ request.path }}" 
+                      class="btn btn-success float-end"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Operacion del Documento">
+                      <span class="material-symbols-outlined">
+                      edit 
+                      </span>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not cuerpoDocumentos %}
+        <p>la factura no tiene operaciones asociadas</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Resumen</h2>
+      <table class="table table-bordered">
+        <tbody>
+          <tr>
+            <td><strong>Total de Operaciones no Sujetas</strong></td>
+            <td>{{ facturaElectronica.totalNoSuj }}</td>
+            <td><strong>Total de Operaciones Exentas</strong></td>
+            <td>{{ facturaElectronica.totalExenta }}</td>
+            <td><strong>Total de Operaciones Gravadas</strong></td>
+            <td>{{ facturaElectronica.totalGravada }}</td>
+            <td><strong>Suma de Operaciones sin Impuestos</strong></td>
+            <td>{{ facturaElectronica.subTotalVentas }}</td>
+          </tr>
+          <tr>
+            <td><strong>Monto Global de Descuento, Bonificacion o Rebajas Ventas no Sujetas</strong></td>
+            <td>{{ facturaElectronica.descuNoSuj }}</td>
+            <td><strong>Monto Global de Descuento, Bonificacion o Rebajas Ventas Exentas</strong></td>
+            <td>{{ facturaElectronica.descuExenta }}</td>
+            <td><strong>Monto Global de Descuento, Bonificacion o Rebajas Ventas Gravadas</strong></td>
+            <td>{{ facturaElectronica.descuGravada }}</td>
+          </tr>
+          <tr>
+            <div class="col-md-12">
+              <h2>Tributos</h2>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Codigo Tributario</th>
+                    <th>Nombre del Tributo</th>
+                    <th>Valor del Tributo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for tributos in facturaElectronica.tributo%}
+                    <tr>
+                      <td>{{tributos.codigo}}</td>
+                      <td>{{tributos.descripcion}}</td>
+                      <td>{{tributo.valor}}</td>
+                    </tr> 
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </tr>
+          <tr>
+            <td><strong>Sub-Total</strong></td>
+            <td>{{ facturaElectronica.subTotal }}</td>
+            <td><strong>IVA Retenido</strong></td>
+            <td>{{ facturaElectronica.ivaRete1 }}</td>
+            <td><strong>Retencion Renta</strong></td>
+            <td>{{ facturaElectronica.reteRenta }}</td>
+          </tr>
+          <tr>
+            <td><strong>Monto Total de la Operacion</strong></td>
+            <td>{{ facturaElectronica.montoTotalOperacion }}</td>
+            <td><strong>Total Cargos/Abonos</strong></td>
+            <td>{{ facturaElectronica.totalNoGravado }}</td>
+            <td><strong>Total a Pagar</strong></td>
+            <td>{{ facturaElectronica.totalPagar }}</td>
+            <td><strong>Valor en Letras</strong></td>
+            <td>{{ facturaElectronica.totalLetras }}</td>
+          </tr>
+          <tr>
+            <td><strong>IVA 13%</strong></td>
+            <td>{{ facturaElectronica.totalIva }}</td>
+            <td><strong>Saldo a Favor</strong></td>
+            <td>{{ facturaElectronica.saldoFavor }}</td>
+            <td><strong>Condicion de la Operacion</strong></td>
+            <td>{{ facturaElectronica.condicionOperacion }}</td>
+            <td><strong>Numero de Pago Electronico</strong></td>
+            <td>{{ facturaElectronica.numPagoElectronico }}</td>
+          </tr>
+          <tr>
+            <div class="col-md-12">
+              <h2>Pagos</h2>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Codigo de Forma de Pago</th>
+                    <th>Monto por Forma de Pago</th>
+                    <th>Referencia de Modalidad de Pago</th>
+                    <th>Plazo</th>
+                    <th>Periodo de Plazo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for pagos in facturaElectronica.pago%}
+                    <tr>
+                      <td>{{pagos.codigo}}</td>
+                      <td>{{pagos.montoPago}}</td>
+                      <td>{{pagos.referencia}}</td>
+                      <td>{{pagos.plazo}}</td>
+                      <td>{{pagos.periodo}}</td>
+                    </tr> 
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Extencion</h2>
+      <table class="table table-bordered">
+        <tbody>
+          <tr> 
+            <td><strong>Nombre del que Genera el DTE</strong></td>
+            <td>{{ extencion.nombEntrega }}</td>
+            <td><strong>Documento de Identificacion del que Genera el DTE</strong></td>
+            <td>{{ extencion.docuEntrega }}</td>
+          </tr>
+          <tr>
+            <td><strong>Nombre del Responsable de la Operacion</strong></td>
+            <td>{{ extencion.nombreRecibe }}</td>
+            <td><strong>Documento de Identificacion del Responsable de la Operacion</strong></td>
+            <td>{{ extencion.docuRecibe }}</td>
+          </tr>
+          <tr>
+            <td><strong>Placa de Vehiculo</strong></td>
+            <td>{{ extencion.placaVehiculo }}</td>
+            <td><strong>Observaciones</strong></td>
+            <td>{{ extencion.observaciones }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h2>Apendices</h2>
+      {% if not facturaEletronica.transmitido %}
+        <a id="apendice" href="{% url 'apendiceCreate' facturaElectronica.id %}?next={{ request.path }}&origin=facturaElectronica" 
+          class="btn btn-success mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Agregar Apendice a la Factura">
+            <span class="material-symbols-outlined">
+              list_alt_add
+            </span>
+        </a>
+      {% endif %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Nombre del Campo</th>
+            <th>Valor/Dato</th>
+            <th>Descripccion</th>
+            <th>Editar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apendice in apendices %}
+            <tr>
+              <td>{{ apendice.campo }}</td>
+              <td>{{ apendice.valor }}</td>
+              <td>{{ apendice.etiqueta }}</td>
+              <td>
+                {% if not comprobanteDonacion.transmitido %}
+                  <a href="{% url 'apendiceUpdate' apendice.id %}?next={{ request.path }}" class="btn btn-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Actualizar Apendice">
+                    <span class="material-symbols-outlined">edit</span>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not apendices %}
+        <p>No hay apendices sobre la factura</p>
+      {% endif %}
+    </div>
+  </div>
+      
+  <div class="row mt-4">
+    <div class="col-md-6 text-start">
+      <a href="{{ next }}" class="btn btn-primary d-inline-flex align-items-center">
+        <span class="material-symbols-outlined me-2">arrow_back</span>
+        <span>Regresar</span>
+      </a>
+    </div>
+    <div class="col-md-6 text-end">
+      <form action="{% url 'transmitirFacturaElectronica' facturaElectronica.id %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="origin" value="facturaElectronica">
+        <button type="submit" class="btn btn-success d-inline-flex align-items-center"><span class="material-symbols-outlined me-2">send</span>Transmitir</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

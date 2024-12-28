@@ -498,6 +498,7 @@ class CuerpoDocumento(models.Model):
 
 class Tributo(models.Model):
     codigo = models.CharField(verbose_name="Codigo", max_length=2)
+    descripcion = models.CharField(verbose_name="Descripcion", max_length=150, null=True, blank=True)
     valor = models.CharField(verbose_name="Valores", max_length=150)
     
     class Meta:
@@ -924,7 +925,7 @@ class Medico(models.Model):
 
 class OtroDocumento(models.Model):
     
-    codDocAsociado = models.IntegerField(verbose_name="Documento Asociado", max_length=4)
+    codDocAsociado = models.IntegerField(verbose_name="Documento Asociado")
     descDocumento = models.CharField(verbose_name="Identificacion del documento asociado", max_length=100, null=True, blank=True)
     detalleDocumento = models.CharField(verbose_name="Detalle de documento asociado", max_length=300, null=True, blank=True)
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE, null=True, blank=True)
@@ -1095,11 +1096,11 @@ class Identificador(models.Model):
     )
     #Identificacion
     version = models.CharField(verbose_name="Version", max_length=10)
-    ambiente = models.CharField(verbose_name="Ambiente de destino", max_length=20, choices=AMBIENTE_DESTINO)
+    ambiente = models.CharField(verbose_name="Ambiente de destino", max_length=20, choices=AMBIENTE_DESTINO, default="00")
     tipoDte = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
     numeroControl = models.CharField(verbose_name="Numero de control", editable=False , max_length=31, default=generateNumeroControl)
     codigoGeneracion = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    tipoModelo = models.CharField(verbose_name="Modelo de facturacion", choices=MODELO_FACTURACION, max_length=50)
+    tipoModelo = models.CharField(verbose_name="Modelo de facturacion", choices=MODELO_FACTURACION, max_length=50, default="1")
     tipoOperacion = models.CharField(verbose_name="Tipo de Transmicion", choices=TIPO_TRANSMICION, max_length=50, default="1")
     tipoContingencia = models.CharField(verbose_name="Tipo de Contingencia", choices=TIPO_CONTINGENCIA, max_length=50, blank=True, null=True,default="")
     motivoContin = models.CharField(verbose_name="Motivo de Contingencia", max_length=500, blank=True, null=True)

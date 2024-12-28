@@ -23,6 +23,9 @@ def is_system_superuser(user):
 def user_has_permission(user, permission):
     return user.is_system_superuser or user.is_entidad_superuser or user.has_permission(permission)
 
+class BienvenidaView(TemplateView):
+    template_name = 'bienvenida.html'
+
 class IndexView(LoginRequiredMixin,TemplateView):
     template_name = 'index.html'
 # Create your views here.

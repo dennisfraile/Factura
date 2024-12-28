@@ -19,6 +19,7 @@ from django.urls import path, include
 from usuarios.views import *
 
 urlpatterns = [
+    path('', BienvenidaView.as_view(), name='bienvenida'),
     path('admin/', admin.site.urls),
     path('facturas/', include('facturacion.urls')),
     path('usuarios/', include('usuarios.urls')),
