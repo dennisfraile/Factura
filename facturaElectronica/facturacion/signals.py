@@ -6,6 +6,11 @@ from django.apps import apps
 def load_catalogs(sender, **kwargs):
     Departamento = apps.get_model('your_app_name', 'Departamento')
     Municipio = apps.get_model('your_app_name', 'Municipio')
+    UnidadMedida = apps.get_model('', 'UnidadMedida')
+    FormaPago = apps.get_model('your_app_name', 'FormaPago')
+    TipoDocumento = apps.get_model('your_app_name', 'TipoDocumento')
+    Tributo = apps.get_model('your_app_name', 'Tributo')
+    TributoItem = apps.get_model('', 'TributoItem')
 
     # Datos de ejemplo para Departamentos
     departamentos_data = [
@@ -23,7 +28,6 @@ def load_catalogs(sender, **kwargs):
         {'codigo': '12', 'valor': 'San Miguel'},
         {'codigo': '13', 'valor': 'Morazan'},
         {'codigo': '14', 'valor': 'La Union'}
-        # Agrega más departamentos aquí
     ]
 
     # Crear departamentos
@@ -295,10 +299,178 @@ def load_catalogs(sender, **kwargs):
         {'codigo': '16', 'valor': 'SANTA ROSA DE LIMA', 'departamento_codigo': '14'},
         {'codigo': '17', 'valor': 'YAYANTIQUE', 'departamento_codigo': '14'},
         {'codigo': '18', 'valor': 'YUCUAIQUIN', 'departamento_codigo': '14'},
-        # Agrega más municipios aquí
     ]
 
     # Crear municipios
     for municipio_data in municipios_data:
         departamento = Departamento.objects.get(codigo=municipio_data['departamento_codigo'])
         Municipio.objects.get_or_create(codigo=municipio_data['codigo'], valor=municipio_data['valor'], departamento=departamento)
+    
+    unidadesMedida_data = [
+        { 'codigo': '01', 'valor': 'Metro'},
+        { 'codigo': '02', 'valor': 'Yarda'},
+        { 'codigo': '03', 'valor': 'Vara'},
+        { 'codigo': '04', 'valor': 'Pie'},
+        { 'codigo': '05', 'valor': 'Pulgada'},
+        { 'codigo': '06', 'valor': 'Milimetro'},
+        { 'codigo': '08', 'valor': 'Milla cuadrada'},
+        { 'codigo': '09', 'valor': 'Kilometro cuadrado'},
+        { 'codigo': '10', 'valor': 'Hectarea'},
+        { 'codigo': '11', 'valor': 'Manzana'},
+        { 'codigo': '12', 'valor': 'Acre'},
+        { 'codigo': '13', 'valor': 'Metro cuadrado'},
+        { 'codigo': '14', 'valor': 'Yarda cuadrada'},
+        { 'codigo': '15', 'valor': 'Vara cuadrada'},
+        { 'codigo': '16', 'valor': 'Pie cuadrado'},
+        { 'codigo': '17', 'valor': 'Pulgada cuadrada'},
+        { 'codigo': '18', 'valor': 'Metro cubico'},
+        { 'codigo': '19', 'valor': 'Yarda cubica'},
+        { 'codigo': '20', 'valor': 'Barril'},
+        { 'codigo': '21', 'valor': 'Pie cubico'},
+        { 'codigo': '22', 'valor': 'Galon'},
+        { 'codigo': '23', 'valor': 'Litro'},
+        { 'codigo': '24', 'valor': 'Botella'},
+        { 'codigo': '25', 'valor': 'Pulgada cubica'},
+        { 'codigo': '26', 'valor': 'Milimetro'},
+        { 'codigo': '27', 'valor': 'Onza fluida'},
+        { 'codigo': '29', 'valor': 'Tonelada metrica'},
+        { 'codigo': '30', 'valor': 'Tonelada'},
+        { 'codigo': '31', 'valor': 'Quintal metrico'},
+        { 'codigo': '32', 'valor': 'Quintal'},
+        { 'codigo': '33', 'valor': 'Arroba'},
+        { 'codigo': '34', 'valor': 'Kilogramo'},
+        { 'codigo': '35', 'valor': 'Libra troy'},
+        { 'codigo': '36', 'valor': 'Libra'},
+        { 'codigo': '37', 'valor': 'Onza troy'},
+        { 'codigo': '38', 'valor': 'Onza'},
+        { 'codigo': '39', 'valor': 'Gramo'},
+        { 'codigo': '40', 'valor': 'Miligramo'},
+        { 'codigo': '42', 'valor': 'Megawatt'},
+        { 'codigo': '43', 'valor': 'Kilowatt'},
+        { 'codigo': '44', 'valor': 'Watt'},
+        { 'codigo': '45', 'valor': 'Megavoltio-amperio'},
+        { 'codigo': '46', 'valor': 'Kilovoltio-amperio'},
+        { 'codigo': '47', 'valor': 'Voltio-amperio'},
+        { 'codigo': '49', 'valor': 'Gigawatt-hora'},
+        { 'codigo': '50', 'valor': 'Megawatt-hora'},
+        { 'codigo': '51', 'valor': 'Kilowatt-hora'},
+        { 'codigo': '52', 'valor': 'Watt-hora'},
+        { 'codigo': '53', 'valor': 'Kilovoltio'},
+        { 'codigo': '54', 'valor': 'Voltio'},
+        { 'codigo': '55', 'valor': 'Millar'},
+        { 'codigo': '56', 'valor': 'Medio millar'},
+        { 'codigo': '57', 'valor': 'Ciento'},
+        { 'codigo': '58', 'valor': 'Docena'},
+        { 'codigo': '59', 'valor': 'Unidad'},
+        { 'codigo': '99', 'valor': 'Otra'}, 
+    ]
+    
+    # Crear unidad de medida
+    for unidadMedida_data in unidadesMedida_data:
+        UnidadMedida.objects.get_or_create(codigo=unidadMedida_data['codigo'], valor=unidadMedida_data['valor'])
+        
+    formasPago_data = [
+        {'codigo': '01', 'valor': 'Billetes y monedas'},
+        {'codigo': '02', 'valor': 'Tajeta Debito'},
+        {'codigo': '03', 'valor': 'Tarjeta Credito'},
+        {'codigo': '04', 'valor': 'Cheque'},
+        {'codigo': '05', 'valor': 'Transferencia_ Deposito Bancario'},
+        {'codigo': '06', 'valor': 'Vales o Cupones'},
+        {'codigo': '08', 'valor': 'Dinero Electronico'},
+        {'codigo': '09', 'valor': 'Monedero Electronico'},
+        {'codigo': '10', 'valor': 'Certificado o tarjeta de regalo'},
+        {'codigo': '11', 'valor': 'Bitcoin'},
+        {'codigo': '12', 'valor': 'Otras Criptomonedas'},
+        {'codigo': '13', 'valor': 'Cuentas por pagar del receptor'},
+        {'codigo': '14', 'valor': 'Giro Bancario'},
+        {'codigo': '99', 'valor': 'Otros (se debe indicar el medio de pago)'},
+    ]
+    
+    # Crear forma de pago
+    for formaPago_data in formasPago_data:
+        FormaPago.objects.get_or_create(codigo=formaPago_data['codigo'], valor=formaPago_data['valor'])
+    
+    tiposDocumentos_data = [
+        {'codigo': '01', 'valor': 'Factura'},
+        {'codigo': '03', 'valor': 'Comprobante de credito fiscal'},
+        {'codigo': '04', 'valor': 'Nota de remision'},
+        {'codigo': '05', 'valor': 'Nota de credito'},
+        {'codigo': '06', 'valor': 'Nota de debito'},
+        {'codigo': '07', 'valor': 'Comprobante de retencion'},
+        {'codigo': '08', 'valor': 'Comprobante de liquidacion'},
+        {'codigo': '09', 'valor': 'Documento contable de liquidacion'},
+        {'codigo': '11', 'valor': 'Facturas de exportacion'},
+        {'codigo': '14', 'valor': 'Factura de sujeto excluido'},
+        {'codigo': '15', 'valor': 'Comprobante de donacion'}, 
+    ]
+    
+    # Crear tipos de documentos
+    for tipoDocumento_data in tiposDocumentos_data:
+        TipoDocumento.objects.get_or_create(codigo=tipoDocumento_data['codigo'], valor=tipoDocumento_data['valor'])
+
+    tributosItems_data = [
+        {'codigo': '1' , 'valor': 'TRIBUTOS APLICADOS POR ITEMS REFLEJADOS EN EL RESUMEN DEL DTE'},
+        {'codigo': '2' , 'valor': 'TRIBUTOS APLICADOS POR ITEMS REFLEJADOS EN EL CUERPO DEL DOCUMENTO'},
+        {'codigo': '3' , 'valor': 'IMPUESTOS AD-VALOREM APLICADOS POR ITEM DE USO INFORMATIVO REFLEJADOS EL RESUMEN DEL DOCUMENTO'},
+    ]
+    
+    #crear items del tributo
+    for tributoItem_data in tributosItems_data:
+        TributoItem.objects.get_or_create(codigo=tributoItem_data['codigo'], valor=tributoItem_data['valor'])
+    
+    tributos_data = [
+        {'codigo': '20', 'tributoItem_codigo': '1', 'valor': 'Impuesto al Valor Agragado 13%'},
+        {'codigo': 'C3', 'tributoItem_codigo': '1', 'valor': 'Impuesto al Valor Agregado (exportaciones) 0% '},
+        {'codigo': '59', 'tributoItem_codigo': '1', 'valor': 'Turismo: por alojamiento (5%) '},
+        {'codigo': '71', 'tributoItem_codigo': '1', 'valor': 'Turismo: salida del pais por via aerea $7.00'},
+        {'codigo': 'D1', 'tributoItem_codigo': '1', 'valor': 'FOVIAL ($0.20 Ctvs. por galon)'},
+        {'codigo': 'C8', 'tributoItem_codigo': '1', 'valor': 'COTRANS ($0.10 Ctvs. por galon)'},
+        {'codigo': 'D5', 'tributoItem_codigo': '1', 'valor': 'Otras tasas casos especiales'},
+        {'codigo': 'D4', 'tributoItem_codigo': '1', 'valor': 'Otros impuestos casos especiales'},
+        {'codigo': 'A8', 'tributoItem_codigo': '2', 'valor': 'Ipuesto Especial al Combustible (0%, 0.5%, 1%)'},
+        {'codigo': '57', 'tributoItem_codigo': '2', 'valor': 'Impuesto industria de Cemento'},
+        {'codigo': '90', 'tributoItem_codigo': '2', 'valor': 'Impuesto especial a la primera matricula'},
+        {'codigo': 'D4', 'tributoItem_codigo': '2', 'valor': 'Otros impuestos casos especiales'},
+        {'codigo': 'D5', 'tributoItem_codigo': '2', 'valor': 'Otras tasas casos especiales'},
+        {'codigo': 'A6', 'tributoItem_codigo': '2', 'valor': 'Impuesto ad-valorem, armas de fuego, municiones explosivas y articulos similares'},
+        {'codigo': 'C5', 'tributoItem_codigo': '3', 'valor': 'Impuesto ad-valorem por diferencial de precios de bebidas alcoholicas (8%)'},
+        {'codigo': 'C6', 'tributoItem_codigo': '3', 'valor': 'Impuesto ad-valorem por diferencial de precios al tabaco cigarrillos (39%)'},
+        {'codigo': 'C7', 'tributoItem_codigo': '3', 'valor': 'Impuesto ad-valorem por diferencial de precios al tabaco cigarrillos (100%)'},
+        {'codigo': '19', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Bebidas Gaseosas, Isotonicas, Deportivas, Fortificantes, Energizantes o Estimulante'},
+        {'codigo': '28', 'tributoItem_codigo': '3', 'valor': 'Importador de Bebidas Gaseosas, Isotonicas, Deportivas, Fortificantes, Energizantes o Estimulante'},
+        {'codigo': '31', 'tributoItem_codigo': '3', 'valor': 'Detallistas o Expendedores de Bebidas Alcoholicas'},
+        {'codigo': '32', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Cerveza'},
+        {'codigo': '33', 'tributoItem_codigo': '3', 'valor': 'Importador de Cerveza'},
+        {'codigo': '34', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Productos de Tabaco'},
+        {'codigo': '35', 'tributoItem_codigo': '3', 'valor': 'Importador de Productos de Tabaco'},
+        {'codigo': '36', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Armas de Fuego, Municiones y Articulos Similares'},
+        {'codigo': '37', 'tributoItem_codigo': '3', 'valor': 'Importador de Armas Fuego, Municiones y Articulos Similares'},
+        {'codigo': '38', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Explosivos'},
+        {'codigo': '39', 'tributoItem_codigo': '3', 'valor': 'Importador de Explosivos'},
+        {'codigo': '42', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Productos Pirotecnicos'},
+        {'codigo': '43', 'tributoItem_codigo': '3', 'valor': 'Importador de Productos Pirotecnicos'},
+        {'codigo': '44', 'tributoItem_codigo': '3', 'valor': 'Productor de Tabaco'},
+        {'codigo': '50', 'tributoItem_codigo': '3', 'valor': 'Distribuidor de Bebidas Gaseosas, Isotonicas, Deportivas, Fortificantes, Energizante o Estimulante'},
+        {'codigo': '51', 'tributoItem_codigo': '3', 'valor': 'Bebidas Alcoholicas'},
+        {'codigo': '52', 'tributoItem_codigo': '3', 'valor': 'Cerveza'},
+        {'codigo': '53', 'tributoItem_codigo': '3', 'valor': 'Productos del Tabaco'},
+        {'codigo': '54', 'tributoItem_codigo': '3', 'valor': 'Bebidas Carbonatadas o Gaseosas Simples o Endulzadas'},
+        {'codigo': '55', 'tributoItem_codigo': '3', 'valor': 'Otros Especificos'},
+        {'codigo': '58', 'tributoItem_codigo': '3', 'valor': 'Alcohol'},
+        {'codigo': '77', 'tributoItem_codigo': '3', 'valor': 'Importador de Jugos, Nectares, Bebidas con Jugo y Refrescos'},
+        {'codigo': '78', 'tributoItem_codigo': '3', 'valor': 'Distribuidor de Jugos, Nectares, Bebidas con Jugo y Refrescos'},
+        {'codigo': '79', 'tributoItem_codigo': '3', 'valor': 'Sobre Llamadas Telefonicas Provenientes del Ext'},
+        {'codigo': '85', 'tributoItem_codigo': '3', 'valor': 'Detallistas de Jugos, Nectares, Bebidas con Jugo y Refrescos'},
+        {'codigo': '86', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Preparaciones Concentradas o en Polvo para la Elaboracion de Bebidas'},
+        {'codigo': '91', 'tributoItem_codigo': '3', 'valor': 'Fabricante de Jugos, Nectares, Bebidas con Jugo y Refrescos'},
+        {'codigo': '92', 'tributoItem_codigo': '3', 'valor': 'Importador de Preparaciones Concentradas o en Polvo para la Elaboracion de Bebidas'},
+        {'codigo': 'A1', 'tributoItem_codigo': '3', 'valor': 'Especificos y Ad-Valorem'},
+        {'codigo': 'A5', 'tributoItem_codigo': '3', 'valor': 'Bebidas Gaseosas, Isotonicas, Deportaivas, Fortificantes, Energizantes o Estimulantes'},
+        {'codigo': 'A7', 'tributoItem_codigo': '3', 'valor': 'Alcohol Etilico'},
+        {'codigo': 'A9', 'tributoItem_codigo': '3', 'valor': 'Sacos Sinteticos'},    
+    ]
+    
+    # Crear Tributos
+    for tributo_data in tributos_data:
+        tributoItem = TributoItem.objects.get(codigo=tributo_data['tributoItem_codigo'])
+        Tributo.objects.get_or_create(codigo=tributo_data['codigo'], tributoItem=tributoItem , valor=tributo_data['valor'])

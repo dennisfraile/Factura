@@ -496,9 +496,18 @@ class CuerpoDocumento(models.Model):
     def __str__(self):
         return f'{self.numItem}'
 
+class TributoItem(models.Model):
+    codigo = models.CharField(verbose_name="codigo" ,max_length=2)
+    valor = models.CharField(verbose_name="Valores", max_length=150)
+    
+    class Meta:
+        verbose_name_plural ="Descripccion del tributo"
+        
+    def __str__(self):
+        return f'{self.valor}'
 class Tributo(models.Model):
     codigo = models.CharField(verbose_name="Codigo", max_length=2)
-    descripcion = models.CharField(verbose_name="Descripcion", max_length=150, null=True, blank=True)
+    tributoItem = models.ForeignKey(TributoItem, on_delete=models.CASCADE, related_name="tributos_items")
     valor = models.CharField(verbose_name="Valores", max_length=150)
     
     class Meta:
@@ -506,6 +515,8 @@ class Tributo(models.Model):
     
     def __str__(self):
         return f'{self.valor}'
+
+
 
 class TributoResumen(models.Model):
     tributo = models.ForeignKey(Tributo, on_delete=models.CASCADE ,related_name="tributos")
